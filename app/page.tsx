@@ -16,7 +16,7 @@ import { PWAInstallBanner } from "@/components/pwa-install-banner"
 import { DailyNotes } from "@/components/daily-notes"
 import { DragDropPlanner } from "@/components/drag-drop-planner"
 import { NotificationSettings } from "@/components/notification-settings"
-import { Home, CalendarIcon, Dumbbell, BarChart3, SettingsIcon } from "lucide-react"
+import { Home, CalendarIcon, Dumbbell, BarChart3,BookOpen, SettingsIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export type Exercise = {
@@ -499,6 +499,7 @@ export default function WorkoutPlannerApp() {
               { id: "dashboard", icon: Home },
               { id: "calendar", icon: CalendarIcon },
               { id: "templates", icon: Dumbbell },
+              { id: "library", icon: BookOpen },
               { id: "progress", icon: BarChart3 },
               { id: "settings", icon: SettingsIcon },
             ].map((item) => {
