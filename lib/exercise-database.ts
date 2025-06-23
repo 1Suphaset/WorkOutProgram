@@ -1,0 +1,1584 @@
+export interface CustomExercise extends ExerciseLibraryItem {
+  isCustom: true
+  createdAt: string
+  userId?: string
+}
+
+// Update the existing interface to include optional isCustom flag
+export interface ExerciseLibraryItem {
+  id: string
+  name: string
+  category: "Strength" | "Cardio" | "Flexibility" | "Sports"
+  muscleGroups: string[]
+  difficulty: "Beginner" | "Intermediate" | "Advanced"
+  equipment: string
+  description: string
+  instructions: string[]
+  imageUrl: string
+  estimatedDuration: number // in minutes
+  benefits?: string[]
+  tips?: string[]
+  variations?: {
+    name: string
+    description: string
+  }[]
+  recommendedSets?: {
+    sets: number
+    reps: string
+    rest?: number // in seconds
+  }
+  isCustom?: boolean
+  createdAt?: string
+  userId?: string
+}
+
+export const exerciseDatabase: ExerciseLibraryItem[] = [
+  // STRENGTH EXERCISES
+  {
+    id: "bench-press",
+    name: "Bench Press",
+    category: "Strength",
+    muscleGroups: ["Chest", "Shoulders", "Triceps"],
+    difficulty: "Intermediate",
+    equipment: "Barbell",
+    description: "A fundamental upper body exercise that targets the chest, shoulders, and triceps using a barbell.",
+    instructions: [
+      "Lie flat on the bench with your eyes under the barbell",
+      "Grip the bar with hands slightly wider than shoulder-width",
+      "Plant your feet firmly on the ground",
+      "Unrack the bar and position it over your chest",
+      "Lower the bar to your chest with control",
+      "Press the bar back up to the starting position",
+      "Keep your core tight throughout the movement",
+    ],
+    imageUrl: "/Images/240_F_388216207_WWVXeq5k4tnMYfCrVG5qf9IfBswmb7Rx.jpg?height=300&width=400&text=Bench+Press",
+    estimatedDuration: 3,
+    benefits: [
+      "Builds upper body strength",
+      "Improves pushing power",
+      "Develops chest muscle mass",
+      "Enhances shoulder stability",
+    ],
+    tips: [
+      "Keep your shoulder blades retracted",
+      "Don't bounce the bar off your chest",
+      "Use a spotter for heavy weights",
+      "Maintain a slight arch in your back",
+    ],
+    variations: [
+      {
+        name: "Incline Bench Press",
+        description: "Performed on an inclined bench to target upper chest",
+      },
+      {
+        name: "Dumbbell Bench Press",
+        description: "Using dumbbells for greater range of motion",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "8-12",
+      rest: 90,
+    },
+  },
+  {
+    id: "squats",
+    name: "Squats",
+    category: "Strength",
+    muscleGroups: ["Quadriceps", "Glutes", "Hamstrings", "Core"],
+    difficulty: "Beginner",
+    equipment: "Bodyweight",
+    description:
+      "A fundamental lower body exercise that works multiple muscle groups and improves functional movement.",
+    instructions: [
+      "Stand with feet shoulder-width apart",
+      "Keep your chest up and core engaged",
+      "Lower your body by bending at the hips and knees",
+      "Go down until your thighs are parallel to the floor",
+      "Push through your heels to return to starting position",
+      "Keep your knees in line with your toes",
+    ],
+    imageUrl: "/Images/image.png?height=300&width=400&text=Squats",
+    estimatedDuration: 2,
+    benefits: [
+      "Strengthens lower body muscles",
+      "Improves functional movement",
+      "Enhances core stability",
+      "Increases bone density",
+    ],
+    tips: [
+      "Don't let your knees cave inward",
+      "Keep your weight on your heels",
+      "Maintain a neutral spine",
+      "Start with bodyweight before adding load",
+    ],
+    variations: [
+      {
+        name: "Goblet Squats",
+        description: "Holding a dumbbell or kettlebell at chest level",
+      },
+      {
+        name: "Jump Squats",
+        description: "Adding an explosive jump at the top",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "12-15",
+      rest: 60,
+    },
+  },
+  {
+    id: "deadlift",
+    name: "Deadlift",
+    category: "Strength",
+    muscleGroups: ["Hamstrings", "Glutes", "Lower Back", "Traps"],
+    difficulty: "Advanced",
+    equipment: "Barbell",
+    description: "A compound exercise that works the entire posterior chain and builds total body strength.",
+    instructions: [
+      "Stand with feet hip-width apart, bar over mid-foot",
+      "Bend at hips and knees to grip the bar",
+      "Keep your chest up and shoulders back",
+      "Drive through your heels to lift the bar",
+      "Keep the bar close to your body",
+      "Stand tall at the top, then lower with control",
+      "Maintain a neutral spine throughout",
+    ],
+    imageUrl: "/Images/240_F_485034129_V9ZswuPuWQEOOEQ3T9SXa1StAxY2hLW0.jpg?height=300&width=400&text=Deadlift",
+    estimatedDuration: 4,
+    benefits: [
+      "Builds total body strength",
+      "Improves posture",
+      "Enhances grip strength",
+      "Develops functional movement patterns",
+    ],
+    tips: [
+      "Start with lighter weight to master form",
+      "Keep the bar close to your body",
+      "Don't round your back",
+      "Use mixed grip for heavier weights",
+    ],
+    variations: [
+      {
+        name: "Romanian Deadlift",
+        description: "Focuses more on hamstrings with less knee bend",
+      },
+      {
+        name: "Sumo Deadlift",
+        description: "Wider stance targeting different muscle emphasis",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "5-8",
+      rest: 120,
+    },
+  },
+  {
+    id: "push-ups",
+    name: "Push-ups",
+    category: "Strength",
+    muscleGroups: ["Chest", "Shoulders", "Triceps", "Core"],
+    difficulty: "Beginner",
+    equipment: "Bodyweight",
+    description: "A classic bodyweight exercise that builds upper body and core strength.",
+    instructions: [
+      "Start in a plank position with hands under shoulders",
+      "Keep your body in a straight line",
+      "Lower your chest toward the ground",
+      "Push back up to the starting position",
+      "Keep your core engaged throughout",
+      "Don't let your hips sag or pike up",
+    ],
+    imageUrl: "/Images/240_F_453573575_5tzstcLsgJqlXjbc7XIP7a3q0dZrXeyS.jpg?height=300&width=400&text=Push-ups",
+    estimatedDuration: 2,
+    benefits: [
+      "Builds upper body strength",
+      "Improves core stability",
+      "Requires no equipment",
+      "Can be done anywhere",
+    ],
+    tips: [
+      "Start on knees if full push-ups are too difficult",
+      "Focus on quality over quantity",
+      "Keep your head in neutral position",
+      "Breathe out as you push up",
+    ],
+    variations: [
+      {
+        name: "Incline Push-ups",
+        description: "Hands elevated on a bench or step",
+      },
+      {
+        name: "Diamond Push-ups",
+        description: "Hands in diamond shape for tricep focus",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "8-15",
+      rest: 45,
+    },
+  },
+  {
+    id: "pull-ups",
+    name: "Pull-ups",
+    category: "Strength",
+    muscleGroups: ["Lats", "Rhomboids", "Biceps", "Core"],
+    difficulty: "Advanced",
+    equipment: "Pull-up Bar",
+    description: "An upper body pulling exercise that builds back and arm strength.",
+    instructions: [
+      "Hang from a pull-up bar with palms facing away",
+      "Start with arms fully extended",
+      "Pull your body up until chin clears the bar",
+      "Lower yourself with control to full extension",
+      "Keep your core engaged",
+      "Avoid swinging or kipping",
+    ],
+    imageUrl: "/Images/240_F_453330269_zMWOFxli07vyqNK3jhaVSjrl9kjKiJML.jpg?height=300&width=400&text=Pull-ups",
+    estimatedDuration: 3,
+    benefits: [
+      "Builds upper body pulling strength",
+      "Improves grip strength",
+      "Develops V-shaped back",
+      "Enhances functional movement",
+    ],
+    tips: [
+      "Use assistance bands if needed",
+      "Focus on controlled movement",
+      "Engage your lats, not just arms",
+      "Start with negative reps if unable to do full pull-ups",
+    ],
+    variations: [
+      {
+        name: "Chin-ups",
+        description: "Palms facing toward you for more bicep involvement",
+      },
+      {
+        name: "Wide-grip Pull-ups",
+        description: "Wider grip to target lats more",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "5-10",
+      rest: 90,
+    },
+  },
+
+  // CARDIO EXERCISES
+  {
+    id: "jumping-jacks",
+    name: "Jumping Jacks",
+    category: "Cardio",
+    muscleGroups: ["Full Body", "Calves", "Shoulders"],
+    difficulty: "Beginner",
+    equipment: "Bodyweight",
+    description: "A full-body cardio exercise that increases heart rate and improves coordination.",
+    instructions: [
+      "Stand with feet together and arms at your sides",
+      "Jump while spreading your legs shoulder-width apart",
+      "Simultaneously raise your arms overhead",
+      "Jump back to the starting position",
+      "Maintain a steady rhythm",
+      "Land softly on the balls of your feet",
+    ],
+    imageUrl: "/Images/240_F_1005642520_GXnvMtbxZ3Mh9n0NfIvdOzuXw5trby8B.jpg?height=300&width=400&text=Jumping+Jacks",
+    estimatedDuration: 1,
+    benefits: [
+      "Improves cardiovascular health",
+      "Burns calories efficiently",
+      "Enhances coordination",
+      "Can be done anywhere",
+    ],
+    tips: [
+      "Start slowly and build up speed",
+      "Keep your core engaged",
+      "Land softly to protect joints",
+      "Modify by stepping side to side if needed",
+    ],
+    variations: [
+      {
+        name: "Half Jacks",
+        description: "Only move arms or legs, not both",
+      },
+      {
+        name: "Star Jumps",
+        description: "More explosive version with wider arm and leg spread",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "30-60 seconds",
+      rest: 30,
+    },
+  },
+  {
+    id: "burpees",
+    name: "Burpees",
+    category: "Cardio",
+    muscleGroups: ["Full Body", "Core", "Legs", "Arms"],
+    difficulty: "Intermediate",
+    equipment: "Bodyweight",
+    description: "A high-intensity full-body exercise that combines strength and cardio training.",
+    instructions: [
+      "Start standing with feet shoulder-width apart",
+      "Squat down and place hands on the floor",
+      "Jump feet back into a plank position",
+      "Perform a push-up (optional)",
+      "Jump feet back to squat position",
+      "Explode up with arms overhead",
+      "Land softly and repeat",
+    ],
+    imageUrl: "/Images/240_F_429025937_nNFfycLc9tY4SBYj5dyxhPVk7QxNwpra.jpg?height=300&width=400&text=Burpees",
+    estimatedDuration: 2,
+    benefits: [
+      "Burns maximum calories",
+      "Builds full-body strength",
+      "Improves cardiovascular fitness",
+      "Enhances explosive power",
+    ],
+    tips: [
+      "Focus on form over speed initially",
+      "Modify by stepping instead of jumping",
+      "Keep your core tight throughout",
+      "Breathe consistently",
+    ],
+    variations: [
+      {
+        name: "Half Burpees",
+        description: "Without the jump at the end",
+      },
+      {
+        name: "Burpee Box Jumps",
+        description: "Jump onto a box instead of straight up",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "8-15",
+      rest: 60,
+    },
+  },
+  {
+    id: "mountain-climbers",
+    name: "Mountain Climbers",
+    category: "Cardio",
+    muscleGroups: ["Core", "Shoulders", "Legs"],
+    difficulty: "Intermediate",
+    equipment: "Bodyweight",
+    description: "A dynamic cardio exercise that targets the core while elevating heart rate.",
+    instructions: [
+      "Start in a plank position with hands under shoulders",
+      "Keep your body in a straight line",
+      "Bring one knee toward your chest",
+      "Quickly switch legs, bringing the other knee forward",
+      "Continue alternating legs rapidly",
+      "Keep your hips level throughout",
+    ],
+    imageUrl: "/Images/240_F_456470806_B25MNgTdnDrx0t5HoGFV5l5U9Lejj7x2.jpg?height=300&width=400&text=Mountain+Climbers",
+    estimatedDuration: 1,
+    benefits: [
+      "Improves cardiovascular endurance",
+      "Strengthens core muscles",
+      "Enhances agility and coordination",
+      "Burns calories effectively",
+    ],
+    tips: [
+      "Keep your core tight to prevent sagging",
+      "Don't let your hips pike up",
+      "Start slowly and build up speed",
+      "Keep your hands firmly planted",
+    ],
+    variations: [
+      {
+        name: "Cross-body Mountain Climbers",
+        description: "Bring knee toward opposite elbow",
+      },
+      {
+        name: "Slow Mountain Climbers",
+        description: "Controlled movement focusing on form",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "30-45 seconds",
+      rest: 30,
+    },
+  },
+  {
+    id: "high-knees",
+    name: "High Knees",
+    category: "Cardio",
+    muscleGroups: ["Hip Flexors", "Quadriceps", "Calves"],
+    difficulty: "Beginner",
+    equipment: "Bodyweight",
+    description: "A running-in-place exercise that improves cardiovascular fitness and leg strength.",
+    instructions: [
+      "Stand with feet hip-width apart",
+      "Run in place, lifting knees as high as possible",
+      "Aim to bring knees to hip level or higher",
+      "Pump your arms naturally as you run",
+      "Land on the balls of your feet",
+      "Maintain an upright posture",
+    ],
+    imageUrl: "/Images/240_F_391546665_TaGOpkp2ZYe8tV71r7IAxcqtE3nmyG6H.jpg?height=300&width=400&text=High+Knees",
+    estimatedDuration: 1,
+    benefits: [
+      "Improves cardiovascular health",
+      "Strengthens hip flexors",
+      "Enhances running form",
+      "Increases leg turnover rate",
+    ],
+    tips: [
+      "Focus on lifting knees high rather than speed",
+      "Keep your core engaged",
+      "Land softly to reduce impact",
+      "Maintain good posture throughout",
+    ],
+    variations: [
+      {
+        name: "High Knees March",
+        description: "Slower, more controlled version",
+      },
+      {
+        name: "High Knees with Arm Circles",
+        description: "Add arm circles for upper body engagement",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "30-45 seconds",
+      rest: 30,
+    },
+  },
+
+  // FLEXIBILITY EXERCISES
+  {
+    id: "downward-dog",
+    name: "Downward Facing Dog",
+    category: "Flexibility",
+    muscleGroups: ["Hamstrings", "Calves", "Shoulders", "Back"],
+    difficulty: "Beginner",
+    equipment: "Yoga Mat",
+    description: "A foundational yoga pose that stretches the entire back body while building strength.",
+    instructions: [
+      "Start on hands and knees in tabletop position",
+      "Tuck your toes under and lift your hips up",
+      "Straighten your legs and create an inverted V-shape",
+      "Press your hands firmly into the ground",
+      "Lengthen your spine and reach your tailbone up",
+      "Hold the position while breathing deeply",
+    ],
+    imageUrl: "/Images/240_F_479122248_7IEzgA2ZOYu1xvuB43HPkFzuDlrgnCm9.jpg?height=300&width=400&text=Downward+Dog",
+    estimatedDuration: 2,
+    benefits: [
+      "Stretches hamstrings and calves",
+      "Strengthens arms and shoulders",
+      "Improves circulation",
+      "Relieves back tension",
+    ],
+    tips: [
+      "Bend your knees if hamstrings are tight",
+      "Focus on lengthening the spine",
+      "Don't worry about getting heels to the ground",
+      "Keep your head in neutral position",
+    ],
+    variations: [
+      {
+        name: "Three-Legged Dog",
+        description: "Lift one leg up for added challenge",
+      },
+      {
+        name: "Puppy Pose",
+        description: "Knees down version for beginners",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "30-60 seconds",
+      rest: 15,
+    },
+  },
+  {
+    id: "pigeon-pose",
+    name: "Pigeon Pose",
+    category: "Flexibility",
+    muscleGroups: ["Hip Flexors", "Glutes", "IT Band"],
+    difficulty: "Intermediate",
+    equipment: "Yoga Mat",
+    description: "A deep hip opener that stretches the hip flexors and glutes.",
+    instructions: [
+      "Start in downward facing dog",
+      "Bring your right knee forward behind your right wrist",
+      "Extend your left leg straight back",
+      "Lower your hips toward the ground",
+      "Keep your front shin parallel to the mat if possible",
+      "Hold and breathe, then switch sides",
+    ],
+    imageUrl: "/Images/240_F_453256510_K0gt4cqwDrdwE6tl5dP3RjBSMVknNBzo.jpg?height=300&width=400&text=Pigeon+Pose",
+    estimatedDuration: 3,
+    benefits: [
+      "Opens tight hip flexors",
+      "Stretches glutes and IT band",
+      "Improves hip mobility",
+      "Relieves lower back tension",
+    ],
+    tips: [
+      "Use props under your hip if needed",
+      "Don't force the stretch",
+      "Keep your front foot flexed",
+      "Breathe deeply throughout",
+    ],
+    variations: [
+      {
+        name: "Supported Pigeon",
+        description: "Use bolster or blocks for support",
+      },
+      {
+        name: "Figure-4 Stretch",
+        description: "Lying version that's more accessible",
+      },
+    ],
+    recommendedSets: {
+      sets: 2,
+      reps: "60-90 seconds each side",
+      rest: 30,
+    },
+  },
+  {
+    id: "child-pose",
+    name: "Child's Pose",
+    category: "Flexibility",
+    muscleGroups: ["Back", "Hips", "Shoulders"],
+    difficulty: "Beginner",
+    equipment: "Yoga Mat",
+    description: "A restorative yoga pose that gently stretches the back and hips while promoting relaxation.",
+    instructions: [
+      "Kneel on the floor with big toes touching",
+      "Sit back on your heels",
+      "Separate your knees about hip-width apart",
+      "Fold forward, extending your arms in front",
+      "Rest your forehead on the mat",
+      "Breathe deeply and relax",
+    ],
+    imageUrl: "/Images/240_F_483022792_5FjO2fPDSVVcy8ULfHWpcwWJJlgLYUKU.jpg?height=300&width=400&text=Child+Pose",
+    estimatedDuration: 2,
+    benefits: [
+      "Relieves stress and anxiety",
+      "Gently stretches the back",
+      "Calms the nervous system",
+      "Improves digestion",
+    ],
+    tips: [
+      "Use a pillow under your head if needed",
+      "Widen knees if you have tight hips",
+      "Focus on deep, slow breathing",
+      "Hold as long as feels comfortable",
+    ],
+    variations: [
+      {
+        name: "Wide-Knee Child's Pose",
+        description: "Knees wider apart for deeper hip stretch",
+      },
+      {
+        name: "Side Child's Pose",
+        description: "Walk hands to one side for lateral stretch",
+      },
+    ],
+    recommendedSets: {
+      sets: 1,
+      reps: "60-120 seconds",
+      rest: 0,
+    },
+  },
+  {
+    id: "cat-cow",
+    name: "Cat-Cow Stretch",
+    category: "Flexibility",
+    muscleGroups: ["Spine", "Core", "Neck"],
+    difficulty: "Beginner",
+    equipment: "Yoga Mat",
+    description: "A gentle spinal mobility exercise that improves flexibility and relieves back tension.",
+    instructions: [
+      "Start on hands and knees in tabletop position",
+      "For Cow: arch your back, lift chest and tailbone",
+      "Look up gently, creating a curve in your spine",
+      "For Cat: round your spine toward the ceiling",
+      "Tuck your chin to chest and tailbone under",
+      "Flow smoothly between the two positions",
+    ],
+    imageUrl: "/Images/240_F_620489424_wbZxzaZ5JByAvRFX6bGsPYPG5rJ7JrYz.jpg?height=300&width=400&text=Cat+Cow",
+    estimatedDuration: 2,
+    benefits: [
+      "Improves spinal mobility",
+      "Relieves back tension",
+      "Strengthens core muscles",
+      "Promotes better posture",
+    ],
+    tips: [
+      "Move slowly and with control",
+      "Coordinate movement with breathing",
+      "Don't force the range of motion",
+      "Keep your hands firmly planted",
+    ],
+    variations: [
+      {
+        name: "Seated Cat-Cow",
+        description: "Performed sitting in a chair",
+      },
+      {
+        name: "Standing Cat-Cow",
+        description: "Standing version with hands on knees",
+      },
+    ],
+    recommendedSets: {
+      sets: 2,
+      reps: "8-12 repetitions",
+      rest: 15,
+    },
+  },
+
+  // SPORTS/FUNCTIONAL EXERCISES
+  {
+    id: "box-jumps",
+    name: "Box Jumps",
+    category: "Sports",
+    muscleGroups: ["Quadriceps", "Glutes", "Calves", "Core"],
+    difficulty: "Intermediate",
+    equipment: "Plyometric Box",
+    description: "An explosive plyometric exercise that builds power and athletic performance.",
+    instructions: [
+      "Stand facing a sturdy box or platform",
+      "Start with feet shoulder-width apart",
+      "Bend your knees and swing your arms back",
+      "Explosively jump up onto the box",
+      "Land softly with both feet on the box",
+      "Step down carefully, don't jump down",
+    ],
+    imageUrl: "/Images/240_F_608356913_XdMuz8QpF9p0a7Og74SoEe8w5IY9md5X.jpg?height=300&width=400&text=Box+Jumps",
+    estimatedDuration: 3,
+    benefits: [
+      "Develops explosive power",
+      "Improves athletic performance",
+      "Builds lower body strength",
+      "Enhances coordination",
+    ],
+    tips: [
+      "Start with a lower box height",
+      "Focus on landing softly",
+      "Step down, don't jump down",
+      "Rest between reps to maintain quality",
+    ],
+    variations: [
+      {
+        name: "Step-ups",
+        description: "Stepping up one foot at a time",
+      },
+      {
+        name: "Lateral Box Jumps",
+        description: "Jumping sideways onto the box",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "5-8",
+      rest: 90,
+    },
+  },
+  {
+    id: "battle-ropes",
+    name: "Battle Ropes",
+    category: "Sports",
+    muscleGroups: ["Arms", "Shoulders", "Core", "Legs"],
+    difficulty: "Intermediate",
+    equipment: "Battle Ropes",
+    description: "A high-intensity full-body exercise using heavy ropes for cardio and strength training.",
+    instructions: [
+      "Stand with feet shoulder-width apart",
+      "Hold one end of the rope in each hand",
+      "Keep your core engaged and knees slightly bent",
+      "Alternate raising and lowering your arms",
+      "Create waves in the rope with powerful movements",
+      "Maintain steady rhythm and breathing",
+    ],
+    imageUrl: "/Images/240_F_290795523_5xUEXs0goynwLH6mPuZFSVv2NkWz8583.jpg?height=300&width=400&text=Battle+Ropes",
+    estimatedDuration: 2,
+    benefits: [
+      "Improves cardiovascular fitness",
+      "Builds functional strength",
+      "Enhances grip strength",
+      "Burns calories rapidly",
+    ],
+    tips: [
+      "Keep your core tight throughout",
+      "Don't let the ropes control you",
+      "Vary your movements for different challenges",
+      "Start with shorter intervals",
+    ],
+    variations: [
+      {
+        name: "Spiral Waves",
+        description: "Create circular motions with the ropes",
+      },
+      {
+        name: "Slams",
+        description: "Lift both ropes overhead and slam down",
+      },
+    ],
+    recommendedSets: {
+      sets: 4,
+      reps: "30-45 seconds",
+      rest: 45,
+    },
+  },
+  {
+    id: "kettlebell-swings",
+    name: "Kettlebell Swings",
+    category: "Sports",
+    muscleGroups: ["Glutes", "Hamstrings", "Core", "Shoulders"],
+    difficulty: "Intermediate",
+    equipment: "Kettlebell",
+    description: "A dynamic exercise that builds power, strength, and cardiovascular fitness.",
+    instructions: [
+      "Stand with feet wider than shoulder-width",
+      "Hold kettlebell with both hands between your legs",
+      "Hinge at hips, keeping back straight",
+      "Drive through your hips to swing kettlebell up",
+      "Let the kettlebell swing to chest height",
+      "Control the descent and repeat",
+    ],
+    imageUrl: "/Images/240_F_1151329808_zMiOulgVexnhQB8CcO9CQl8fntDaV6y7.jpg?height=300&width=400&text=Kettlebell+Swings",
+    estimatedDuration: 3,
+    benefits: [
+      "Builds posterior chain strength",
+      "Improves hip power and mobility",
+      "Enhances cardiovascular fitness",
+      "Develops functional movement patterns",
+    ],
+    tips: [
+      "Power comes from hips, not arms",
+      "Keep your back straight throughout",
+      "Don't squat, hinge at the hips",
+      "Start with lighter weight to master form",
+    ],
+    variations: [
+      {
+        name: "Single-Arm Swings",
+        description: "Alternating arms for unilateral training",
+      },
+      {
+        name: "American Swings",
+        description: "Swing overhead instead of chest height",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "15-20",
+      rest: 60,
+    },
+  },
+  {
+    id: "medicine-ball-slams",
+    name: "Medicine Ball Slams",
+    category: "Sports",
+    muscleGroups: ["Core", "Shoulders", "Back", "Legs"],
+    difficulty: "Intermediate",
+    equipment: "Medicine Ball",
+    description: "An explosive full-body exercise that builds power and provides excellent cardio training.",
+    instructions: [
+      "Stand with feet shoulder-width apart",
+      "Hold medicine ball with both hands",
+      "Lift the ball overhead with arms extended",
+      "Engage your core and slam the ball down",
+      "Use your whole body in the movement",
+      "Pick up the ball and repeat",
+    ],
+    imageUrl: "/Images/240_F_391546432_kYxkPg63utqZCRLxlZzjpuq8FF2VSiJ3.jpg?height=300&width=400&text=Medicine+Ball+Slams",
+    estimatedDuration: 2,
+    benefits: [
+      "Develops explosive power",
+      "Improves core strength",
+      "Provides stress relief",
+      "Burns calories effectively",
+    ],
+    tips: [
+      "Use your whole body, not just arms",
+      "Choose appropriate ball weight",
+      "Slam with control, not recklessness",
+      "Keep your back straight",
+    ],
+    variations: [
+      {
+        name: "Overhead Slams",
+        description: "Traditional overhead to ground slam",
+      },
+      {
+        name: "Side Slams",
+        description: "Slam to alternating sides",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "10-15",
+      rest: 60,
+    },
+  },
+  {
+    id: "plank",
+    name: "Plank",
+    category: "Strength",
+    muscleGroups: ["Core", "Shoulders", "Back"],
+    difficulty: "Beginner",
+    equipment: "Bodyweight",
+    description: "An isometric core exercise that builds stability and endurance throughout the entire core.",
+    instructions: [
+      "Start in a push-up position",
+      "Lower onto your forearms",
+      "Keep your body in a straight line",
+      "Engage your core muscles",
+      "Hold the position without sagging",
+      "Breathe normally throughout",
+    ],
+    imageUrl: "/Images/240_F_179093201_ohXYa4vPzfz9wVUZRihqrHm8kOYgV0t9.jpg?height=300&width=400&text=Plank",
+    estimatedDuration: 2,
+    benefits: ["Builds core strength and stability", "Improves posture", "Reduces back pain risk", "Enhances balance"],
+    tips: [
+      "Don't let your hips sag or pike up",
+      "Keep your head in neutral position",
+      "Start with shorter holds and build up",
+      "Focus on quality over duration",
+    ],
+    variations: [
+      {
+        name: "Side Plank",
+        description: "Lateral plank targeting obliques",
+      },
+      {
+        name: "Plank Up-Downs",
+        description: "Moving between forearm and high plank",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "30-60 seconds",
+      rest: 30,
+    },
+  },
+  // ADDITIONAL STRENGTH EXERCISES
+  {
+    id: "overhead-press",
+    name: "Overhead Press",
+    category: "Strength",
+    muscleGroups: ["Shoulders", "Triceps", "Core"],
+    difficulty: "Intermediate",
+    equipment: "Barbell",
+    description: "A vertical pressing movement that builds shoulder strength and stability.",
+    instructions: [
+      "Stand with feet shoulder-width apart",
+      "Hold barbell at shoulder level with overhand grip",
+      "Engage your core and maintain neutral spine",
+      "Press the bar straight up overhead",
+      "Lock out arms at the top",
+      "Lower with control back to shoulder level",
+    ],
+    imageUrl: "/Images/240_F_453573606_KeEAorn7Yzaq8Xuwl5YN901KwOUFnQLK.jpg?height=300&width=400&text=Overhead+Press",
+    estimatedDuration: 3,
+    benefits: [
+      "Builds shoulder strength",
+      "Improves core stability",
+      "Enhances functional pressing patterns",
+      "Develops upper body power",
+    ],
+    tips: [
+      "Keep your core tight throughout",
+      "Don't arch your back excessively",
+      "Press in a straight line",
+      "Start with lighter weight to master form",
+    ],
+    variations: [
+      {
+        name: "Dumbbell Press",
+        description: "Using dumbbells for unilateral training",
+      },
+      {
+        name: "Seated Press",
+        description: "Performed seated to reduce core demand",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "6-10",
+      rest: 90,
+    },
+  },
+  {
+    id: "barbell-rows",
+    name: "Barbell Rows",
+    category: "Strength",
+    muscleGroups: ["Lats", "Rhomboids", "Middle Traps", "Biceps"],
+    difficulty: "Intermediate",
+    equipment: "Barbell",
+    description: "A compound pulling exercise that targets the back muscles and improves posture.",
+    instructions: [
+      "Stand with feet hip-width apart",
+      "Hold barbell with overhand grip, hands wider than shoulders",
+      "Hinge at hips, keeping back straight",
+      "Pull bar to lower chest/upper abdomen",
+      "Squeeze shoulder blades together",
+      "Lower with control to starting position",
+    ],
+    imageUrl: "/Images/240_F_1300880154_wMhBQFNBKRGPix4Pz540WxxaKXWdNkGX.jpg?height=300&width=400&text=Barbell+Rows",
+    estimatedDuration: 3,
+    benefits: [
+      "Strengthens back muscles",
+      "Improves posture",
+      "Balances pressing movements",
+      "Builds pulling strength",
+    ],
+    tips: [
+      "Keep your back straight throughout",
+      "Pull with your back, not just arms",
+      "Don't use momentum",
+      "Focus on squeezing shoulder blades",
+    ],
+    variations: [
+      {
+        name: "Underhand Grip",
+        description: "Palms facing up for more bicep involvement",
+      },
+      {
+        name: "T-Bar Row",
+        description: "Using T-bar for different angle",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "8-12",
+      rest: 75,
+    },
+  },
+  {
+    id: "dips",
+    name: "Dips",
+    category: "Strength",
+    muscleGroups: ["Triceps", "Chest", "Shoulders"],
+    difficulty: "Intermediate",
+    equipment: "Parallel Bars",
+    description: "A bodyweight exercise that targets the triceps and lower chest.",
+    instructions: [
+      "Grip parallel bars and support your body weight",
+      "Start with arms straight and body upright",
+      "Lower your body by bending your elbows",
+      "Go down until shoulders are below elbows",
+      "Push back up to starting position",
+      "Keep your body upright throughout",
+    ],
+    imageUrl: "/Images/240_F_1226921718_Uhk9XGtIA9MPgKGnSzjffvYgL61QGkez.jpg?height=300&width=400&text=Dips",
+    estimatedDuration: 2,
+    benefits: ["Builds tricep strength", "Develops lower chest", "Improves pushing power", "Requires no weights"],
+    tips: [
+      "Don't go too deep if you feel shoulder pain",
+      "Keep your body upright",
+      "Control the descent",
+      "Use assistance if needed",
+    ],
+    variations: [
+      {
+        name: "Assisted Dips",
+        description: "Using assistance machine or bands",
+      },
+      {
+        name: "Weighted Dips",
+        description: "Adding weight for advanced practitioners",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "6-12",
+      rest: 90,
+    },
+  },
+  {
+    id: "lunges",
+    name: "Lunges",
+    category: "Strength",
+    muscleGroups: ["Quadriceps", "Glutes", "Hamstrings", "Calves"],
+    difficulty: "Beginner",
+    equipment: "Bodyweight",
+    description: "A unilateral lower body exercise that improves balance and leg strength.",
+    instructions: [
+      "Stand with feet hip-width apart",
+      "Step forward with one leg",
+      "Lower your body until both knees are at 90 degrees",
+      "Keep your torso upright",
+      "Push through front heel to return to start",
+      "Alternate legs or complete all reps on one side",
+    ],
+    imageUrl: "/Images/240_F_428728072_6hS8rUxmmFWFsu7Ymr0wxldRMHqPKC9G.jpg?height=300&width=400&text=Lunges",
+    estimatedDuration: 3,
+    benefits: [
+      "Builds unilateral leg strength",
+      "Improves balance and coordination",
+      "Enhances functional movement",
+      "Addresses muscle imbalances",
+    ],
+    tips: [
+      "Don't let front knee go past toes",
+      "Keep most weight on front leg",
+      "Maintain upright posture",
+      "Control the movement",
+    ],
+    variations: [
+      {
+        name: "Reverse Lunges",
+        description: "Step backward instead of forward",
+      },
+      {
+        name: "Walking Lunges",
+        description: "Alternate legs while moving forward",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "10-12 each leg",
+      rest: 60,
+    },
+  },
+  {
+    id: "hip-thrusts",
+    name: "Hip Thrusts",
+    category: "Strength",
+    muscleGroups: ["Glutes", "Hamstrings", "Core"],
+    difficulty: "Intermediate",
+    equipment: "Bench",
+    description: "A glute-focused exercise that builds hip extension strength and power.",
+    instructions: [
+      "Sit with your back against a bench",
+      "Place feet flat on floor, knees bent",
+      "Drive through heels to lift hips up",
+      "Squeeze glutes at the top",
+      "Form a straight line from knees to shoulders",
+      "Lower with control and repeat",
+    ],
+    imageUrl: "/Images/240_F_440791804_9Kr5bo1tO9IV1OJlMKAFc6Okt70WRI1M.jpg?height=300&width=400&text=Hip+Thrusts",
+    estimatedDuration: 3,
+    benefits: [
+      "Builds glute strength and size",
+      "Improves hip extension power",
+      "Enhances athletic performance",
+      "Reduces lower back stress",
+    ],
+    tips: [
+      "Focus on squeezing glutes at top",
+      "Don't overextend your back",
+      "Keep knees in line with toes",
+      "Use full range of motion",
+    ],
+    variations: [
+      {
+        name: "Single-Leg Hip Thrust",
+        description: "Perform one leg at a time",
+      },
+      {
+        name: "Weighted Hip Thrust",
+        description: "Add barbell or dumbbell for resistance",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "12-15",
+      rest: 75,
+    },
+  },
+
+  // ADDITIONAL CARDIO EXERCISES
+  {
+    id: "jump-rope",
+    name: "Jump Rope",
+    category: "Cardio",
+    muscleGroups: ["Calves", "Shoulders", "Core"],
+    difficulty: "Beginner",
+    equipment: "Jump Rope",
+    description: "A classic cardio exercise that improves coordination and cardiovascular fitness.",
+    instructions: [
+      "Hold rope handles at hip level",
+      "Keep elbows close to your sides",
+      "Rotate the rope with your wrists",
+      "Jump with both feet together",
+      "Land softly on balls of feet",
+      "Maintain steady rhythm",
+    ],
+    imageUrl: "/Images/240_F_468776747_bWTkMasF1TpLzfEYEQdfEbM07C4agaVn.jpg?height=300&width=400&text=Jump+Rope",
+    estimatedDuration: 2,
+    benefits: [
+      "Improves cardiovascular health",
+      "Enhances coordination",
+      "Burns calories efficiently",
+      "Portable and convenient",
+    ],
+    tips: [
+      "Start with short intervals",
+      "Keep jumps low to the ground",
+      "Relax your shoulders",
+      "Practice rhythm before speed",
+    ],
+    variations: [
+      {
+        name: "Single-Leg Jumps",
+        description: "Alternate jumping on one foot",
+      },
+      {
+        name: "Double Unders",
+        description: "Rope passes under feet twice per jump",
+      },
+    ],
+    recommendedSets: {
+      sets: 4,
+      reps: "30-60 seconds",
+      rest: 30,
+    },
+  },
+  {
+    id: "rowing-machine",
+    name: "Rowing Machine",
+    category: "Cardio",
+    muscleGroups: ["Back", "Legs", "Arms", "Core"],
+    difficulty: "Intermediate",
+    equipment: "Rowing Machine",
+    description: "A full-body cardio exercise that builds endurance and strength simultaneously.",
+    instructions: [
+      "Sit on the rowing machine with feet secured",
+      "Grab the handle with both hands",
+      "Start with arms extended, knees bent",
+      "Drive through legs first, then lean back",
+      "Pull handle to lower chest",
+      "Reverse the movement to return to start",
+    ],
+    imageUrl: "/Images/240_F_62861862_CDYtqXkZLkx50HoL0bG5gh1MNOwV9wTB.jpg?height=300&width=400&text=Rowing+Machine",
+    estimatedDuration: 5,
+    benefits: [
+      "Full-body cardiovascular workout",
+      "Low impact on joints",
+      "Builds back and leg strength",
+      "Improves posture",
+    ],
+    tips: [
+      "Drive with legs first, not arms",
+      "Keep your back straight",
+      "Don't rush the recovery",
+      "Focus on smooth, controlled movements",
+    ],
+    variations: [
+      {
+        name: "Interval Rowing",
+        description: "Alternate between high and low intensity",
+      },
+      {
+        name: "Steady State",
+        description: "Maintain consistent pace for longer duration",
+      },
+    ],
+    recommendedSets: {
+      sets: 1,
+      reps: "10-20 minutes",
+      rest: 0,
+    },
+  },
+  {
+    id: "stair-climbing",
+    name: "Stair Climbing",
+    category: "Cardio",
+    muscleGroups: ["Quadriceps", "Glutes", "Calves", "Core"],
+    difficulty: "Beginner",
+    equipment: "Stairs",
+    description: "A functional cardio exercise that builds lower body strength and endurance.",
+    instructions: [
+      "Find a set of stairs or step platform",
+      "Step up with one foot, then the other",
+      "Step down with control",
+      "Maintain upright posture",
+      "Use handrail for balance if needed",
+      "Keep steady pace throughout",
+    ],
+    imageUrl: "/Images/images.jpg?height=300&width=400&text=Stair+Climbing",
+    estimatedDuration: 3,
+    benefits: [
+      "Builds lower body strength",
+      "Improves cardiovascular fitness",
+      "Functional movement pattern",
+      "Can be done almost anywhere",
+    ],
+    tips: ["Land softly on each step", "Keep your core engaged", "Don't lean too far forward", "Take breaks as needed"],
+    variations: [
+      {
+        name: "Two Steps at a Time",
+        description: "Skip every other step for intensity",
+      },
+      {
+        name: "Lateral Steps",
+        description: "Step sideways up the stairs",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "2-5 minutes",
+      rest: 60,
+    },
+  },
+
+  // ADDITIONAL FLEXIBILITY EXERCISES
+  {
+    id: "forward-fold",
+    name: "Forward Fold",
+    category: "Flexibility",
+    muscleGroups: ["Hamstrings", "Calves", "Lower Back"],
+    difficulty: "Beginner",
+    equipment: "Yoga Mat",
+    description: "A standing forward bend that stretches the entire back body.",
+    instructions: [
+      "Stand with feet hip-width apart",
+      "Hinge at hips and fold forward",
+      "Let your arms hang toward the floor",
+      "Keep a slight bend in your knees",
+      "Relax your neck and head",
+      "Hold and breathe deeply",
+    ],
+    imageUrl: "/Images/240_F_483022792_5FjO2fPDSVVcy8ULfHWpcwWJJlgLYUKU.jpg?height=300&width=400&text=Forward+Fold",
+    estimatedDuration: 2,
+    benefits: [
+      "Stretches hamstrings and calves",
+      "Relieves lower back tension",
+      "Calms the nervous system",
+      "Improves circulation",
+    ],
+    tips: [
+      "Don't force the stretch",
+      "Bend knees if hamstrings are tight",
+      "Focus on hinging at hips",
+      "Breathe deeply throughout",
+    ],
+    variations: [
+      {
+        name: "Wide-Legged Forward Fold",
+        description: "Feet wider apart for different stretch",
+      },
+      {
+        name: "Seated Forward Fold",
+        description: "Performed sitting for easier access",
+      },
+    ],
+    recommendedSets: {
+      sets: 2,
+      reps: "30-60 seconds",
+      rest: 15,
+    },
+  },
+  {
+    id: "spinal-twist",
+    name: "Spinal Twist",
+    category: "Flexibility",
+    muscleGroups: ["Spine", "Obliques", "Hips"],
+    difficulty: "Beginner",
+    equipment: "Yoga Mat",
+    description: "A seated twist that improves spinal mobility and releases tension.",
+    instructions: [
+      "Sit with legs extended in front",
+      "Bend right knee and place foot outside left thigh",
+      "Place right hand behind you for support",
+      "Twist your torso to the right",
+      "Use left elbow against right knee for leverage",
+      "Hold and breathe, then switch sides",
+    ],
+    imageUrl: "/Images/240_F_566293539_XkuRElivH1sCiBdA5dJTLd145uo2uvrD.jpg?height=300&width=400&text=Spinal+Twist",
+    estimatedDuration: 3,
+    benefits: ["Improves spinal mobility", "Aids digestion", "Releases hip tension", "Reduces back stiffness"],
+    tips: [
+      "Sit up tall before twisting",
+      "Don't force the rotation",
+      "Keep both sit bones grounded",
+      "Breathe into the twist",
+    ],
+    variations: [
+      {
+        name: "Supine Twist",
+        description: "Performed lying on your back",
+      },
+      {
+        name: "Standing Twist",
+        description: "Performed standing with arms crossed",
+      },
+    ],
+    recommendedSets: {
+      sets: 2,
+      reps: "30-45 seconds each side",
+      rest: 15,
+    },
+  },
+  {
+    id: "hip-flexor-stretch",
+    name: "Hip Flexor Stretch",
+    category: "Flexibility",
+    muscleGroups: ["Hip Flexors", "Quadriceps"],
+    difficulty: "Beginner",
+    equipment: "Yoga Mat",
+    description: "A kneeling stretch that targets tight hip flexors from prolonged sitting.",
+    instructions: [
+      "Start in a kneeling lunge position",
+      "Place right foot forward, left knee on ground",
+      "Keep your torso upright",
+      "Push your hips forward gently",
+      "Feel stretch in front of left hip",
+      "Hold and switch sides",
+    ],
+    imageUrl: "/Images/240_F_438047591_Mli59CeWOTL9oiRRbai3IJQtEweM9igM.jpg?height=300&width=400&text=Hip+Flexor+Stretch",
+    estimatedDuration: 2,
+    benefits: [
+      "Releases tight hip flexors",
+      "Improves hip mobility",
+      "Reduces lower back tension",
+      "Counteracts effects of sitting",
+    ],
+    tips: [
+      "Keep your torso upright",
+      "Don't push too aggressively",
+      "Use a pillow under knee if needed",
+      "Focus on gentle, sustained stretch",
+    ],
+    variations: [
+      {
+        name: "Couch Stretch",
+        description: "Back foot elevated on couch or bench",
+      },
+      {
+        name: "Standing Hip Flexor",
+        description: "Performed standing with rear foot elevated",
+      },
+    ],
+    recommendedSets: {
+      sets: 2,
+      reps: "45-60 seconds each side",
+      rest: 15,
+    },
+  },
+
+  // ADDITIONAL SPORTS/FUNCTIONAL EXERCISES
+  {
+    id: "turkish-get-up",
+    name: "Turkish Get-Up",
+    category: "Sports",
+    muscleGroups: ["Full Body", "Core", "Shoulders"],
+    difficulty: "Advanced",
+    equipment: "Kettlebell",
+    description: "A complex full-body movement that builds strength, stability, and coordination.",
+    instructions: [
+      "Lie on your back holding kettlebell in right hand",
+      "Bend right knee, keep left leg straight",
+      "Roll to left elbow, then to left hand",
+      "Bridge up and sweep left leg under",
+      "Come to kneeling position",
+      "Stand up while keeping weight overhead",
+      "Reverse the movement to return to start",
+    ],
+    imageUrl: "/Images/getupo.jpg?height=300&width=400&text=Turkish+Get-Up",
+    estimatedDuration: 4,
+    benefits: [
+      "Builds full-body strength",
+      "Improves shoulder stability",
+      "Enhances coordination",
+      "Develops functional movement",
+    ],
+    tips: [
+      "Start with bodyweight only",
+      "Move slowly and with control",
+      "Keep eyes on the weight",
+      "Practice each phase separately",
+    ],
+    variations: [
+      {
+        name: "Half Get-Up",
+        description: "Stop at sitting position",
+      },
+      {
+        name: "Bodyweight Get-Up",
+        description: "Perform without weight to learn pattern",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "3-5 each side",
+      rest: 120,
+    },
+  },
+  {
+    id: "farmers-walk",
+    name: "Farmer's Walk",
+    category: "Sports",
+    muscleGroups: ["Traps", "Forearms", "Core", "Legs"],
+    difficulty: "Intermediate",
+    equipment: "Dumbbells",
+    description: "A loaded carry exercise that builds grip strength and full-body stability.",
+    instructions: [
+      "Hold heavy dumbbells or kettlebells at your sides",
+      "Stand tall with shoulders back",
+      "Walk forward with controlled steps",
+      "Keep your core engaged",
+      "Maintain upright posture",
+      "Don't let weights pull you forward",
+    ],
+    imageUrl: "/Images/walk.jpg?height=300&width=400&text=Farmers+Walk",
+    estimatedDuration: 2,
+    benefits: ["Builds grip strength", "Improves posture", "Develops core stability", "Functional strength training"],
+    tips: ["Start with lighter weights", "Keep shoulders level", "Take controlled steps", "Don't hold your breath"],
+    variations: [
+      {
+        name: "Suitcase Carry",
+        description: "Carry weight on one side only",
+      },
+      {
+        name: "Overhead Carry",
+        description: "Carry weight overhead",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "20-40 steps",
+      rest: 90,
+    },
+  },
+  {
+    id: "bear-crawl",
+    name: "Bear Crawl",
+    category: "Sports",
+    muscleGroups: ["Core", "Shoulders", "Legs"],
+    difficulty: "Intermediate",
+    equipment: "Bodyweight",
+    description: "A primal movement pattern that builds strength and coordination.",
+    instructions: [
+      "Start on hands and knees",
+      "Lift knees slightly off the ground",
+      "Move forward by stepping opposite hand and foot",
+      "Keep your back flat and core tight",
+      "Take small, controlled steps",
+      "Maintain steady breathing",
+    ],
+    imageUrl: "/Images/download.jpg?height=300&width=400&text=Bear+Crawl",
+    estimatedDuration: 2,
+    benefits: [
+      "Builds core strength",
+      "Improves coordination",
+      "Develops shoulder stability",
+      "Enhances body awareness",
+    ],
+    tips: [
+      "Keep movements small and controlled",
+      "Don't let hips sway side to side",
+      "Keep knees close to ground",
+      "Focus on opposite hand-foot pattern",
+    ],
+    variations: [
+      {
+        name: "Lateral Bear Crawl",
+        description: "Move sideways instead of forward",
+      },
+      {
+        name: "Reverse Bear Crawl",
+        description: "Move backward",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "10-20 steps",
+      rest: 60,
+    },
+  },
+  {
+    id: "wall-sit",
+    name: "Wall Sit",
+    category: "Strength",
+    muscleGroups: ["Quadriceps", "Glutes", "Core"],
+    difficulty: "Beginner",
+    equipment: "Wall",
+    description: "An isometric exercise that builds lower body endurance and mental toughness.",
+    instructions: [
+      "Stand with your back against a wall",
+      "Slide down until thighs are parallel to floor",
+      "Keep your knees at 90 degrees",
+      "Press your back firmly against wall",
+      "Keep your core engaged",
+      "Hold the position while breathing normally",
+    ],
+    imageUrl: "/Images/240_F_562941025_5x8AZt75RU7kwt8WPhJVMNv3nOL9Z8g2.jpg?height=300&width=400&text=Wall+Sit",
+    estimatedDuration: 2,
+    benefits: ["Builds leg endurance", "Strengthens quadriceps", "Improves mental toughness", "Requires no equipment"],
+    tips: [
+      "Keep your back flat against wall",
+      "Don't let knees cave inward",
+      "Breathe normally throughout",
+      "Start with shorter holds",
+    ],
+    variations: [
+      {
+        name: "Single-Leg Wall Sit",
+        description: "Lift one leg for added challenge",
+      },
+      {
+        name: "Wall Sit with Calf Raises",
+        description: "Add calf raises while holding position",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "30-60 seconds",
+      rest: 60,
+    },
+  },
+  {
+    id: "russian-twists",
+    name: "Russian Twists",
+    category: "Strength",
+    muscleGroups: ["Obliques", "Core", "Hip Flexors"],
+    difficulty: "Intermediate",
+    equipment: "Medicine Ball",
+    description: "A rotational core exercise that targets the obliques and improves rotational strength.",
+    instructions: [
+      "Sit with knees bent and feet off the ground",
+      "Lean back slightly to engage core",
+      "Hold medicine ball or weight with both hands",
+      "Rotate your torso to the right",
+      "Touch the weight to the ground beside you",
+      "Rotate to the left and repeat",
+    ],
+    imageUrl: "/Images/240_F_468489762_FWHzQ9kHDpDqw6JHIXThJDwqEA0Ri1vx.jpg?height=300&width=400&text=Russian+Twists",
+    estimatedDuration: 2,
+    benefits: [
+      "Strengthens obliques",
+      "Improves rotational power",
+      "Enhances core stability",
+      "Builds functional strength",
+    ],
+    tips: [
+      "Keep your chest up",
+      "Don't rush the movement",
+      "Focus on rotating from your core",
+      "Keep feet off ground for added challenge",
+    ],
+    variations: [
+      {
+        name: "Bodyweight Russian Twists",
+        description: "Perform without weight",
+      },
+      {
+        name: "Feet-Down Russian Twists",
+        description: "Keep feet on ground for easier version",
+      },
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "20-30 total",
+      rest: 45,
+    },
+  },
+]
