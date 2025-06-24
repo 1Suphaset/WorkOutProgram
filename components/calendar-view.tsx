@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+import { WeekCalendar as WeekCalendar } from "@/components/ui/WeekCalendar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -92,28 +93,47 @@ export function Calendar({
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-4 md:gap-6">
         {/* Calendar */}
-        <Card >
-          <CardHeader>
-            <CardTitle>Calendar</CardTitle>
-            <CardDescription>Select a date to view or plan workouts</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <CalendarComponent
-              mode="single"
-              selected={selectedDate}
-              onSelect={(date) => date && setSelectedDate(date)}
-              className="rounded-md border"
-              modifiers={{
-                hasWorkout: (date) => getWorkoutsForDate(date).length > 0,
-                completed: (date) => getWorkoutsForDate(date).some((w) => w.completed),
-              }}
-              modifiersStyles={{
-                hasWorkout: { backgroundColor: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" },
-                completed: { backgroundColor: "hsl(var(--success))", color: "white" },
-              }}
-            />
-          </CardContent>
-        </Card>
+        {calendarView === "month" ? (
+  <Card>
+    <CardHeader>
+      <CardTitle>Month View</CardTitle>
+      <CardDescription>Select a date to view or plan workouts</CardDescription>
+    </CardHeader>
+    <CardContent>
+      <CalendarComponent
+        mode="single"
+        selected={selectedDate}
+        onSelect={(date) => date && setSelectedDate(date)}
+        className="rounded-md border"
+        modifiers={{
+          hasWorkout: (date) => getWorkoutsForDate(date).length > 0,
+          completed: (date) => getWorkoutsForDate(date).some((w) => w.completed),
+        }}
+        modifiersStyles={{
+          hasWorkout: {
+            backgroundColor: "hsl(var(--primary))",
+            color: "hsl(var(--primary-foreground))",
+          },
+          completed: { backgroundColor: "hsl(var(--success))", color: "white" },
+        }}
+      />
+    </CardContent>
+  </Card>
+) : (
+  <Card>
+    <CardHeader>
+      <CardTitle>Week View</CardTitle>
+      <CardDescription>View your workouts for the week</CardDescription>
+    </CardHeader>
+    <CardContent>
+     <WeekCalendar
+  selected={selectedDate}
+  onSelect={(date) => setSelectedDate(date)}
+/>
+    </CardContent>
+  </Card>
+)}
+
 
         {/* Selected Date Workouts */}
         <Card >

@@ -317,6 +317,79 @@ export default function WorkoutPlannerApp() {
             { id: "ex-72", name: "Upward Facing Dog", time: 15, sets: 2, notes: "Advanced backbend" },
           ],
         },
+        // NEW UPPER BODY & ABS TEMPLATES
+        {
+          id: "template-19",
+          name: "Upper Body Blast",
+          category: "Strength",
+          createdAt: new Date().toISOString(),
+          exercises: [
+            { id: "ex-73", name: "Push-ups", sets: 3, reps: 12, notes: "Standard form, chest to ground" },
+            { id: "ex-74", name: "Tricep Dips", sets: 3, reps: 10, notes: "Use chair or bench" },
+            { id: "ex-75", name: "Shoulder Taps", sets: 3, reps: 20, notes: "10 each shoulder, plank position" },
+            { id: "ex-76", name: "Pike Push-ups", sets: 2, reps: 8, notes: "Downward dog position" },
+          ],
+        },
+        {
+          id: "template-20",
+          name: "Core Crusher",
+          category: "Core",
+          createdAt: new Date().toISOString(),
+          exercises: [
+            { id: "ex-77", name: "Sit-ups", sets: 3, reps: 15, notes: "Full range of motion" },
+            { id: "ex-78", name: "Plank", time: 45, sets: 3, notes: "Hold steady position" },
+            { id: "ex-79", name: "Bicycle Crunches", sets: 3, reps: 20, notes: "10 each side" },
+            { id: "ex-80", name: "Dead Bug", sets: 2, reps: 12, notes: "6 each side, slow and controlled" },
+          ],
+        },
+        {
+          id: "template-21",
+          name: "Quick Abs Burn",
+          category: "Core",
+          createdAt: new Date().toISOString(),
+          exercises: [
+            { id: "ex-81", name: "Crunches", sets: 4, reps: 20, notes: "Focus on upper abs" },
+            { id: "ex-82", name: "Leg Raises", sets: 3, reps: 12, notes: "Straight legs, control the movement" },
+            { id: "ex-83", name: "Russian Twists", sets: 3, reps: 24, notes: "12 each side" },
+            { id: "ex-84", name: "Plank Hold", time: 30, sets: 3, notes: "Maximum effort hold" },
+          ],
+        },
+        {
+          id: "template-22",
+          name: "Bodyweight Strength",
+          category: "Strength",
+          createdAt: new Date().toISOString(),
+          exercises: [
+            { id: "ex-85", name: "Pull-ups", sets: 3, reps: 6, notes: "Use assistance if needed" },
+            { id: "ex-86", name: "Pike Push-ups", sets: 3, reps: 10, notes: "Targets shoulders" },
+            { id: "ex-87", name: "Plank Hold", time: 60, sets: 3, notes: "Core stability" },
+            { id: "ex-88", name: "Bodyweight Rows", sets: 3, reps: 12, notes: "Use table or bar" },
+          ],
+        },
+        {
+          id: "template-23",
+          name: "Upper Pump Express",
+          category: "Strength",
+          createdAt: new Date().toISOString(),
+          exercises: [
+            { id: "ex-89", name: "Dumbbell Press", sets: 4, reps: 10, weight: 25, notes: "Chest press movement" },
+            { id: "ex-90", name: "Bicep Curls", sets: 3, reps: 12, weight: 15, notes: "Control the weight" },
+            { id: "ex-91", name: "Overhead Press", sets: 3, reps: 8, weight: 20, notes: "Shoulder press" },
+            { id: "ex-92", name: "Tricep Extensions", sets: 3, reps: 12, weight: 12, notes: "Behind head or overhead" },
+          ],
+        },
+        {
+          id: "template-24",
+          name: "Abs & Core Finisher",
+          category: "Core",
+          createdAt: new Date().toISOString(),
+          exercises: [
+            { id: "ex-93", name: "Mountain Climbers", time: 30, sets: 3, notes: "Fast pace" },
+            { id: "ex-94", name: "Bicycle Crunches", sets: 3, reps: 30, notes: "15 each side" },
+            { id: "ex-95", name: "Leg Raises", sets: 3, reps: 15, notes: "Lower abs focus" },
+            { id: "ex-96", name: "Plank to Push-up", sets: 2, reps: 10, notes: "Transition movement" },
+          ],
+        },
       ]
       setTemplates(defaultTemplates)
       localStorage.setItem("workout-planner-templates", JSON.stringify(defaultTemplates))

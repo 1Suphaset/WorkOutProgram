@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { Dumbbell, Search, Plus, GripVertical, Calendar } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
+import { exerciseDatabase } from "@/lib/exercise-database"
 
 interface DragDropPlannerProps {
   selectedDate: Date
@@ -18,18 +19,16 @@ interface DragDropPlannerProps {
 }
 
 // Mock exercise bank
-const exerciseBank = [
-  { id: "ex-1", name: "Push-ups", category: "Strength", duration: 30, reps: 15 },
-  { id: "ex-2", name: "Squats", category: "Strength", duration: 45, reps: 20 },
-  { id: "ex-3", name: "Jumping Jacks", category: "Cardio", duration: 60 },
-  { id: "ex-4", name: "Plank", category: "Core", duration: 60 },
-  { id: "ex-5", name: "Lunges", category: "Strength", duration: 40, reps: 12 },
-  { id: "ex-6", name: "Burpees", category: "Cardio", duration: 30, reps: 10 },
-  { id: "ex-7", name: "Mountain Climbers", category: "Cardio", duration: 45 },
-  { id: "ex-8", name: "Russian Twists", category: "Core", duration: 30, reps: 20 },
-  { id: "ex-9", name: "High Knees", category: "Cardio", duration: 30 },
-  { id: "ex-10", name: "Crunches", category: "Core", duration: 30, reps: 25 },
-]
+const exerciseBank = exerciseDatabase.map((ex) => ({
+  id: ex.id,
+  name: ex.name,
+  category: ex.category,
+  duration:
+  ex.recommendedSets?.sets
+    ? Math.round((ex.estimatedDuration * 60) / ex.recommendedSets.sets)
+    : ex.estimatedDuration * 60,
+  reps: ex.recommendedSets?.reps,
+}))
 
 export function DragDropPlanner({ selectedDate, language, onAddExercise }: DragDropPlannerProps) {
   const { t } = useTranslation(language)
