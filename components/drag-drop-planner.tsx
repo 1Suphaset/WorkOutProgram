@@ -18,7 +18,6 @@ interface DragDropPlannerProps {
   onAddExercise: (exercise: any) => void
 }
 
-// Mock exercise bank
 const exerciseBank = exerciseDatabase.map((ex) => ({
   id: ex.id,
   name: ex.name,

@@ -359,14 +359,16 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
         </DialogContent>
         {showExerciseLibrary && (
           <Dialog open={showExerciseLibrary} onOpenChange={setShowExerciseLibrary}>
-            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="w-full max-w-6xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
               <DialogHeader>
-                <DialogTitle>Add Exercises from Library</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-lg sm:text-xl">Add Exercises from Library</DialogTitle>
+                <DialogDescription className="text-sm sm:text-base">
                   Browse and select exercises from the library to add to your template
                 </DialogDescription>
               </DialogHeader>
-              <ExerciseLibrary onAddToWorkout={addExerciseFromLibrary} showAddButton={true} />
+              <div className="w-full">
+                <ExerciseLibrary onAddToWorkout={addExerciseFromLibrary} showAddButton={true} />
+              </div>
             </DialogContent>
           </Dialog>
         )}
@@ -375,9 +377,9 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
       {/* Template Preview Dialog */}
       {showPreview && previewTemplate && (
         <Dialog open={showPreview} onOpenChange={setShowPreview}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
             <DialogHeader>
-              <DialogTitle className="flex items-center justify-between">
+              <DialogTitle className="flex flex-col sm:flex-row justify-between gap-2 sm:items-center">
                 <span>Preview: {previewTemplate.name}</span>
                 <Badge variant="secondary">{previewTemplate.category}</Badge>
               </DialogTitle>
@@ -393,11 +395,9 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
               <TabsContent value="workout-view" className="space-y-6">
                 {/* Workout Progress Header */}
                 <div className="bg-muted/50 p-4 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex flex-wrap justify-between items-center gap-2 mb-2">
                     <h3 className="font-semibold">Workout Progress</h3>
-                    <Badge variant="outline">
-                      Exercise {previewExerciseIndex + 1} of {previewTemplate.exercises.length}
-                    </Badge>
+                    <Badge variant="outline">Exercise {previewExerciseIndex + 1} of {previewTemplate.exercises.length}</Badge>
                   </div>
                   <div className="w-full bg-background rounded-full h-2">
                     <div
@@ -425,7 +425,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {/* Exercise Parameters */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                       {previewTemplate.exercises[previewExerciseIndex]?.sets && (
                         <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
                           <Repeat className="w-5 h-5 text-primary" />
@@ -480,18 +480,17 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                     {previewTemplate.exercises[previewExerciseIndex]?.sets && (
                       <div className="space-y-2">
                         <p className="text-sm font-medium">Set Progress:</p>
-                        <div className="flex space-x-2">
+                        <div className="flex flex-wrap gap-2">
                           {Array.from({ length: previewTemplate.exercises[previewExerciseIndex].sets! }).map(
                             (_, index) => (
                               <div
                                 key={index}
-                                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                                  index < previewSetIndex
-                                    ? "bg-green-500 text-white"
-                                    : index === previewSetIndex
-                                      ? "bg-primary text-white"
-                                      : "bg-muted text-muted-foreground"
-                                }`}
+                                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${index < previewSetIndex
+                                  ? "bg-green-500 text-white"
+                                  : index === previewSetIndex
+                                    ? "bg-primary text-white"
+                                    : "bg-muted text-muted-foreground"
+                                  }`}
                               >
                                 {index < previewSetIndex ? <CheckCircle className="w-4 h-4" /> : index + 1}
                               </div>
@@ -502,8 +501,8 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                     )}
 
                     {/* Navigation Controls */}
-                    <div className="flex justify-between pt-4">
-                      <div className="flex space-x-2">
+                    <div className="flex flex-wrap justify-between gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <Button variant="outline" onClick={prevPreviewExercise} disabled={previewExerciseIndex === 0}>
                           Previous Exercise
                         </Button>
@@ -587,7 +586,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                           <p className="text-2xl font-bold">
                             {Math.round(
                               previewTemplate.exercises.length * 3 +
-                                previewTemplate.exercises.reduce((total, ex) => total + (ex.sets || 0), 0) * 2,
+                              previewTemplate.exercises.reduce((total, ex) => total + (ex.sets || 0), 0) * 2,
                             )}{" "}
                             min
                           </p>
@@ -653,7 +652,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
               </TabsContent>
             </Tabs>
 
-            <div className="flex justify-end space-x-2 pt-4">
+            <div className="flex flex-wrap justify-end gap-2 pt-4">
               <Button variant="outline" onClick={() => setShowPreview(false)}>
                 Close Preview
               </Button>

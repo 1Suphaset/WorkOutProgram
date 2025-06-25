@@ -183,283 +183,250 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en" }: 
   }
 
   return (
-    <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span className="flex items-center">
-              <Timer className="w-5 h-5 mr-2" />
-              {workout.name}
-            </span>
-            <Badge variant="secondary" className="text-lg px-3 py-1">
-              {formatTime(elapsedTime)}
-            </Badge>
-          </DialogTitle>
-          <DialogDescription className="text-base">
-            Exercise {currentExerciseIndex + 1} of {totalExercises} • Set {currentSet} of {currentExercise?.sets || 1}
-          </DialogDescription>
-        </DialogHeader>
+   <Dialog open={true} onOpenChange={onClose}>
+  <DialogContent className="w-full max-w-4xl max-h-[95vh] overflow-y-auto overflow-x-hidden">
+    <DialogHeader>
+      <DialogTitle className="flex items-center justify-between min-w-0">
+        <span className="flex items-center gap-2 truncate">
+          <Timer className="w-5 h-5 shrink-0" />
+          {workout.name}
+        </span>
+        <Badge variant="secondary" className="text-lg px-3 py-1 break-words">
+          {formatTime(elapsedTime)}
+        </Badge>
+      </DialogTitle>
+      <DialogDescription className="text-base">
+        Exercise {currentExerciseIndex + 1} of {totalExercises} • Set {currentSet} of {currentExercise?.sets || 1}
+      </DialogDescription>
+    </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Progress Overview */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Workout Progress</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Overall Progress</span>
-                  <span>
-                    {completedSetsCount} / {totalSets} sets
-                  </span>
-                </div>
-                <Progress value={(completedSetsCount / totalSets) * 100} className="h-3" />
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold">{currentExerciseIndex + 1}</div>
-                  <div className="text-xs text-muted-foreground">Exercise</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold">{formatTime(elapsedTime)}</div>
-                  <div className="text-xs text-muted-foreground">Time</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold">{completedSetsCount}</div>
-                  <div className="text-xs text-muted-foreground">Sets Done</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Rest Timer */}
-          {isResting && (
-            <Card className="border-orange-200 bg-orange-50">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center">
-                  <Clock className="w-5 h-5 mr-2 text-orange-600" />
-                  Rest Time
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-orange-600">{formatTime(restTime)}</div>
-                  <p className="text-sm text-muted-foreground">Take a break before the next set</p>
-                </div>
-                <div className="flex justify-center space-x-2">
-                  <Button onClick={() => startRest(30)} variant="outline" size="sm">
-                    30s
-                  </Button>
-                  <Button onClick={() => startRest(60)} variant="outline" size="sm">
-                    60s
-                  </Button>
-                  <Button onClick={() => startRest(90)} variant="outline" size="sm">
-                    90s
-                  </Button>
-                  <Button onClick={skipRest} size="sm">
-                    Skip Rest
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Exercise Countdown Timer - Show prominently when active */}
-          {currentExercise?.time && showExerciseTimer && (
-            <ExerciseCountdownTimer
-              duration={currentExercise.time}
-              exerciseName={`${currentExercise.name} - Set ${currentSet}`}
-              language={language}
-              onComplete={handleExerciseTimerComplete}
-              onStart={() => {
-                if (!isRunning) {
-                  startTimer()
-                }
-              }}
-              className="border-2 border-primary shadow-xl"
-            />
-          )}
-
-          {/* Current Exercise */}
-          <Card className="border-primary">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>{currentExercise?.name}</span>
-                <Badge variant="outline" className="text-base px-3 py-1">
-                  Set {currentSet} of {currentExercise?.sets || 1}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Exercise Parameters */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {currentExercise?.sets && (
-                  <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
-                    <Repeat className="w-5 h-5 text-primary" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Target Sets</p>
-                      <p className="font-semibold">{currentExercise.sets}</p>
-                    </div>
-                  </div>
-                )}
-                {currentExercise?.reps && (
-                  <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
-                    <span className="text-primary font-bold">×</span>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Target Reps</p>
-                      <p className="font-semibold">{currentExercise.reps}</p>
-                    </div>
-                  </div>
-                )}
-                {currentExercise?.weight && (
-                  <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
-                    <Weight className="w-5 h-5 text-primary" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Target Weight</p>
-                      <p className="font-semibold">{currentExercise.weight} lbs</p>
-                    </div>
-                  </div>
-                )}
-                {currentExercise?.time && (
-                  <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
-                    <Timer className="w-5 h-5 text-primary" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Duration</p>
-                      <p className="font-semibold">{formatTime(currentExercise.time)}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Start Exercise Timer Button - More prominent */}
-              {currentExercise?.time && !showExerciseTimer && (
-                <Card className="border-2 border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50">
-                  <CardContent className="p-6 text-center">
-                    <Zap className="w-12 h-12 text-blue-600 mx-auto mb-3" />
-                    <h3 className="text-xl font-bold text-blue-800 mb-2">Timed Exercise</h3>
-                    <p className="text-blue-700 mb-4">
-                      This exercise runs for <strong>{formatTime(currentExercise.time)}</strong>
-                    </p>
-                    <Button
-                      onClick={() => setShowExerciseTimer(true)}
-                      size="lg"
-                      className="w-full h-14 text-lg font-semibold bg-blue-600 hover:bg-blue-700"
-                    >
-                      <Timer className="w-6 h-6 mr-3" />
-                      Start Exercise Timer
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Actual Performance Tracking */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="actual-reps">Actual Reps</Label>
-                  <Input
-                    id="actual-reps"
-                    type="number"
-                    placeholder={currentExercise?.reps?.toString() || "0"}
-                    value={actualReps[currentExercise?.id]?.[currentSet] || ""}
-                    onChange={(e) =>
-                      updateActualReps(currentExercise?.id || "", currentSet, Number.parseInt(e.target.value) || 0)
-                    }
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="actual-weight">Actual Weight (lbs)</Label>
-                  <Input
-                    id="actual-weight"
-                    type="number"
-                    placeholder={currentExercise?.weight?.toString() || "0"}
-                    value={actualWeight[currentExercise?.id]?.[currentSet] || ""}
-                    onChange={(e) =>
-                      updateActualWeight(currentExercise?.id || "", currentSet, Number.parseInt(e.target.value) || 0)
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Exercise Notes */}
-              <div>
-                <Label htmlFor="exercise-notes">Notes for this exercise</Label>
-                <Textarea
-                  id="exercise-notes"
-                  placeholder="How did this exercise feel? Any form notes?"
-                  value={exerciseNotes[currentExercise?.id] || ""}
-                  onChange={(e) => updateExerciseNotes(currentExercise?.id || "", e.target.value)}
-                  rows={2}
-                />
-              </div>
-
-              {/* Set Completion */}
-              {!showExerciseTimer && (
-                <div className="flex justify-center">
-                  <Button onClick={completeSet} size="lg" className="w-full h-12 text-lg font-semibold">
-                    <CheckCircle className="w-5 h-5 mr-2" />
-                    Complete Set {currentSet}
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Exercise Navigation */}
-          <div className="flex justify-between">
-            <Button variant="outline" onClick={previousExercise} disabled={currentExerciseIndex === 0}>
-              <SkipBack className="w-4 h-4 mr-2" />
-              Previous
-            </Button>
-            <div className="flex space-x-2">
-              {!isRunning ? (
-                <Button onClick={startTimer}>
-                  <Play className="w-4 h-4 mr-2" />
-                  Start
-                </Button>
-              ) : (
-                <Button onClick={pauseTimer} variant="outline">
-                  <Pause className="w-4 h-4 mr-2" />
-                  Pause
-                </Button>
-              )}
-              <Button onClick={stopWorkout} variant="destructive">
-                <Square className="w-4 h-4 mr-2" />
-                Finish
-              </Button>
+    <div className="space-y-6 w-full">
+      {/* Progress Overview */}
+      <Card className="w-full">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">Workout Progress</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Overall Progress</span>
+              <span>{completedSetsCount} / {totalSets} sets</span>
             </div>
-            <Button variant="outline" onClick={nextExercise} disabled={currentExerciseIndex === totalExercises - 1}>
-              Next
-              <SkipForward className="w-4 h-4 ml-2" />
-            </Button>
+            <Progress value={(completedSetsCount / totalSets) * 100} className="h-3" />
           </div>
 
-          {/* Upcoming Exercises */}
-          {currentExerciseIndex < totalExercises - 1 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Up Next</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {workout.exercises
-                    .slice(currentExerciseIndex + 1, currentExerciseIndex + 4)
-                    .map((exercise, index) => (
-                      <div key={exercise.id} className="flex items-center justify-between p-2 bg-muted rounded">
-                        <span className="font-medium">{exercise.name}</span>
-                        <div className="text-sm text-muted-foreground">
-                          {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
-                          {exercise.time && formatTime(exercise.time)}
-                        </div>
-                      </div>
-                    ))}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center w-full">
+            <div>
+              <div className="text-2xl font-bold">{currentExerciseIndex + 1}</div>
+              <div className="text-xs text-muted-foreground">Exercise</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold">{formatTime(elapsedTime)}</div>
+              <div className="text-xs text-muted-foreground">Time</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold">{completedSetsCount}</div>
+              <div className="text-xs text-muted-foreground">Sets Done</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {isResting && (
+        <Card className="border-orange-200 bg-orange-50 w-full">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center">
+              <Clock className="w-5 h-5 mr-2 text-orange-600" /> Rest Time
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-center">
+              <div className="text-4xl font-bold text-orange-600">{formatTime(restTime)}</div>
+              <p className="text-sm text-muted-foreground">Take a break before the next set</p>
+            </div>
+            <div className="flex justify-center flex-wrap gap-2">
+              <Button onClick={() => startRest(30)} variant="outline" size="sm">30s</Button>
+              <Button onClick={() => startRest(60)} variant="outline" size="sm">60s</Button>
+              <Button onClick={() => startRest(90)} variant="outline" size="sm">90s</Button>
+              <Button onClick={skipRest} size="sm">Skip Rest</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {currentExercise?.time && showExerciseTimer && (
+        <ExerciseCountdownTimer
+          duration={currentExercise.time}
+          exerciseName={`${currentExercise.name} - Set ${currentSet}`}
+          language={language}
+          onComplete={handleExerciseTimerComplete}
+          onStart={() => !isRunning && startTimer()}
+          className="border-2 border-primary shadow-xl w-full"
+        />
+      )}
+
+      <Card className="border-primary w-full">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>{currentExercise?.name}</span>
+            <Badge variant="outline" className="text-base px-3 py-1">
+              Set {currentSet} of {currentExercise?.sets || 1}
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full">
+            {currentExercise?.sets && (
+              <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
+                <Repeat className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Target Sets</p>
+                  <p className="font-semibold">{currentExercise.sets}</p>
                 </div>
+              </div>
+            )}
+            {currentExercise?.reps && (
+              <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
+                <span className="text-primary font-bold">&times;</span>
+                <div>
+                  <p className="text-sm text-muted-foreground">Target Reps</p>
+                  <p className="font-semibold">{currentExercise.reps}</p>
+                </div>
+              </div>
+            )}
+            {currentExercise?.weight && (
+              <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
+                <Weight className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Target Weight</p>
+                  <p className="font-semibold">{currentExercise.weight} lbs</p>
+                </div>
+              </div>
+            )}
+            {currentExercise?.time && (
+              <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
+                <Timer className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Duration</p>
+                  <p className="font-semibold">{formatTime(currentExercise.time)}</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {currentExercise?.time && !showExerciseTimer && (
+            <Card className="border-2 border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 w-full">
+              <CardContent className="p-6 text-center">
+                <Zap className="w-12 h-12 text-blue-600 mx-auto mb-3" />
+                <h3 className="text-xl font-bold text-blue-800 mb-2">Timed Exercise</h3>
+                <p className="text-blue-700 mb-4">
+                  This exercise runs for <strong>{formatTime(currentExercise.time)}</strong>
+                </p>
+                <Button
+                  onClick={() => setShowExerciseTimer(true)}
+                  size="lg"
+                  className="w-full h-14 text-lg font-semibold bg-blue-600 hover:bg-blue-700"
+                >
+                  <Timer className="w-6 h-6 mr-3" /> Start Exercise Timer
+                </Button>
               </CardContent>
             </Card>
           )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+            <div>
+              <Label htmlFor="actual-reps">Actual Reps</Label>
+              <Input
+                id="actual-reps"
+                type="number"
+                placeholder={currentExercise?.reps?.toString() || "0"}
+                value={actualReps[currentExercise?.id]?.[currentSet] || ""}
+                onChange={(e) => updateActualReps(currentExercise?.id || "", currentSet, Number.parseInt(e.target.value) || 0)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="actual-weight">Actual Weight (lbs)</Label>
+              <Input
+                id="actual-weight"
+                type="number"
+                placeholder={currentExercise?.weight?.toString() || "0"}
+                value={actualWeight[currentExercise?.id]?.[currentSet] || ""}
+                onChange={(e) => updateActualWeight(currentExercise?.id || "", currentSet, Number.parseInt(e.target.value) || 0)}
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="exercise-notes">Notes for this exercise</Label>
+            <Textarea
+              id="exercise-notes"
+              placeholder="How did this exercise feel? Any form notes?"
+              value={exerciseNotes[currentExercise?.id] || ""}
+              onChange={(e) => updateExerciseNotes(currentExercise?.id || "", e.target.value)}
+              rows={2}
+            />
+          </div>
+
+          {!showExerciseTimer && (
+            <div className="flex justify-center">
+              <Button onClick={completeSet} size="lg" className="w-full h-12 text-lg font-semibold">
+                <CheckCircle className="w-5 h-5 mr-2" /> Complete Set {currentSet}
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="flex flex-col md:flex-row justify-between gap-3">
+        <Button variant="outline" onClick={previousExercise} disabled={currentExerciseIndex === 0}>
+          <SkipBack className="w-4 h-4 mr-2" /> Previous
+        </Button>
+        <div className="flex flex-wrap gap-2 justify-center">
+          {!isRunning ? (
+            <Button onClick={startTimer}>
+              <Play className="w-4 h-4 mr-2" /> Start
+            </Button>
+          ) : (
+            <Button onClick={pauseTimer} variant="outline">
+              <Pause className="w-4 h-4 mr-2" /> Pause
+            </Button>
+          )}
+          <Button onClick={stopWorkout} variant="destructive">
+            <Square className="w-4 h-4 mr-2" /> Finish
+          </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+        <Button
+          variant="outline"
+          onClick={nextExercise}
+          disabled={currentExerciseIndex === totalExercises - 1}
+        >
+          Next <SkipForward className="w-4 h-4 ml-2" />
+        </Button>
+      </div>
+
+      {currentExerciseIndex < totalExercises - 1 && (
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle className="text-lg">Up Next</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {workout.exercises.slice(currentExerciseIndex + 1, currentExerciseIndex + 4).map((exercise) => (
+                <div key={exercise.id} className="flex items-center justify-between p-2 bg-muted rounded">
+                  <span className="font-medium truncate">{exercise.name}</span>
+                  <div className="text-sm text-muted-foreground">
+                    {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
+                    {exercise.time && formatTime(exercise.time)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  </DialogContent>
+</Dialog>
+
   )
 }
