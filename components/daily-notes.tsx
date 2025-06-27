@@ -27,7 +27,7 @@ export function DailyNotes({ selectedDate, language }: DailyNotesProps) {
   const [currentNote, setCurrentNote] = useState("")
   const [isEditing, setIsEditing] = useState(false)
 
-  const selectedDateString = selectedDate.toISOString().split("T")[0]
+  const selectedDateString = selectedDate.toLocaleDateString("sv-SE") 
   const todayNote = notes.find((note) => note.date === selectedDateString)
 
   useEffect(() => {

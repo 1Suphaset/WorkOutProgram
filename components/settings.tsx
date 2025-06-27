@@ -46,7 +46,7 @@ export function Settings() {
     const url = URL.createObjectURL(dataBlob)
     const link = document.createElement("a")
     link.href = url
-    link.download = `workout-planner-backup-${new Date().toISOString().split("T")[0]}.json`
+    link.download = `workout-planner-backup-${new Date().toLocaleDateString("sv-SE") }.json`
     link.click()
     URL.revokeObjectURL(url)
   }

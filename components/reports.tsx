@@ -107,7 +107,7 @@ export function Reports({ workouts }: ReportsProps) {
     const url = URL.createObjectURL(dataBlob)
     const link = document.createElement("a")
     link.href = url
-    link.download = `workout-report-${new Date().toISOString().split("T")[0]}.json`
+    link.download = `workout-report-${new Date().toLocaleDateString("sv-SE") }.json`
     link.click()
     URL.revokeObjectURL(url)
   }

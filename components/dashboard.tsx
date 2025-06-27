@@ -12,7 +12,7 @@ interface DashboardProps {
 }
 
 export function Dashboard({ workouts }: DashboardProps) {
-  const today = new Date().toISOString().split("T")[0]
+  const today = new Date().toLocaleDateString("sv-SE") 
   const thisWeek = getThisWeekDates()
   const thisMonth = getThisMonthDates()
 
@@ -40,7 +40,7 @@ export function Dashboard({ workouts }: DashboardProps) {
     for (let i = 0; i < 7; i++) {
       const date = new Date(startOfWeek)
       date.setDate(startOfWeek.getDate() + i)
-      dates.push(date.toISOString().split("T")[0])
+      dates.push(date.toLocaleDateString("sv-SE") )
     }
     return dates
   }
@@ -52,7 +52,7 @@ export function Dashboard({ workouts }: DashboardProps) {
     const daysInMonth = new Date(year, month + 1, 0).getDate()
     const dates = []
     for (let i = 1; i <= daysInMonth; i++) {
-      dates.push(new Date(year, month, i).toISOString().split("T")[0])
+      dates.push(new Date(year, month, i).toLocaleDateString("sv-SE") )
     }
     return dates
   }

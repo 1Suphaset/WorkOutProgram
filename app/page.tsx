@@ -469,7 +469,7 @@ export default function WorkoutPlannerApp() {
     // Create a new workout with the dragged exercise
     const newWorkout: Workout = {
       id: Math.random().toString(36).substr(2, 9),
-      date: selectedDate.toISOString().split("T")[0],
+      date: selectedDate.toLocaleDateString("sv-SE") ,
       name: `${exercise.name} Workout`,
       exercises: [
         {
