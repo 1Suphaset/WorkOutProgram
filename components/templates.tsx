@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator"
 import { Eye, Clock, Weight, Repeat, Timer, CheckCircle } from "lucide-react"
 import { exerciseDatabase } from "@/lib/exercise-database"
 import type { TemplateExerciseRef } from "@/app/page"
+import { workoutTemplates } from "@/lib/workout-templates"
 
 interface TemplatesProps {
   templates: Template[]
@@ -39,6 +40,8 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null)
   const [previewExerciseIndex, setPreviewExerciseIndex] = useState(0)
   const [previewSetIndex, setPreviewSetIndex] = useState(0)
+
+  const [showLibraryDialog, setShowLibraryDialog] = useState(false)
 
   const handleCreateTemplate = () => {
     setEditingTemplate(null)
@@ -628,6 +631,59 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
           </DialogContent>
         </Dialog>
       )}
+
+      <Button onClick={() => setShowLibraryDialog(true)} variant="outline" className="ml-2">
+        Copy from Library
+      </Button>
+
+      <Dialog open={showLibraryDialog} onOpenChange={setShowLibraryDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Copy Template from Library</DialogTitle>
+            <DialogDescription>เลือกโปรแกรมสำเร็จรูปเพื่อคัดลอกไปยังเทมเพลตของคุณ</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {workoutTemplates.map((tpl) => (
+              <Card key={tpl.id}>
+                <CardHeader>
+                  <CardTitle>{tpl.name}</CardTitle>
+                  <CardDescription>{tpl.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button onClick={() => {
+                    const exercises = tpl.exercises.map(ex => {
+                      const found = exerciseDatabase.find(e => e.name === ex.name)
+                      return found ? {
+                        exerciseId: found.id,
+                        sets: ex.sets,
+                        reps: typeof ex.reps === "number" ? ex.reps : (typeof ex.reps === "string" ? parseInt(ex.reps) : undefined),
+                        time: ex.duration,
+                        notes: ex.instructions,
+                      } : {
+                        exerciseId: ex.name,
+                        sets: ex.sets,
+                        reps: typeof ex.reps === "number" ? ex.reps : (typeof ex.reps === "string" ? parseInt(ex.reps) : undefined),
+                        time: ex.duration,
+                        notes: ex.instructions + " (ชื่อท่าไม่พบในฐานข้อมูล)"
+                      }
+                    })
+                    addTemplate({
+                      id: Math.random().toString(36).substr(2, 9),
+                      name: tpl.name,
+                      category: tpl.type,
+                      createdAt: new Date().toISOString(),
+                      exercises,
+                    })
+                    setShowLibraryDialog(false)
+                  }}>
+                    Copy This Template
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
