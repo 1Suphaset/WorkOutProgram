@@ -40,13 +40,22 @@ export type Workout = {
   createdAt: string
 }
 
+export type TemplateExerciseRef = {
+  exerciseId: string;
+  sets?: number;
+  reps?: number;
+  time?: number;
+  weight?: number;
+  notes?: string;
+};
+
 export type Template = {
-  id: string
-  name: string
-  exercises: Exercise[]
-  category: string
-  createdAt: string
-}
+  id: string;
+  name: string;
+  exercises: TemplateExerciseRef[];
+  category: string;
+  createdAt: string;
+};
 
 export type WorkoutTemplate = {
   id: string
@@ -71,7 +80,7 @@ export default function WorkoutPlannerApp() {
   useEffect(() => {
     const savedWorkouts = localStorage.getItem("workout-planner-workouts")
     const savedTemplates = localStorage.getItem("workout-planner-templates")
-    const savedLogs = localStorage.getItem("workout-logs")
+    const savedLogs = localStorage.getItem("workout-planner-logs")
     const savedLanguage = localStorage.getItem("workout-planner-language")
     const savedUser = localStorage.getItem("workout-planner-user")
 
@@ -92,307 +101,321 @@ export default function WorkoutPlannerApp() {
     }
 
     if (savedTemplates) {
-      setTemplates(JSON.parse(savedTemplates))
-    } else {
-      // Initialize with default templates
-      const defaultTemplates: Template[] = [
-        // EXISTING TEMPLATES
-        {
-          id: "template-1",
-          name: "Push Day",
-          category: "Strength",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-1", name: "Bench Press", sets: 4, reps: 8, weight: 135 },
-            { id: "ex-2", name: "Overhead Press", sets: 3, reps: 10, weight: 95 },
-            { id: "ex-3", name: "Dips", sets: 3, reps: 12 },
-            { id: "ex-4", name: "Push-ups", sets: 2, reps: 15 },
-          ],
-        },
-        {
-          id: "template-2",
-          name: "Cardio HIIT",
-          category: "Cardio",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-5", name: "Jumping Jacks", time: 30, sets: 4 },
-            { id: "ex-6", name: "Burpees", time: 20, sets: 4 },
-            { id: "ex-7", name: "Mountain Climbers", time: 30, sets: 4 },
-            { id: "ex-8", name: "Rest", time: 60, sets: 3 },
-          ],
-        },
-        // NEW CARDIO TEMPLATES
-        {
-          id: "template-3",
-          name: "Jump Rope Cardio",
-          category: "Cardio",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-9", name: "Jump Rope", time: 60, sets: 5, notes: "Basic two-foot bounce" },
-            { id: "ex-10", name: "Rest", time: 30, sets: 4 },
-            { id: "ex-11", name: "Jump Rope - Single Leg", time: 30, sets: 4, notes: "Alternate legs" },
-            { id: "ex-12", name: "Jump Rope - Double Unders", time: 20, sets: 3, notes: "Advanced technique" },
-          ],
-        },
-        {
-          id: "template-4",
-          name: "Burpee Challenge",
-          category: "Cardio",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-13", name: "Burpees", sets: 4, reps: 8, notes: "Standard form" },
-            { id: "ex-14", name: "Half Burpees", sets: 3, reps: 12, notes: "No push-up" },
-            { id: "ex-15", name: "Burpee Broad Jumps", sets: 3, reps: 6, notes: "Jump forward after burpee" },
-            { id: "ex-16", name: "Rest", time: 90, sets: 3 },
-          ],
-        },
-        {
-          id: "template-5",
-          name: "Mountain Climber Blast",
-          category: "Cardio",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-17", name: "Mountain Climbers", time: 45, sets: 4, notes: "Fast pace" },
-            { id: "ex-18", name: "Cross-Body Mountain Climbers", time: 30, sets: 3, notes: "Knee to opposite elbow" },
-            { id: "ex-19", name: "Slow Mountain Climbers", time: 60, sets: 2, notes: "Controlled movement" },
-            { id: "ex-20", name: "Rest", time: 45, sets: 3 },
-          ],
-        },
-        {
-          id: "template-6",
-          name: "High Knees Workout",
-          category: "Cardio",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-21", name: "High Knees", time: 30, sets: 5, notes: "Lift knees to hip level" },
-            { id: "ex-22", name: "High Knees - In Place", time: 45, sets: 3, notes: "Stationary position" },
-            { id: "ex-23", name: "High Knees - Forward", time: 20, sets: 4, notes: "Move forward while lifting knees" },
-            { id: "ex-24", name: "Rest", time: 30, sets: 4 },
-          ],
-        },
-        // NEW STRENGTH TEMPLATES
-        {
-          id: "template-7",
-          name: "Push-up Power",
-          category: "Strength",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-25", name: "Push-ups", sets: 3, reps: 12, notes: "Standard form" },
-            { id: "ex-26", name: "Wide-Grip Push-ups", sets: 3, reps: 10, notes: "Hands wider than shoulders" },
-            { id: "ex-27", name: "Diamond Push-ups", sets: 2, reps: 8, notes: "Hands form diamond shape" },
-            { id: "ex-28", name: "Incline Push-ups", sets: 2, reps: 15, notes: "Hands on elevated surface" },
-          ],
-        },
-        {
-          id: "template-8",
-          name: "Squat Strength",
-          category: "Strength",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-29", name: "Squats", sets: 4, reps: 15, notes: "Bodyweight squats" },
-            { id: "ex-30", name: "Jump Squats", sets: 3, reps: 10, notes: "Explosive movement" },
-            { id: "ex-31", name: "Single-Leg Squats", sets: 2, reps: 6, notes: "Each leg, use support if needed" },
-            { id: "ex-32", name: "Wall Sit", time: 45, sets: 3, notes: "Back against wall" },
-          ],
-        },
-        {
-          id: "template-9",
-          name: "Lunge Workout",
-          category: "Strength",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-33", name: "Lunges", sets: 3, reps: 12, notes: "Alternating legs" },
-            { id: "ex-34", name: "Reverse Lunges", sets: 3, reps: 10, notes: "Step backward" },
-            { id: "ex-35", name: "Lateral Lunges", sets: 2, reps: 8, notes: "Side to side movement" },
-            { id: "ex-36", name: "Walking Lunges", sets: 2, reps: 20, notes: "Move forward with each lunge" },
-          ],
-        },
-        {
-          id: "template-10",
-          name: "Plank Challenge",
-          category: "Strength",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-37", name: "Plank", time: 60, sets: 3, notes: "Hold position" },
-            { id: "ex-38", name: "Side Plank", time: 30, sets: 2, notes: "Each side" },
-            { id: "ex-39", name: "Plank Up-Downs", sets: 3, reps: 10, notes: "From plank to forearm plank" },
-            { id: "ex-40", name: "Plank Jacks", sets: 2, reps: 15, notes: "Jump feet apart and together" },
-          ],
-        },
-        {
-          id: "template-11",
-          name: "Deadlift Basics",
-          category: "Strength",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-41", name: "Romanian Deadlifts", sets: 4, reps: 10, weight: 95, notes: "Hinge at hips" },
-            { id: "ex-42", name: "Single-Leg Deadlifts", sets: 3, reps: 8, notes: "Each leg, bodyweight" },
-            { id: "ex-43", name: "Sumo Deadlifts", sets: 3, reps: 12, weight: 85, notes: "Wide stance" },
-            { id: "ex-44", name: "Good Mornings", sets: 2, reps: 15, notes: "Bodyweight hip hinge" },
-          ],
-        },
-        // NEW CORE TEMPLATES
-        {
-          id: "template-12",
-          name: "Crunch Core",
-          category: "Core",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-45", name: "Crunches", sets: 3, reps: 20, notes: "Basic abdominal crunches" },
-            { id: "ex-46", name: "Bicycle Crunches", sets: 3, reps: 15, notes: "Each side" },
-            { id: "ex-47", name: "Reverse Crunches", sets: 2, reps: 15, notes: "Lift hips off ground" },
-            { id: "ex-48", name: "Crunch Hold", time: 30, sets: 2, notes: "Hold at top of crunch" },
-          ],
-        },
-        {
-          id: "template-13",
-          name: "Russian Twist Core",
-          category: "Core",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-49", name: "Russian Twists", sets: 4, reps: 20, notes: "Rotate side to side" },
-            { id: "ex-50", name: "Weighted Russian Twists", sets: 3, reps: 16, notes: "Hold weight or water bottle" },
-            { id: "ex-51", name: "Russian Twist Hold", time: 45, sets: 2, notes: "Hold twisted position" },
-            { id: "ex-52", name: "Oblique Crunches", sets: 2, reps: 12, notes: "Each side" },
-          ],
-        },
-        {
-          id: "template-14",
-          name: "Leg Raise Core",
-          category: "Core",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-53", name: "Leg Raises", sets: 3, reps: 12, notes: "Straight legs up and down" },
-            { id: "ex-54", name: "Bent-Knee Leg Raises", sets: 3, reps: 15, notes: "Knees bent to chest" },
-            { id: "ex-55", name: "Single-Leg Raises", sets: 2, reps: 10, notes: "Each leg" },
-            { id: "ex-56", name: "Leg Raise Hold", time: 20, sets: 3, notes: "Hold legs at 45 degrees" },
-          ],
-        },
-        {
-          id: "template-15",
-          name: "Flutter Kick Core",
-          category: "Core",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-57", name: "Flutter Kicks", time: 30, sets: 4, notes: "Small alternating leg movements" },
-            { id: "ex-58", name: "Scissor Kicks", time: 25, sets: 3, notes: "Cross legs over each other" },
-            { id: "ex-59", name: "Vertical Leg Crunches", sets: 2, reps: 15, notes: "Legs straight up" },
-            { id: "ex-60", name: "Dead Bug", sets: 2, reps: 10, notes: "Each side, opposite arm and leg" },
-          ],
-        },
-        // NEW FLEXIBILITY TEMPLATES
-        {
-          id: "template-16",
-          name: "Hamstring Stretch",
-          category: "Flexibility",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-61", name: "Standing Hamstring Stretch", time: 30, sets: 2, notes: "Each leg, heel elevated" },
-            { id: "ex-62", name: "Seated Forward Fold", time: 45, sets: 2, notes: "Reach toward toes" },
-            { id: "ex-63", name: "Lying Hamstring Stretch", time: 30, sets: 2, notes: "Each leg, use towel if needed" },
-            { id: "ex-64", name: "Walking Hamstring Stretch", sets: 1, reps: 10, notes: "Dynamic leg swings" },
-          ],
-        },
-        {
-          id: "template-17",
-          name: "Child's Pose Flow",
-          category: "Flexibility",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-65", name: "Child's Pose", time: 60, sets: 3, notes: "Kneel and sit back on heels" },
-            { id: "ex-66", name: "Cat-Cow Stretch", sets: 2, reps: 10, notes: "Arch and round spine" },
-            { id: "ex-67", name: "Extended Child's Pose", time: 45, sets: 2, notes: "Reach arms to each side" },
-            { id: "ex-68", name: "Thread the Needle", sets: 2, reps: 8, notes: "Each side, spinal rotation" },
-          ],
-        },
-        {
-          id: "template-18",
-          name: "Cobra Stretch",
-          category: "Flexibility",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-69", name: "Sphinx Pose", time: 45, sets: 2, notes: "Forearms on ground" },
-            { id: "ex-70", name: "Low Cobra", time: 30, sets: 3, notes: "Gentle backbend" },
-            { id: "ex-71", name: "Full Cobra", time: 20, sets: 2, notes: "Deeper backbend, listen to body" },
-            { id: "ex-72", name: "Upward Facing Dog", time: 15, sets: 2, notes: "Advanced backbend" },
-          ],
-        },
-        // NEW UPPER BODY & ABS TEMPLATES
-        {
-          id: "template-19",
-          name: "Upper Body Blast",
-          category: "Strength",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-73", name: "Push-ups", sets: 3, reps: 12, notes: "Standard form, chest to ground" },
-            { id: "ex-74", name: "Tricep Dips", sets: 3, reps: 10, notes: "Use chair or bench" },
-            { id: "ex-75", name: "Shoulder Taps", sets: 3, reps: 20, notes: "10 each shoulder, plank position" },
-            { id: "ex-76", name: "Pike Push-ups", sets: 2, reps: 8, notes: "Downward dog position" },
-          ],
-        },
-        {
-          id: "template-20",
-          name: "Core Crusher",
-          category: "Core",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-77", name: "Sit-ups", sets: 3, reps: 15, notes: "Full range of motion" },
-            { id: "ex-78", name: "Plank", time: 45, sets: 3, notes: "Hold steady position" },
-            { id: "ex-79", name: "Bicycle Crunches", sets: 3, reps: 20, notes: "10 each side" },
-            { id: "ex-80", name: "Dead Bug", sets: 2, reps: 12, notes: "6 each side, slow and controlled" },
-          ],
-        },
-        {
-          id: "template-21",
-          name: "Quick Abs Burn",
-          category: "Core",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-81", name: "Crunches", sets: 4, reps: 20, notes: "Focus on upper abs" },
-            { id: "ex-82", name: "Leg Raises", sets: 3, reps: 12, notes: "Straight legs, control the movement" },
-            { id: "ex-83", name: "Russian Twists", sets: 3, reps: 24, notes: "12 each side" },
-            { id: "ex-84", name: "Plank Hold", time: 30, sets: 3, notes: "Maximum effort hold" },
-          ],
-        },
-        {
-          id: "template-22",
-          name: "Bodyweight Strength",
-          category: "Strength",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-85", name: "Pull-ups", sets: 3, reps: 6, notes: "Use assistance if needed" },
-            { id: "ex-86", name: "Pike Push-ups", sets: 3, reps: 10, notes: "Targets shoulders" },
-            { id: "ex-87", name: "Plank Hold", time: 60, sets: 3, notes: "Core stability" },
-            { id: "ex-88", name: "Bodyweight Rows", sets: 3, reps: 12, notes: "Use table or bar" },
-          ],
-        },
-        {
-          id: "template-23",
-          name: "Upper Pump Express",
-          category: "Strength",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-89", name: "Dumbbell Press", sets: 4, reps: 10, weight: 25, notes: "Chest press movement" },
-            { id: "ex-90", name: "Bicep Curls", sets: 3, reps: 12, weight: 15, notes: "Control the weight" },
-            { id: "ex-91", name: "Overhead Press", sets: 3, reps: 8, weight: 20, notes: "Shoulder press" },
-            { id: "ex-92", name: "Tricep Extensions", sets: 3, reps: 12, weight: 12, notes: "Behind head or overhead" },
-          ],
-        },
-        {
-          id: "template-24",
-          name: "Abs & Core Finisher",
-          category: "Core",
-          createdAt: new Date().toISOString(),
-          exercises: [
-            { id: "ex-93", name: "Mountain Climbers", time: 30, sets: 3, notes: "Fast pace" },
-            { id: "ex-94", name: "Bicycle Crunches", sets: 3, reps: 30, notes: "15 each side" },
-            { id: "ex-95", name: "Leg Raises", sets: 3, reps: 15, notes: "Lower abs focus" },
-            { id: "ex-96", name: "Plank to Push-up", sets: 2, reps: 10, notes: "Transition movement" },
-          ],
-        },
-      ]
-      setTemplates(defaultTemplates)
-      localStorage.setItem("workout-planner-templates", JSON.stringify(defaultTemplates))
+      let shouldSetDefault = false
+      if (!savedTemplates) {
+        shouldSetDefault = true
+      } else {
+        try {
+          const parsed = JSON.parse(savedTemplates)
+          if (!Array.isArray(parsed) || parsed.length === 0) {
+            shouldSetDefault = true
+          }
+        } catch {
+          shouldSetDefault = true
+        }
+      }
+      if (shouldSetDefault) {
+        const defaultTemplates: Template[] = [
+          // EXISTING TEMPLATES
+          {
+            id: "template-1",
+            name: "Push Day",
+            category: "Strength",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "bench-press", sets: 4, reps: 8, weight: 135 },
+              { exerciseId: "squats", sets: 3, reps: 10, weight: 95 },
+              { exerciseId: "deadlift", sets: 3, reps: 12 },
+              { exerciseId: "push-ups", sets: 2, reps: 15 },
+            ],
+          },
+          {
+            id: "template-2",
+            name: "Cardio HIIT",
+            category: "Cardio",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-5", sets: 4 },
+              { exerciseId: "ex-6", sets: 4 },
+              { exerciseId: "ex-7", sets: 4 },
+              { exerciseId: "ex-8", sets: 3 },
+            ],
+          },
+          // NEW CARDIO TEMPLATES
+          {
+            id: "template-3",
+            name: "Jump Rope Cardio",
+            category: "Cardio",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-9", sets: 5, notes: "Basic two-foot bounce" },
+              { exerciseId: "ex-10", sets: 4 },
+              { exerciseId: "ex-11", sets: 4, notes: "Alternate legs" },
+              { exerciseId: "ex-12", sets: 3, notes: "Advanced technique" },
+            ],
+          },
+          {
+            id: "template-4",
+            name: "Burpee Challenge",
+            category: "Cardio",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-13", sets: 4, reps: 8, notes: "Standard form" },
+              { exerciseId: "ex-14", sets: 3, reps: 12, notes: "No push-up" },
+              { exerciseId: "ex-15", sets: 3, reps: 6, notes: "Jump forward after burpee" },
+              { exerciseId: "ex-16", sets: 3 },
+            ],
+          },
+          {
+            id: "template-5",
+            name: "Mountain Climber Blast",
+            category: "Cardio",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-17", sets: 4, notes: "Fast pace" },
+              { exerciseId: "ex-18", sets: 3, notes: "Knee to opposite elbow" },
+              { exerciseId: "ex-19", sets: 2, notes: "Controlled movement" },
+              { exerciseId: "ex-20", sets: 3 },
+            ],
+          },
+          {
+            id: "template-6",
+            name: "High Knees Workout",
+            category: "Cardio",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-21", sets: 5, notes: "Lift knees to hip level" },
+              { exerciseId: "ex-22", sets: 3, notes: "Stationary position" },
+              { exerciseId: "ex-23", sets: 4, notes: "Move forward while lifting knees" },
+              { exerciseId: "ex-24", sets: 4 },
+            ],
+          },
+          // NEW STRENGTH TEMPLATES
+          {
+            id: "template-7",
+            name: "Push-up Power",
+            category: "Strength",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-25", sets: 3, reps: 12, notes: "Standard form" },
+              { exerciseId: "ex-26", sets: 3, reps: 10, notes: "Hands wider than shoulders" },
+              { exerciseId: "ex-27", sets: 2, reps: 8, notes: "Hands form diamond shape" },
+              { exerciseId: "ex-28", sets: 2, reps: 15, notes: "Hands on elevated surface" },
+            ],
+          },
+          {
+            id: "template-8",
+            name: "Squat Strength",
+            category: "Strength",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-29", sets: 4, reps: 15, notes: "Bodyweight squats" },
+              { exerciseId: "ex-30", sets: 3, reps: 10, notes: "Explosive movement" },
+              { exerciseId: "ex-31", sets: 2, reps: 6, notes: "Each leg, use support if needed" },
+              { exerciseId: "ex-32", sets: 3, notes: "Back against wall" },
+            ],
+          },
+          {
+            id: "template-9",
+            name: "Lunge Workout",
+            category: "Strength",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-33", sets: 3, reps: 12, notes: "Alternating legs" },
+              { exerciseId: "ex-34", sets: 3, reps: 10, notes: "Step backward" },
+              { exerciseId: "ex-35", sets: 2, reps: 8, notes: "Side to side movement" },
+              { exerciseId: "ex-36", sets: 2, reps: 20, notes: "Move forward with each lunge" },
+            ],
+          },
+          {
+            id: "template-10",
+            name: "Plank Challenge",
+            category: "Strength",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-37", sets: 3 },
+              { exerciseId: "ex-38", sets: 2 },
+              { exerciseId: "ex-39", sets: 3, reps: 10 },
+              { exerciseId: "ex-40", sets: 2, reps: 15 },
+            ],
+          },
+          {
+            id: "template-11",
+            name: "Deadlift Basics",
+            category: "Strength",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-41", sets: 4, reps: 10, weight: 95, notes: "Hinge at hips" },
+              { exerciseId: "ex-42", sets: 3, reps: 8, notes: "Each leg, bodyweight" },
+              { exerciseId: "ex-43", sets: 3, reps: 12, weight: 85, notes: "Wide stance" },
+              { exerciseId: "ex-44", sets: 2, reps: 15, notes: "Bodyweight hip hinge" },
+            ],
+          },
+          // NEW CORE TEMPLATES
+          {
+            id: "template-12",
+            name: "Crunch Core",
+            category: "Core",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-45", sets: 3, reps: 20, notes: "Basic abdominal crunches" },
+              { exerciseId: "ex-46", sets: 3, reps: 15, notes: "Each side" },
+              { exerciseId: "ex-47", sets: 2, reps: 15, notes: "Lift hips off ground" },
+              { exerciseId: "ex-48", sets: 2 },
+            ],
+          },
+          {
+            id: "template-13",
+            name: "Russian Twist Core",
+            category: "Core",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-49", sets: 4, reps: 20, notes: "Rotate side to side" },
+              { exerciseId: "ex-50", sets: 3, reps: 16, notes: "Hold weight or water bottle" },
+              { exerciseId: "ex-51", sets: 2 },
+              { exerciseId: "ex-52", sets: 2, reps: 12 },
+            ],
+          },
+          {
+            id: "template-14",
+            name: "Leg Raise Core",
+            category: "Core",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-53", sets: 3, reps: 12 },
+              { exerciseId: "ex-54", sets: 3, reps: 15 },
+              { exerciseId: "ex-55", sets: 2, reps: 10 },
+              { exerciseId: "ex-56", sets: 3 },
+            ],
+          },
+          {
+            id: "template-15",
+            name: "Flutter Kick Core",
+            category: "Core",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-57", sets: 4 },
+              { exerciseId: "ex-58", sets: 3 },
+              { exerciseId: "ex-59", sets: 2, reps: 15 },
+              { exerciseId: "ex-60", sets: 2 },
+            ],
+          },
+          // NEW FLEXIBILITY TEMPLATES
+          {
+            id: "template-16",
+            name: "Hamstring Stretch",
+            category: "Flexibility",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-61", sets: 2 },
+              { exerciseId: "ex-62", sets: 2 },
+              { exerciseId: "ex-63", sets: 2 },
+              { exerciseId: "ex-64", sets: 1 },
+            ],
+          },
+          {
+            id: "template-17",
+            name: "Child's Pose Flow",
+            category: "Flexibility",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-65", sets: 3 },
+              { exerciseId: "ex-66", sets: 2 },
+              { exerciseId: "ex-67", sets: 2 },
+              { exerciseId: "ex-68", sets: 2 },
+            ],
+          },
+          {
+            id: "template-18",
+            name: "Cobra Stretch",
+            category: "Flexibility",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-69", sets: 2 },
+              { exerciseId: "ex-70", sets: 3 },
+              { exerciseId: "ex-71", sets: 2 },
+              { exerciseId: "ex-72", sets: 2 },
+            ],
+          },
+          // NEW UPPER BODY & ABS TEMPLATES
+          {
+            id: "template-19",
+            name: "Upper Body Blast",
+            category: "Strength",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-73", sets: 3 },
+              { exerciseId: "ex-74", sets: 3 },
+              { exerciseId: "ex-75", sets: 3 },
+              { exerciseId: "ex-76", sets: 2 },
+            ],
+          },
+          {
+            id: "template-20",
+            name: "Core Crusher",
+            category: "Core",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-77", sets: 3 },
+              { exerciseId: "ex-78", sets: 3 },
+              { exerciseId: "ex-79", sets: 3 },
+              { exerciseId: "ex-80", sets: 2 },
+            ],
+          },
+          {
+            id: "template-21",
+            name: "Quick Abs Burn",
+            category: "Core",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-81", sets: 4 },
+              { exerciseId: "ex-82", sets: 3 },
+              { exerciseId: "ex-83", sets: 3 },
+              { exerciseId: "ex-84", sets: 3 },
+            ],
+          },
+          {
+            id: "template-22",
+            name: "Bodyweight Strength",
+            category: "Strength",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-85", sets: 3 },
+              { exerciseId: "ex-86", sets: 3 },
+              { exerciseId: "ex-87", sets: 3 },
+              { exerciseId: "ex-88", sets: 3 },
+            ],
+          },
+          {
+            id: "template-23",
+            name: "Upper Pump Express",
+            category: "Strength",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-89", sets: 4 },
+              { exerciseId: "ex-90", sets: 3 },
+              { exerciseId: "ex-91", sets: 3 },
+              { exerciseId: "ex-92", sets: 3 },
+            ],
+          },
+          {
+            id: "template-24",
+            name: "Abs & Core Finisher",
+            category: "Core",
+            createdAt: new Date().toISOString(),
+            exercises: [
+              { exerciseId: "ex-93", sets: 3 },
+              { exerciseId: "ex-94", sets: 3 },
+              { exerciseId: "ex-95", sets: 3 },
+              { exerciseId: "ex-96", sets: 2 },
+            ],
+          },
+        ]
+        setTemplates(defaultTemplates)
+        localStorage.setItem("workout-planner-templates", JSON.stringify(defaultTemplates))
+      } else {
+        setTemplates(JSON.parse(savedTemplates))
+      }
     }
   }, [])
 
@@ -406,7 +429,7 @@ export default function WorkoutPlannerApp() {
   }, [templates])
 
   useEffect(() => {
-    localStorage.setItem("workout-logs", JSON.stringify(workoutLogs))
+    localStorage.setItem("workout-planner-logs", JSON.stringify(workoutLogs))
   }, [workoutLogs])
 
   useEffect(() => {

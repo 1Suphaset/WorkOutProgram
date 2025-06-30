@@ -34,19 +34,28 @@ export function Settings() {
   const exportData = () => {
     const workouts = localStorage.getItem("workout-planner-workouts") || "[]"
     const templates = localStorage.getItem("workout-planner-templates") || "[]"
+    const logs = localStorage.getItem("workout-planner-logs") || "[]"
+    const customExercises = localStorage.getItem("workout-planner-custom-exercises") || "[]"
+    const progressions = localStorage.getItem("workout-planner-progressions") || "[]"
+    const user = localStorage.getItem("workout-planner-user") || "{}"
+    const language = localStorage.getItem("workout-planner-language") || '"en"'
     const exportData = {
       workouts: JSON.parse(workouts),
       templates: JSON.parse(templates),
+      logs: JSON.parse(logs),
+      customExercises: JSON.parse(customExercises),
+      progressions: JSON.parse(progressions),
+      user: JSON.parse(user),
+      language: JSON.parse(language),
       settings,
       exportDate: new Date().toISOString(),
     }
-
     const dataStr = JSON.stringify(exportData, null, 2)
     const dataBlob = new Blob([dataStr], { type: "application/json" })
     const url = URL.createObjectURL(dataBlob)
     const link = document.createElement("a")
     link.href = url
-    link.download = `workout-planner-backup-${new Date().toLocaleDateString("sv-SE") }.json`
+    link.download = `workout-planner-backup-${new Date().toLocaleDateString("sv-SE")}.json`
     link.click()
     URL.revokeObjectURL(url)
   }
@@ -54,12 +63,10 @@ export function Settings() {
   const importData = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
-
     const reader = new FileReader()
     reader.onload = (e) => {
       try {
         const importedData = JSON.parse(e.target?.result as string)
-
         if (importedData.workouts) {
           localStorage.setItem("workout-planner-workouts", JSON.stringify(importedData.workouts))
         }
@@ -70,7 +77,21 @@ export function Settings() {
           setSettings(importedData.settings)
           localStorage.setItem("workout-planner-settings", JSON.stringify(importedData.settings))
         }
-
+        if (importedData.logs) {
+          localStorage.setItem("workout-planner-logs", JSON.stringify(importedData.logs))
+        }
+        if (importedData.customExercises) {
+          localStorage.setItem("workout-planner-custom-exercises", JSON.stringify(importedData.customExercises))
+        }
+        if (importedData.progressions) {
+          localStorage.setItem("workout-planner-progressions", JSON.stringify(importedData.progressions))
+        }
+        if (importedData.user) {
+          localStorage.setItem("workout-planner-user", JSON.stringify(importedData.user))
+        }
+        if (importedData.language) {
+          localStorage.setItem("workout-planner-language", JSON.stringify(importedData.language))
+        }
         alert("Data imported successfully! Please refresh the page.")
       } catch (error) {
         alert("Import failed. Please check your backup file.")
@@ -84,6 +105,11 @@ export function Settings() {
       localStorage.removeItem("workout-planner-workouts")
       localStorage.removeItem("workout-planner-templates")
       localStorage.removeItem("workout-planner-settings")
+      localStorage.removeItem("workout-planner-logs")
+      localStorage.removeItem("workout-planner-custom-exercises")
+      localStorage.removeItem("workout-planner-progressions")
+      localStorage.removeItem("workout-planner-user")
+      localStorage.removeItem("workout-planner-language")
       setSettings({
         name: "",
         email: "",

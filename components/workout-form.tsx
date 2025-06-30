@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Trash2 } from "lucide-react"
 import type { Workout, Template, Exercise } from "@/app/page"
 import { ExerciseLibrary } from "@/components/exercise-library"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 
 interface WorkoutFormProps {
   workout?: Workout | null

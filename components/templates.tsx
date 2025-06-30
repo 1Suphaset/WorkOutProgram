@@ -15,6 +15,8 @@ import type { ExerciseLibraryItem } from "@/lib/exercise-database"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Eye, Clock, Weight, Repeat, Timer, CheckCircle } from "lucide-react"
+import { exerciseDatabase } from "@/lib/exercise-database"
+import type { TemplateExerciseRef } from "@/app/page"
 
 interface TemplatesProps {
   templates: Template[]
@@ -28,8 +30,10 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null)
   const [templateName, setTemplateName] = useState("")
   const [templateCategory, setTemplateCategory] = useState("")
-  const [exercises, setExercises] = useState<Exercise[]>([])
+  const [exercises, setExercises] = useState<TemplateExerciseRef[]>([])
   const [showExerciseLibrary, setShowExerciseLibrary] = useState(false)
+  const [exerciseToEdit, setExerciseToEdit] = useState<TemplateExerciseRef | null>(null)
+  const [editIndex, setEditIndex] = useState<number | null>(null)
 
   const [showPreview, setShowPreview] = useState(false)
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null)
@@ -54,13 +58,11 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
 
   const handleSaveTemplate = () => {
     if (!templateName.trim() || exercises.length === 0) return
-
     const templateData = {
       name: templateName,
       category: templateCategory,
       exercises,
     }
-
     if (editingTemplate) {
       updateTemplate(editingTemplate.id, templateData)
     } else {
@@ -70,39 +72,34 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
         createdAt: new Date().toISOString(),
       })
     }
-
     setShowCreateDialog(false)
   }
 
-  const addExercise = () => {
-    const newExercise: Exercise = {
-      id: Math.random().toString(36).substr(2, 9),
-      name: "",
-      sets: 3,
-      reps: 10,
+  const addExerciseFromLibrary = (libraryExercise: ExerciseLibraryItem) => {
+    const newExercise: TemplateExerciseRef = {
+      exerciseId: libraryExercise.id,
+      sets: libraryExercise.recommendedSets?.sets || 3,
+      reps: libraryExercise.recommendedSets?.reps ? parseInt(libraryExercise.recommendedSets.reps.split("-")[0]) : undefined,
     }
     setExercises([...exercises, newExercise])
+    setShowExerciseLibrary(false)
   }
 
-  const updateExercise = (id: string, updates: Partial<Exercise>) => {
-    setExercises(exercises.map((ex) => (ex.id === id ? { ...ex, ...updates } : ex)))
+  const handleEditExercise = (exercise: TemplateExerciseRef, index: number) => {
+    setExerciseToEdit(exercise)
+    setEditIndex(index)
   }
 
-  const removeExercise = (id: string) => {
-    setExercises(exercises.filter((ex) => ex.id !== id))
+  const handleSaveEditExercise = () => {
+    if (editIndex !== null && exerciseToEdit) {
+      setExercises(exs => exs.map((ex, i) => (i === editIndex ? exerciseToEdit : ex)))
+      setExerciseToEdit(null)
+      setEditIndex(null)
+    }
   }
 
-  const duplicateTemplate = (template: Template) => {
-    addTemplate({
-      ...template,
-      id: Math.random().toString(36).substr(2, 9),
-      name: `${template.name} (Copy)`,
-      createdAt: new Date().toISOString(),
-      exercises: template.exercises.map((ex) => ({
-        ...ex,
-        id: Math.random().toString(36).substr(2, 9),
-      })),
-    })
+  const handleRemoveExercise = (index: number) => {
+    setExercises(exs => exs.filter((_, i) => i !== index))
   }
 
   const handlePreviewTemplate = (template: Template) => {
@@ -141,17 +138,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
     return `${mins}:${secs.toString().padStart(2, "0")}`
   }
 
-  const addExerciseFromLibrary = (libraryExercise: ExerciseLibraryItem) => {
-    const newExercise: Exercise = {
-      id: Math.random().toString(36).substr(2, 9),
-      name: libraryExercise.name,
-      sets: libraryExercise.recommendedSets?.sets || 3,
-      reps: Number.parseInt(libraryExercise.recommendedSets?.reps.split("-")[0] || "10"),
-      notes: libraryExercise.description,
-    }
-    setExercises([...exercises, newExercise])
-    setShowExerciseLibrary(false)
-  }
+  const exData = previewTemplate ? exerciseDatabase.find(e => e.id === previewTemplate.exercises[previewExerciseIndex]?.exerciseId) : undefined;
 
   return (
     <div className="p-6 space-y-6">
@@ -181,15 +168,18 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
             <CardContent className="space-y-4">
               <ScrollArea className="h-32">
                 <div className="space-y-2">
-                  {template.exercises.map((exercise) => (
-                    <div key={exercise.id} className="flex items-center justify-between text-sm">
-                      <span>{exercise.name}</span>
-                      <div className="text-muted-foreground">
-                        {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
-                        {exercise.time && `${exercise.time}s`}
+                  {template.exercises.map((exercise, index) => {
+                    const exData = exerciseDatabase.find(e => e.id === exercise.exerciseId)
+                    return (
+                      <div key={exercise.exerciseId + '-' + index} className="flex items-center justify-between text-sm">
+                        <span>{exData?.name || exercise.exerciseId}</span>
+                        <div className="text-muted-foreground">
+                          {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
+                          {exercise.time && `${exercise.time}s`}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </ScrollArea>
 
@@ -201,15 +191,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                   <Edit className="w-4 h-4 mr-1" />
                   Edit
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => duplicateTemplate(template)}>
-                  <Copy className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => deleteTemplate(template.id)}
-                  className="text-destructive hover:text-destructive"
-                >
+                <Button variant="outline" size="sm" onClick={() => deleteTemplate(template.id)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
@@ -230,7 +212,6 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
         </div>
       )}
 
-      {/* Create/Edit Template Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -262,52 +243,42 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label className="text-lg font-medium">Exercises</Label>
-                <div className="flex space-x-2">
-                  <Button onClick={() => setShowExerciseLibrary(true)} size="sm" variant="outline">
-                    <Plus className="w-4 h-4 mr-2" />
-                    From Library
-                  </Button>
-                  <Button onClick={addExercise} size="sm">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Custom Exercise
-                  </Button>
-                </div>
-              </div>
+            <div className="flex items-center justify-between">
+              <Label className="text-lg font-medium">Exercises</Label>
+              <Button onClick={() => setShowExerciseLibrary(true)} size="sm" variant="outline">
+                <Plus className="w-4 h-4 mr-2" />
+                Add from Library
+              </Button>
+            </div>
 
-              <ScrollArea className="h-[300px]">
-                <div className="space-y-4">
-                  {exercises.map((exercise, index) => (
-                    <Card key={exercise.id}>
+            <ScrollArea className="h-[300px]">
+              <div className="space-y-4">
+                {exercises.map((exercise, index) => {
+                  const exData = exerciseDatabase.find(e => e.id === exercise.exerciseId)
+                  return (
+                    <Card key={exercise.exerciseId + '-' + index}>
                       <CardHeader className="pb-3">
                         <CardTitle className="text-sm flex items-center justify-between">
-                          Exercise {index + 1}
-                          <Button variant="ghost" size="sm" onClick={() => removeExercise(exercise.id)}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          {exData ? exData.name : exercise.exerciseId}
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" onClick={() => handleEditExercise(exercise, index)}>
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleRemoveExercise(index)}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div>
-                          <Label>Exercise Name</Label>
-                          <Input
-                            value={exercise.name}
-                            onChange={(e) => updateExercise(exercise.id, { name: e.target.value })}
-                            placeholder="e.g., Bench Press"
-                          />
-                        </div>
+                      <CardContent>
                         <div className="grid grid-cols-3 gap-3">
                           <div>
                             <Label>Sets</Label>
                             <Input
                               type="number"
                               value={exercise.sets || ""}
-                              onChange={(e) =>
-                                updateExercise(exercise.id, { sets: Number.parseInt(e.target.value) || undefined })
-                              }
-                              placeholder="3"
+                              onChange={e => setExercises(exs => exs.map((ex, i) => i === index ? { ...ex, sets: Number.parseInt(e.target.value) || undefined } : ex))}
+                              placeholder={exData?.recommendedSets?.sets?.toString() || "3"}
                             />
                           </div>
                           <div>
@@ -315,37 +286,31 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                             <Input
                               type="number"
                               value={exercise.reps || ""}
-                              onChange={(e) =>
-                                updateExercise(exercise.id, { reps: Number.parseInt(e.target.value) || undefined })
-                              }
-                              placeholder="10"
+                              onChange={e => setExercises(exs => exs.map((ex, i) => i === index ? { ...ex, reps: Number.parseInt(e.target.value) || undefined } : ex))}
+                              placeholder={exData?.recommendedSets?.reps?.split("-")[0] || "10"}
                             />
                           </div>
                           <div>
-                            <Label>Weight</Label>
+                            <Label>Notes</Label>
                             <Input
-                              type="number"
-                              value={exercise.weight || ""}
-                              onChange={(e) =>
-                                updateExercise(exercise.id, { weight: Number.parseInt(e.target.value) || undefined })
-                              }
-                              placeholder="135"
+                              value={exercise.notes || ""}
+                              onChange={e => setExercises(exs => exs.map((ex, i) => i === index ? { ...ex, notes: e.target.value } : ex))}
+                              placeholder="Notes"
                             />
                           </div>
                         </div>
                       </CardContent>
                     </Card>
-                  ))}
-
-                  {exercises.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <p>No exercises added yet</p>
-                      <p className="text-sm">Click "Add Exercise" to get started</p>
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
-            </div>
+                  )
+                })}
+                {exercises.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>No exercises added yet</p>
+                    <p className="text-sm">Click "Add from Library" to get started</p>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
 
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
@@ -357,24 +322,21 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
             </div>
           </div>
         </DialogContent>
-        {showExerciseLibrary && (
-          <Dialog open={showExerciseLibrary} onOpenChange={setShowExerciseLibrary}>
-            <DialogContent className="w-full max-w-6xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
-              <DialogHeader>
-                <DialogTitle className="text-lg sm:text-xl">Add Exercises from Library</DialogTitle>
-                <DialogDescription className="text-sm sm:text-base">
-                  Browse and select exercises from the library to add to your template
-                </DialogDescription>
-              </DialogHeader>
-              <div className="w-full">
-                <ExerciseLibrary onAddToWorkout={addExerciseFromLibrary} showAddButton={true} />
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
+        <Dialog open={showExerciseLibrary} onOpenChange={setShowExerciseLibrary}>
+          <DialogContent className="w-full max-w-6xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
+            <DialogHeader>
+              <DialogTitle className="text-lg sm:text-xl">Add Exercises from Library</DialogTitle>
+              <DialogDescription className="text-sm sm:text-base">
+                Browse and select exercises from the library to add to your template
+              </DialogDescription>
+            </DialogHeader>
+            <div className="w-full">
+              <ExerciseLibrary onAddToWorkout={addExerciseFromLibrary} showAddButton={true} />
+            </div>
+          </DialogContent>
+        </Dialog>
       </Dialog>
 
-      {/* Template Preview Dialog */}
       {showPreview && previewTemplate && (
         <Dialog open={showPreview} onOpenChange={setShowPreview}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
@@ -393,7 +355,6 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
               </TabsList>
 
               <TabsContent value="workout-view" className="space-y-6">
-                {/* Workout Progress Header */}
                 <div className="bg-muted/50 p-4 rounded-lg">
                   <div className="flex flex-wrap justify-between items-center gap-2 mb-2">
                     <h3 className="font-semibold">Workout Progress</h3>
@@ -409,11 +370,10 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                   </div>
                 </div>
 
-                {/* Current Exercise Display */}
                 <Card className="border-2 border-primary">
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
-                      <span>{previewTemplate.exercises[previewExerciseIndex]?.name}</span>
+                      <span>{exData?.name || previewTemplate.exercises[previewExerciseIndex]?.exerciseId}</span>
                       <div className="flex items-center space-x-2">
                         {previewTemplate.exercises[previewExerciseIndex]?.sets && (
                           <Badge variant="secondary">
@@ -424,7 +384,6 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {/* Exercise Parameters */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                       {previewTemplate.exercises[previewExerciseIndex]?.sets && (
                         <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
@@ -468,7 +427,6 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                       )}
                     </div>
 
-                    {/* Exercise Notes */}
                     {previewTemplate.exercises[previewExerciseIndex]?.notes && (
                       <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                         <p className="text-sm font-medium text-blue-900 mb-1">Exercise Notes:</p>
@@ -476,7 +434,6 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                       </div>
                     )}
 
-                    {/* Set Progress Indicators */}
                     {previewTemplate.exercises[previewExerciseIndex]?.sets && (
                       <div className="space-y-2">
                         <p className="text-sm font-medium">Set Progress:</p>
@@ -500,7 +457,6 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                       </div>
                     )}
 
-                    {/* Navigation Controls */}
                     <div className="flex flex-wrap justify-between gap-2">
                       <div className="flex flex-wrap gap-2">
                         <Button variant="outline" onClick={prevPreviewExercise} disabled={previewExerciseIndex === 0}>
@@ -526,32 +482,33 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                   </CardContent>
                 </Card>
 
-                {/* Upcoming Exercises */}
                 {previewExerciseIndex < previewTemplate.exercises.length - 1 && (
                   <div>
                     <h4 className="font-medium mb-3">Up Next:</h4>
                     <div className="space-y-2">
                       {previewTemplate.exercises
                         .slice(previewExerciseIndex + 1, previewExerciseIndex + 4)
-                        .map((exercise, index) => (
-                          <div
-                            key={exercise.id}
-                            className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                          >
-                            <span className="font-medium">{exercise.name}</span>
-                            <div className="text-sm text-muted-foreground">
-                              {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
-                              {exercise.time && formatTime(exercise.time)}
+                        .map((exercise, index) => {
+                          const exData = exerciseDatabase.find(e => e.id === exercise.exerciseId)
+                          return (
+                            <div
+                              key={exercise.exerciseId + '-' + index}
+                              className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                            >
+                              <span className="font-medium">{exData?.name || exercise.exerciseId}</span>
+                              <div className="text-sm text-muted-foreground">
+                                {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
+                                {exercise.time && formatTime(exercise.time)}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          )
+                        })}
                     </div>
                   </div>
                 )}
               </TabsContent>
 
               <TabsContent value="overview" className="space-y-4">
-                {/* Template Summary */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Card>
                     <CardContent className="p-4">
@@ -596,7 +553,6 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                   </Card>
                 </div>
 
-                {/* Complete Exercise List */}
                 <Card>
                   <CardHeader>
                     <CardTitle>Complete Exercise List</CardTitle>
@@ -604,47 +560,50 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                   <CardContent>
                     <ScrollArea className="h-[400px]">
                       <div className="space-y-3">
-                        {previewTemplate.exercises.map((exercise, index) => (
-                          <div key={exercise.id}>
-                            <div className="flex items-center justify-between p-3 rounded-lg border">
-                              <div>
-                                <h4 className="font-medium">
-                                  {index + 1}. {exercise.name}
-                                </h4>
-                                {exercise.notes && (
-                                  <p className="text-sm text-muted-foreground mt-1">{exercise.notes}</p>
-                                )}
+                        {previewTemplate.exercises.map((exercise, index) => {
+                          const exData = exerciseDatabase.find(e => e.id === exercise.exerciseId)
+                          return (
+                            <div key={exercise.exerciseId + '-' + index}>
+                              <div className="flex items-center justify-between p-3 rounded-lg border">
+                                <div>
+                                  <h4 className="font-medium">
+                                    {index + 1}. {exData?.name || exercise.exerciseId}
+                                  </h4>
+                                  {exercise.notes && (
+                                    <p className="text-sm text-muted-foreground mt-1">{exercise.notes}</p>
+                                  )}
+                                </div>
+                                <div className="flex items-center space-x-4 text-sm">
+                                  {exercise.sets && (
+                                    <div className="flex items-center">
+                                      <Repeat className="w-4 h-4 mr-1 text-muted-foreground" />
+                                      <span>{exercise.sets} sets</span>
+                                    </div>
+                                  )}
+                                  {exercise.reps && (
+                                    <div className="flex items-center">
+                                      <span className="text-muted-foreground mr-1">×</span>
+                                      <span>{exercise.reps} reps</span>
+                                    </div>
+                                  )}
+                                  {exercise.weight && (
+                                    <div className="flex items-center">
+                                      <Weight className="w-4 h-4 mr-1 text-muted-foreground" />
+                                      <span>{exercise.weight} lbs</span>
+                                    </div>
+                                  )}
+                                  {exercise.time && (
+                                    <div className="flex items-center">
+                                      <Timer className="w-4 h-4 mr-1 text-muted-foreground" />
+                                      <span>{formatTime(exercise.time)}</span>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                              <div className="flex items-center space-x-4 text-sm">
-                                {exercise.sets && (
-                                  <div className="flex items-center">
-                                    <Repeat className="w-4 h-4 mr-1 text-muted-foreground" />
-                                    <span>{exercise.sets} sets</span>
-                                  </div>
-                                )}
-                                {exercise.reps && (
-                                  <div className="flex items-center">
-                                    <span className="text-muted-foreground mr-1">×</span>
-                                    <span>{exercise.reps} reps</span>
-                                  </div>
-                                )}
-                                {exercise.weight && (
-                                  <div className="flex items-center">
-                                    <Weight className="w-4 h-4 mr-1 text-muted-foreground" />
-                                    <span>{exercise.weight} lbs</span>
-                                  </div>
-                                )}
-                                {exercise.time && (
-                                  <div className="flex items-center">
-                                    <Timer className="w-4 h-4 mr-1 text-muted-foreground" />
-                                    <span>{formatTime(exercise.time)}</span>
-                                  </div>
-                                )}
-                              </div>
+                              {index < previewTemplate.exercises.length - 1 && <Separator className="my-2" />}
                             </div>
-                            {index < previewTemplate.exercises.length - 1 && <Separator className="my-2" />}
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
                     </ScrollArea>
                   </CardContent>
