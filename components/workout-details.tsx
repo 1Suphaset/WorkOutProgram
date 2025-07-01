@@ -7,15 +7,17 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Play, Edit, Clock, Weight, Repeat, Timer } from "lucide-react"
 import type { Workout } from "@/app/page"
+import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
 
 interface WorkoutDetailsProps {
   workout: Workout
   onClose: () => void
   onEdit: () => void
   onStart: () => void
+  exerciseDatabase?: typeof defaultExerciseDatabase
 }
 
-export function WorkoutDetails({ workout, onClose, onEdit, onStart }: WorkoutDetailsProps) {
+export function WorkoutDetails({ workout, onClose, onEdit, onStart, exerciseDatabase = defaultExerciseDatabase }: WorkoutDetailsProps) {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
@@ -54,46 +56,50 @@ export function WorkoutDetails({ workout, onClose, onEdit, onStart }: WorkoutDet
             <h3 className="font-medium mb-4">Exercises ({workout.exercises.length})</h3>
             <ScrollArea className="h-[400px]">
               <div className="space-y-3">
-                {workout.exercises.map((exercise, index) => (
-                  <Card key={exercise.id}>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center justify-between">
-                        <span>
-                          {index + 1}. {exercise.name}
-                        </span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-wrap gap-4 text-sm">
-                        {exercise.sets && (
-                          <div className="flex items-center">
-                            <Repeat className="w-4 h-4 mr-1 text-muted-foreground" />
-                            <span>{exercise.sets} sets</span>
-                          </div>
-                        )}
-                        {exercise.reps && (
-                          <div className="flex items-center">
-                            <span className="text-muted-foreground mr-1">×</span>
-                            <span>{exercise.reps} reps</span>
-                          </div>
-                        )}
-                        {exercise.weight && (
-                          <div className="flex items-center">
-                            <Weight className="w-4 h-4 mr-1 text-muted-foreground" />
-                            <span>{exercise.weight} lbs</span>
-                          </div>
-                        )}
-                        {exercise.time && (
-                          <div className="flex items-center">
-                            <Timer className="w-4 h-4 mr-1 text-muted-foreground" />
-                            <span>{formatTime(exercise.time)}</span>
-                          </div>
-                        )}
-                      </div>
-                      {exercise.notes && <p className="text-sm text-muted-foreground mt-2 italic">{exercise.notes}</p>}
-                    </CardContent>
-                  </Card>
-                ))}
+                {workout.exercises.map((exercise, index) => {
+                  const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
+                  const exerciseName = exData?.name || exercise.name || "Unknown Exercise";
+                  return (
+                    <Card key={exercise.id}>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center justify-between">
+                          <span>
+                            {index + 1}. {exerciseName}
+                          </span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex flex-wrap gap-4 text-sm">
+                          {exercise.sets && (
+                            <div className="flex items-center">
+                              <Repeat className="w-4 h-4 mr-1 text-muted-foreground" />
+                              <span>{exercise.sets} sets</span>
+                            </div>
+                          )}
+                          {exercise.reps && (
+                            <div className="flex items-center">
+                              <span className="text-muted-foreground mr-1">×</span>
+                              <span>{exercise.reps} reps</span>
+                            </div>
+                          )}
+                          {exercise.weight && (
+                            <div className="flex items-center">
+                              <Weight className="w-4 h-4 mr-1 text-muted-foreground" />
+                              <span>{exercise.weight} lbs</span>
+                            </div>
+                          )}
+                          {exercise.time && (
+                            <div className="flex items-center">
+                              <Timer className="w-4 h-4 mr-1 text-muted-foreground" />
+                              <span>{formatTime(exercise.time)}</span>
+                            </div>
+                          )}
+                        </div>
+                        {exercise.notes && <p className="text-sm text-muted-foreground mt-2 italic">{exercise.notes}</p>}
+                      </CardContent>
+                    </Card>
+                  )
+                })}
               </div>
             </ScrollArea>
           </div>

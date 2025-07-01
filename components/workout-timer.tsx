@@ -25,15 +25,17 @@ import {
 import type { Workout } from "@/app/page"
 import { ExerciseCountdownTimer } from "@/components/exercise-countdown-timer"
 import { useTranslation, type Language } from "@/lib/i18n"
+import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
 
 interface WorkoutTimerProps {
   workout: Workout
   onClose: () => void
   onComplete: (duration: number) => void
   language?: Language
+  exerciseDatabase?: typeof defaultExerciseDatabase
 }
 
-export function WorkoutTimer({ workout, onClose, onComplete, language = "en" }: WorkoutTimerProps) {
+export function WorkoutTimer({ workout, onClose, onComplete, language = "en", exerciseDatabase = defaultExerciseDatabase }: WorkoutTimerProps) {
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
   const [currentSet, setCurrentSet] = useState(1)
   const [isRunning, setIsRunning] = useState(false)
@@ -49,6 +51,8 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en" }: 
   const { t } = useTranslation(language)
 
   const currentExercise = workout.exercises[currentExerciseIndex]
+  const exData = exerciseDatabase.find(e => e.id === (currentExercise && 'exerciseId' in currentExercise ? currentExercise.exerciseId : currentExercise?.id))
+  const exerciseName = exData?.name || currentExercise?.name || "Unknown Exercise"
   const totalExercises = workout.exercises.length
   const totalSets = workout.exercises.reduce((sum, ex) => sum + (ex.sets || 1), 0)
   const completedSetsCount = Object.values(completedSets).reduce((sum, sets) => sum + sets, 0)
@@ -257,7 +261,7 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en" }: 
       {currentExercise?.time && showExerciseTimer && (
         <ExerciseCountdownTimer
           duration={currentExercise.time}
-          exerciseName={`${currentExercise.name} - Set ${currentSet}`}
+          exerciseName={`${exerciseName} - Set ${currentSet}`}
           language={language}
           onComplete={handleExerciseTimerComplete}
           onStart={() => !isRunning && startTimer()}
@@ -268,7 +272,7 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en" }: 
       <Card className="border-primary w-full">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>{currentExercise?.name}</span>
+            <span>{exerciseName}</span>
             <Badge variant="outline" className="text-base px-3 py-1">
               Set {currentSet} of {currentExercise?.sets || 1}
             </Badge>
@@ -411,15 +415,19 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en" }: 
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {workout.exercises.slice(currentExerciseIndex + 1, currentExerciseIndex + 4).map((exercise) => (
-                <div key={exercise.id} className="flex items-center justify-between p-2 bg-muted rounded">
-                  <span className="font-medium truncate">{exercise.name}</span>
-                  <div className="text-sm text-muted-foreground">
-                    {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
-                    {exercise.time && formatTime(exercise.time)}
+              {workout.exercises.slice(currentExerciseIndex + 1, currentExerciseIndex + 4).map((exercise) => {
+                const exData = exerciseDatabase.find(e => e.id === ('exerciseId' in exercise ? exercise.exerciseId : exercise.id))
+                const exerciseName = exData?.name || exercise.name || "Unknown Exercise"
+                return (
+                  <div key={exercise.id} className="flex items-center justify-between p-2 bg-muted rounded">
+                    <span className="font-medium truncate">{exerciseName}</span>
+                    <div className="text-sm text-muted-foreground">
+                      {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
+                      {exercise.time && formatTime(exercise.time)}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>

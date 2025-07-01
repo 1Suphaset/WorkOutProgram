@@ -1,5 +1,5 @@
 export interface WorkoutTemplate {
-  id: string
+  id: number
   name: string
   nameTranslations: {
     th: string
@@ -34,7 +34,7 @@ export interface WorkoutTemplate {
 export const workoutTemplates: WorkoutTemplate[] = [
   // EXISTING TEMPLATES (keeping the current structure)
   {
-    id: "full-body-beginner",
+    id: 1,
     name: "Full Body Beginner",
     nameTranslations: {
       th: "โปรแกรมเริ่มต้นทั้งร่างกาย",
@@ -73,7 +73,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
     tags: ["beginner", "full-body", "bodyweight"],
   },
   {
-    id: "hiit-cardio",
+    id: 2,
     name: "HIIT Cardio Blast",
     nameTranslations: {
       th: "HIIT คาร์ดิโอเบิร์น",
@@ -111,7 +111,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
 
   // NEW CARDIO TEMPLATES
   {
-    id: "jump-rope-cardio",
+    id: 3,
     name: "Jump Rope Cardio",
     nameTranslations: {
       th: "กระโดดเชือกคาร์ดิโอ",
@@ -149,10 +149,10 @@ export const workoutTemplates: WorkoutTemplate[] = [
     tags: ["cardio", "jump-rope", "coordination"],
   },
   {
-    id: "burpee-blast",
+    id: 4,
     name: "Burpee Blast",
     nameTranslations: {
-      th: "เบอร์ปี้เบิร์น",
+      th: "เบอร์ปี้เบอร์น",
     },
     type: "Cardio",
     duration: 12,
@@ -187,7 +187,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
     tags: ["burpees", "hiit", "full-body", "intense"],
   },
   {
-    id: "mountain-climber-cardio",
+    id: 5,
     name: "Mountain Climber Cardio",
     nameTranslations: {
       th: "เมาน์เทนไคลม์เบอร์คาร์ดิโอ",
@@ -226,7 +226,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
     tags: ["mountain-climbers", "core", "cardio"],
   },
   {
-    id: "high-knees-workout",
+    id: 6,
     name: "High Knees Workout",
     nameTranslations: {
       th: "การออกกำลังกายยกเข่าสูง",
@@ -266,7 +266,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
 
   // NEW STRENGTH TEMPLATES
   {
-    id: "push-up-power",
+    id: 7,
     name: "Push-up Power",
     nameTranslations: {
       th: "พาวเวอร์วิดพื้น",
@@ -314,7 +314,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
     tags: ["push-ups", "upper-body", "strength"],
   },
   {
-    id: "squat-strength",
+    id: 8,
     name: "Squat Strength",
     nameTranslations: {
       th: "ความแข็งแรงสควอท",
@@ -361,7 +361,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
     tags: ["squats", "lower-body", "strength", "glutes"],
   },
   {
-    id: "lunge-workout",
+    id: 9,
     name: "Lunge Workout",
     nameTranslations: {
       th: "การออกกำลังกายลันจ์",
@@ -408,7 +408,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
     tags: ["lunges", "unilateral", "balance", "legs"],
   },
   {
-    id: "plank-challenge",
+    id: 10,
     name: "Plank Challenge",
     nameTranslations: {
       th: "ท้าทายแพลงค์",
@@ -434,7 +434,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         name: "Side Planks",
         nameTranslations: { th: "แพลงค์ข้าง" },
         sets: 2,
-        duration: "30 each side",
+        duration: 30,
         rest: 45,
         instructions: "Lie on side, prop up on elbow, lift hips to create straight line.",
         instructionsTranslations: { th: "นอนตะแคง ค้ำด้วยข้อศอก ยกสะโพกให้เป็นเส้นตรง" },
@@ -455,7 +455,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
     tags: ["plank", "core", "isometric", "stability"],
   },
   {
-    id: "deadlift-basics",
+    id: 11,
     name: "Deadlift Basics",
     nameTranslations: {
       th: "พื้นฐานเดดลิฟท์",
@@ -505,7 +505,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
 
   // NEW CORE TEMPLATES
   {
-    id: "crunch-core",
+    id: 12,
     name: "Crunch Core",
     nameTranslations: {
       th: "คอร์ครันช์",
@@ -552,7 +552,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
     tags: ["crunches", "abs", "core", "beginner"],
   },
   {
-    id: "russian-twist-core",
+    id: 13,
     name: "Russian Twist Core",
     nameTranslations: {
       th: "คอร์รัสเซียนทวิสต์",
@@ -599,7 +599,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
     tags: ["russian-twists", "obliques", "rotation", "core"],
   },
   {
-    id: "leg-raise-core",
+    id: 14,
     name: "Leg Raise Core",
     nameTranslations: {
       th: "คอร์ยกขา",
@@ -646,7 +646,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
     tags: ["leg-raises", "lower-abs", "core", "hip-flexors"],
   },
   {
-    id: "flutter-kick-core",
+    id: 15,
     name: "Flutter Kick Core",
     nameTranslations: {
       th: "คอร์เตะกระพือ",
@@ -676,7 +676,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         duration: 25,
         rest: 35,
         instructions: "Cross legs over each other in scissoring motion, keep core engaged.",
-        instructionsTranslations: { th: "ไขว้ขาข้ามกันในการเ���ลื่อนไหวแบบกรรไกร กระชับคอร์" },
+        instructionsTranslations: { th: "ไขว้ขาข้ามกันในการเคลื่อนไหวแบบกรรไกร กระชับคอร์" },
       },
       {
         name: "Vertical Leg Crunches",
@@ -696,7 +696,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
 
   // NEW FLEXIBILITY TEMPLATES
   {
-    id: "hamstring-flexibility",
+    id: 16,
     name: "Hamstring Flexibility",
     nameTranslations: {
       th: "ความยืดหยุ่นกล้ามเนื้อหลังขา",
@@ -732,7 +732,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         name: "Lying Hamstring Stretch",
         nameTranslations: { th: "ยืดหลังขานอน" },
         sets: 2,
-        duration: "30 each leg",
+        duration: 30,
         rest: 15,
         instructions: "Lie on back, pull one leg toward chest, keep other leg flat.",
         instructionsTranslations: { th: "นอนหงาย ดึงขาข้างหนึ่งเข้าหาอก ขาอีกข้างแบน" },
@@ -744,7 +744,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
     tags: ["hamstring", "flexibility", "stretching", "mobility"],
   },
   {
-    id: "childs-pose-flow",
+    id: 17,
     name: "Child's Pose Flow",
     nameTranslations: {
       th: "โฟลว์ท่าเด็ก",
@@ -792,7 +792,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
     tags: ["childs-pose", "yoga", "relaxation", "spinal-mobility"],
   },
   {
-    id: "cobra-stretch-flow",
+    id: 18,
     name: "Cobra Stretch Flow",
     nameTranslations: {
       th: "โฟลว์ยืดท่างู",
@@ -861,6 +861,6 @@ export const searchWorkoutTemplates = (searchTerm: string): WorkoutTemplate[] =>
   )
 }
 
-export const getWorkoutTemplateById = (id: string): WorkoutTemplate | undefined => {
+export const getWorkoutTemplateById = (id: number): WorkoutTemplate | undefined => {
   return workoutTemplates.find((template) => template.id === id)
 }

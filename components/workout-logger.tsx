@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { CheckCircle, Clock, Weight, Repeat } from "lucide-react"
 import type { Workout } from "@/app/page"
 import { useTranslation } from "@/lib/i18n"
+import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
 
 interface WorkoutLoggerProps {
   workout: Workout
@@ -19,6 +20,7 @@ interface WorkoutLoggerProps {
   onClose: () => void
   onComplete: (logData: WorkoutLog) => void
   language: "en" | "th"
+  exerciseDatabase?: typeof defaultExerciseDatabase
 }
 
 export interface WorkoutLog {
@@ -39,7 +41,7 @@ export interface ExerciseLog {
   notes: string
 }
 
-export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language }: WorkoutLoggerProps) {
+export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, exerciseDatabase = defaultExerciseDatabase }: WorkoutLoggerProps) {
   const { t } = useTranslation(language)
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>(
     workout.exercises.map((ex) => ({
@@ -91,13 +93,15 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language }
             {workout.exercises.map((exercise, index) => {
               const log = exerciseLogs.find((l) => l.exerciseId === exercise.id)
               if (!log) return null
+              const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
+              const exerciseName = exData?.name || exercise.name || "Unknown Exercise";
 
               return (
                 <Card key={exercise.id}>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-base flex items-center justify-between">
                       <span>
-                        {index + 1}. {exercise.name}
+                        {index + 1}. {exerciseName}
                       </span>
                       <Badge variant="outline">
                         {exercise.sets && `${exercise.sets} sets`}

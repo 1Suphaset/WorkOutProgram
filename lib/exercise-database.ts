@@ -6,7 +6,7 @@ export interface CustomExercise extends ExerciseLibraryItem {
 
 // Update the existing interface to include optional isCustom flag
 export interface ExerciseLibraryItem {
-  id: string
+  id: number
   name: string
   category: "Strength" | "Cardio" | "Flexibility" | "Sports"
   muscleGroups: string[]
@@ -35,7 +35,7 @@ export interface ExerciseLibraryItem {
 export const exerciseDatabase: ExerciseLibraryItem[] = [
   // STRENGTH EXERCISES
   {
-    id: "bench-press",
+    id: 1,
     name: "Bench Press",
     category: "Strength",
     muscleGroups: ["Chest", "Shoulders", "Triceps"],
@@ -82,7 +82,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "squats",
+    id: 2,
     name: "Squats",
     category: "Strength",
     muscleGroups: ["Quadriceps", "Glutes", "Hamstrings", "Core"],
@@ -129,7 +129,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "deadlift",
+    id: 3,
     name: "Deadlift",
     category: "Strength",
     muscleGroups: ["Hamstrings", "Glutes", "Lower Back", "Traps"],
@@ -176,7 +176,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "push-ups",
+    id: 4,
     name: "Push-ups",
     category: "Strength",
     muscleGroups: ["Chest", "Shoulders", "Triceps", "Core"],
@@ -222,7 +222,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "pull-ups",
+    id: 5,
     name: "Pull-ups",
     category: "Strength",
     muscleGroups: ["Lats", "Rhomboids", "Biceps", "Core"],
@@ -270,7 +270,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
 
   // CARDIO EXERCISES
   {
-    id: "jumping-jacks",
+    id: 6,
     name: "Jumping Jacks",
     category: "Cardio",
     muscleGroups: ["Full Body", "Calves", "Shoulders"],
@@ -316,7 +316,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "burpees",
+    id: 7,
     name: "Burpees",
     category: "Cardio",
     muscleGroups: ["Full Body", "Core", "Legs", "Arms"],
@@ -363,7 +363,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "mountain-climbers",
+    id: 8,
     name: "Mountain Climbers",
     category: "Cardio",
     muscleGroups: ["Core", "Shoulders", "Legs"],
@@ -409,7 +409,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "high-knees",
+    id: 9,
     name: "High Knees",
     category: "Cardio",
     muscleGroups: ["Hip Flexors", "Quadriceps", "Calves"],
@@ -457,7 +457,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
 
   // FLEXIBILITY EXERCISES
   {
-    id: "downward-dog",
+    id: 10,
     name: "Downward Facing Dog",
     category: "Flexibility",
     muscleGroups: ["Hamstrings", "Calves", "Shoulders", "Back"],
@@ -503,7 +503,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "pigeon-pose",
+    id: 11,
     name: "Pigeon Pose",
     category: "Flexibility",
     muscleGroups: ["Hip Flexors", "Glutes", "IT Band"],
@@ -549,7 +549,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "child-pose",
+    id: 12,
     name: "Child's Pose",
     category: "Flexibility",
     muscleGroups: ["Back", "Hips", "Shoulders"],
@@ -595,7 +595,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "cat-cow",
+    id: 13,
     name: "Cat-Cow Stretch",
     category: "Flexibility",
     muscleGroups: ["Spine", "Core", "Neck"],
@@ -643,7 +643,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
 
   // SPORTS/FUNCTIONAL EXERCISES
   {
-    id: "box-jumps",
+    id: 14,
     name: "Box Jumps",
     category: "Sports",
     muscleGroups: ["Quadriceps", "Glutes", "Calves", "Core"],
@@ -689,7 +689,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "battle-ropes",
+    id: 15,
     name: "Battle Ropes",
     category: "Sports",
     muscleGroups: ["Arms", "Shoulders", "Core", "Legs"],
@@ -735,7 +735,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "kettlebell-swings",
+    id: 16,
     name: "Kettlebell Swings",
     category: "Sports",
     muscleGroups: ["Glutes", "Hamstrings", "Core", "Shoulders"],
@@ -781,7 +781,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "medicine-ball-slams",
+    id: 17,
     name: "Medicine Ball Slams",
     category: "Sports",
     muscleGroups: ["Core", "Shoulders", "Back", "Legs"],
@@ -827,7 +827,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "plank",
+    id: 18,
     name: "Plank",
     category: "Strength",
     muscleGroups: ["Core", "Shoulders", "Back"],
@@ -869,7 +869,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
   },
   // ADDITIONAL STRENGTH EXERCISES
   {
-    id: "overhead-press",
+    id: 19,
     name: "Overhead Press",
     category: "Strength",
     muscleGroups: ["Shoulders", "Triceps", "Core"],
@@ -915,7 +915,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "barbell-rows",
+    id: 20,
     name: "Barbell Rows",
     category: "Strength",
     muscleGroups: ["Lats", "Rhomboids", "Middle Traps", "Biceps"],
@@ -961,7 +961,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "dips",
+    id: 21,
     name: "Dips",
     category: "Strength",
     muscleGroups: ["Triceps", "Chest", "Shoulders"],
@@ -1002,7 +1002,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "lunges",
+    id: 22,
     name: "Lunges",
     category: "Strength",
     muscleGroups: ["Quadriceps", "Glutes", "Hamstrings", "Calves"],
@@ -1048,7 +1048,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "hip-thrusts",
+    id: 23,
     name: "Hip Thrusts",
     category: "Strength",
     muscleGroups: ["Glutes", "Hamstrings", "Core"],
@@ -1096,7 +1096,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
 
   // ADDITIONAL CARDIO EXERCISES
   {
-    id: "jump-rope",
+    id: 24,
     name: "Jump Rope",
     category: "Cardio",
     muscleGroups: ["Calves", "Shoulders", "Core"],
@@ -1142,7 +1142,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "rowing-machine",
+    id: 25,
     name: "Rowing Machine",
     category: "Cardio",
     muscleGroups: ["Back", "Legs", "Arms", "Core"],
@@ -1188,7 +1188,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "stair-climbing",
+    id: 26,
     name: "Stair Climbing",
     category: "Cardio",
     muscleGroups: ["Quadriceps", "Glutes", "Calves", "Core"],
@@ -1231,7 +1231,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
 
   // ADDITIONAL FLEXIBILITY EXERCISES
   {
-    id: "forward-fold",
+    id: 27,
     name: "Forward Fold",
     category: "Flexibility",
     muscleGroups: ["Hamstrings", "Calves", "Lower Back"],
@@ -1277,7 +1277,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "spinal-twist",
+    id: 28,
     name: "Spinal Twist",
     category: "Flexibility",
     muscleGroups: ["Spine", "Obliques", "Hips"],
@@ -1318,7 +1318,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "hip-flexor-stretch",
+    id: 29,
     name: "Hip Flexor Stretch",
     category: "Flexibility",
     muscleGroups: ["Hip Flexors", "Quadriceps"],
@@ -1366,7 +1366,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
 
   // ADDITIONAL SPORTS/FUNCTIONAL EXERCISES
   {
-    id: "turkish-get-up",
+    id: 30,
     name: "Turkish Get-Up",
     category: "Sports",
     muscleGroups: ["Full Body", "Core", "Shoulders"],
@@ -1413,7 +1413,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "farmers-walk",
+    id: 31,
     name: "Farmer's Walk",
     category: "Sports",
     muscleGroups: ["Traps", "Forearms", "Core", "Legs"],
@@ -1449,7 +1449,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "bear-crawl",
+    id: 32,
     name: "Bear Crawl",
     category: "Sports",
     muscleGroups: ["Core", "Shoulders", "Legs"],
@@ -1495,7 +1495,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "wall-sit",
+    id: 33,
     name: "Wall Sit",
     category: "Strength",
     muscleGroups: ["Quadriceps", "Glutes", "Core"],
@@ -1536,7 +1536,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "russian-twists",
+    id: 34,
     name: "Russian Twists",
     category: "Strength",
     muscleGroups: ["Obliques", "Core", "Hip Flexors"],
@@ -1581,9 +1581,9 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
       rest: 45,
     },
   },
- // NEW UPPER BODY EXERCISES
+  // NEW UPPER BODY EXERCISES
   {
-    id: "shoulder-taps",
+    id: 35,
     name: "Shoulder Taps",
     category: "Strength",
     muscleGroups: ["Core", "Shoulders", "Arms"],
@@ -1629,7 +1629,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "tricep-dips",
+    id: 36,
     name: "Tricep Dips",
     category: "Strength",
     muscleGroups: ["Triceps", "Shoulders", "Chest"],
@@ -1675,7 +1675,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "bicep-curls",
+    id: 37,
     name: "Bicep Curls",
     category: "Strength",
     muscleGroups: ["Biceps", "Forearms"],
@@ -1721,7 +1721,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "dumbbell-press",
+    id: 38,
     name: "Dumbbell Press",
     category: "Strength",
     muscleGroups: ["Chest", "Shoulders", "Triceps"],
@@ -1767,7 +1767,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "pike-push-ups",
+    id: 39,
     name: "Pike Push-ups",
     category: "Strength",
     muscleGroups: ["Shoulders", "Triceps", "Core"],
@@ -1815,7 +1815,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
 
   // NEW CORE/ABS EXERCISES
   {
-    id: "sit-ups",
+    id: 40,
     name: "Sit-ups",
     category: "Strength",
     muscleGroups: ["Rectus Abdominis", "Hip Flexors"],
@@ -1861,7 +1861,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "bicycle-crunches",
+    id: 41,
     name: "Bicycle Crunches",
     category: "Strength",
     muscleGroups: ["Obliques", "Rectus Abdominis", "Hip Flexors"],
@@ -1907,7 +1907,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "tricep-extensions",
+    id: 42,
     name: "Tricep Extensions",
     category: "Strength",
     muscleGroups: ["Triceps"],
@@ -1953,7 +1953,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "bodyweight-rows",
+    id: 43,
     name: "Bodyweight Rows",
     category: "Strength",
     muscleGroups: ["Lats", "Rhomboids", "Biceps", "Rear Delts"],
@@ -1999,7 +1999,7 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     },
   },
   {
-    id: "dead-bug",
+    id: 44,
     name: "Dead Bug",
     category: "Strength",
     muscleGroups: ["Core", "Hip Flexors", "Shoulders"],
@@ -2043,6 +2043,592 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
       reps: "6-10 each side",
       rest: 45,
     },
+  },
+  {
+    id: 10001,
+    name: 'Unknown Exercise',
+    category: 'Strength',
+    muscleGroups: [],
+    difficulty: 'Beginner',
+    equipment: 'None',
+    description: 'A placeholder for exercises not found in the database.',
+    instructions: [
+      'No instructions available.'
+    ],
+    imageUrl: '/placeholder.svg?height=300&width=400&text=Unknown+Exercise',
+    estimatedDuration: 1,
+    benefits: [],
+    tips: [],
+    variations: [],
+    recommendedSets: {
+      sets: 1,
+      reps: "1",
+      rest: 30,
+    },
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10002,
+    name: 'Bodyweight Squats',
+    category: 'Strength',
+    muscleGroups: ['Quadriceps', 'Glutes', 'Hamstrings', 'Core'],
+    difficulty: 'Beginner',
+    equipment: 'Bodyweight',
+    description: 'A fundamental lower body exercise that works multiple muscle groups and improves functional movement.',
+    instructions: [
+      "Stand with feet shoulder-width apart",
+      "Keep your chest up and core engaged",
+      "Lower your body by bending at the hips and knees",
+      "Go down until your thighs are parallel to the floor",
+      "Push through your heels to return to starting position",
+      "Keep your knees in line with your toes"
+    ],
+    imageUrl: '/placeholder.svg?height=300&width=400&text=Bodyweight+Squats',
+    estimatedDuration: 2,
+    benefits: [
+      "Builds lower body strength",
+      "Improves mobility and balance",
+      "Enhances functional movement"
+    ],
+    tips: [
+      "Keep your weight on your heels",
+      "Do not let your knees cave inward",
+      "Maintain a neutral spine"
+    ],
+    variations: [
+      {
+        name: "Jump Squat",
+        description: "Add a jump at the top for power and cardio"
+      }
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "10-15",
+      rest: 60,
+    },
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10003,
+    name: 'Push-ups (Modified)',
+    category: 'Strength',
+    muscleGroups: ['Chest', 'Shoulders', 'Triceps', 'Core'],
+    difficulty: 'Beginner',
+    equipment: 'Bodyweight',
+    description: 'A push-up variation performed on knees to reduce difficulty and build strength.',
+    instructions: [
+      "Start in a plank position with knees on the ground",
+      "Lower your chest to the floor while keeping elbows at 45 degrees",
+      "Push back up to the starting position"
+    ],
+    imageUrl: '/placeholder.svg?height=300&width=400&text=Push-ups+%28Modified%29',
+    estimatedDuration: 2,
+    benefits: [
+      "Builds upper body strength",
+      "Improves core stability",
+      "Accessible for beginners"
+    ],
+    tips: [
+      "Keep your body in a straight line from head to knees",
+      "Engage your core throughout the movement"
+    ],
+    variations: [
+      {
+        name: "Incline Push-up",
+        description: "Place hands on an elevated surface for even less resistance"
+      }
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "8-12",
+      rest: 60,
+    },
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10004,
+    name: 'Basic Jump Rope',
+    category: 'Cardio',
+    muscleGroups: ['Calves', 'Shoulders', 'Forearms', 'Core'],
+    difficulty: 'Beginner',
+    equipment: 'Jump Rope',
+    description: 'A simple cardio exercise using a jump rope to improve coordination and cardiovascular fitness.',
+    instructions: [
+      "Hold the rope handles at your sides",
+      "Swing the rope over your head and jump as it passes under your feet",
+      "Land softly on the balls of your feet and repeat"
+    ],
+    imageUrl: '/placeholder.svg?height=300&width=400&text=Basic+Jump+Rope',
+    estimatedDuration: 1,
+    benefits: [
+      "Improves cardiovascular endurance",
+      "Enhances coordination and agility"
+    ],
+    tips: [
+      "Keep your elbows close to your body",
+      "Jump only high enough to clear the rope"
+    ],
+    variations: [
+      {
+        name: "Alternate Foot Jump",
+        description: "Jump from one foot to the other"
+      }
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "30 sec",
+      rest: 45,
+    },
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10005,
+    name: 'Single Leg Hops',
+    category: 'Cardio',
+    muscleGroups: ['Calves', 'Quadriceps', 'Glutes'],
+    difficulty: 'Beginner',
+    equipment: 'Bodyweight',
+    description: 'A plyometric exercise to improve balance, coordination, and lower body power.',
+    instructions: [
+      "Stand on one leg with the other leg bent behind you",
+      "Hop forward or in place, landing softly on the same foot",
+      "Repeat for desired reps, then switch legs"
+    ],
+    imageUrl: '/placeholder.svg?height=300&width=400&text=Single+Leg+Hops',
+    estimatedDuration: 1,
+    benefits: [
+      "Improves balance and coordination",
+      "Builds lower body strength and power"
+    ],
+    tips: [
+      "Keep your core engaged",
+      "Land softly to absorb impact"
+    ],
+    variations: [
+      {
+        name: "Lateral Single Leg Hop",
+        description: "Hop side to side on one leg"
+      }
+    ],
+    recommendedSets: {
+      sets: 2,
+      reps: "10 each leg",
+      rest: 45,
+    },
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10006,
+    name: 'Standard Burpees',
+    category: 'Cardio',
+    muscleGroups: ['Full Body'],
+    difficulty: 'Intermediate',
+    equipment: 'Bodyweight',
+    description: 'A full-body exercise combining a squat, push-up, and jump for cardio and strength.',
+    instructions: [
+      "Start standing, squat down and place hands on the floor",
+      "Jump feet back to a plank position",
+      "Perform a push-up",
+      "Jump feet forward to squat position",
+      "Explode up into a jump and repeat"
+    ],
+    imageUrl: '/placeholder.svg?height=300&width=400&text=Standard+Burpees',
+    estimatedDuration: 2,
+    benefits: [
+      "Builds strength and endurance",
+      "Burns calories quickly"
+    ],
+    tips: [
+      "Keep your core tight",
+      "Land softly from the jump"
+    ],
+    variations: [
+      {
+        name: "Burpee with Tuck Jump",
+        description: "Add a tuck jump at the end for extra intensity"
+      }
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "8-12",
+      rest: 60,
+    },
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10007,
+    name: 'Burpee Variations',
+    category: 'Cardio',
+    muscleGroups: ['Full Body'],
+    difficulty: 'Intermediate',
+    equipment: 'Bodyweight',
+    description: 'A collection of burpee variations to increase challenge and variety.',
+    instructions: [
+      "Perform standard burpee, then add a variation such as a push-up, tuck jump, or mountain climber"
+    ],
+    imageUrl: '/placeholder.svg?height=300&width=400&text=Burpee+Variations',
+    estimatedDuration: 2,
+    benefits: [
+      "Increases exercise variety",
+      "Targets multiple muscle groups"
+    ],
+    tips: [
+      "Choose a variation that matches your fitness level"
+    ],
+    variations: [
+      {
+        name: "Burpee with Mountain Climber",
+        description: "Add mountain climbers after the push-up"
+      }
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "8-12",
+      rest: 60,
+    },
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10008,
+    name: 'Mountain Climbers',
+    category: 'Cardio',
+    muscleGroups: ['Core', 'Shoulders', 'Legs'],
+    difficulty: 'Beginner',
+    equipment: 'Bodyweight',
+    description: 'A dynamic exercise that targets the core, shoulders, and legs while increasing heart rate.',
+    instructions: [
+      "Start in a plank position",
+      "Drive one knee toward your chest, then quickly switch legs",
+      "Continue alternating legs at a steady pace"
+    ],
+    imageUrl: '/placeholder.svg?height=300&width=400&text=Mountain+Climbers',
+    estimatedDuration: 1,
+    benefits: [
+      "Improves cardiovascular fitness",
+      "Strengthens core and shoulders"
+    ],
+    tips: [
+      "Keep your hips low",
+      "Move quickly but with control"
+    ],
+    variations: [
+      {
+        name: "Cross-Body Mountain Climber",
+        description: "Bring knee toward opposite elbow"
+      }
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "20-30 sec",
+      rest: 45,
+    },
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10009,
+    name: 'Cross-Body Mountain Climbers',
+    category: 'Cardio',
+    muscleGroups: ['Core', 'Shoulders', 'Legs'],
+    difficulty: 'Beginner',
+    equipment: 'Bodyweight',
+    description: 'A variation of mountain climbers that targets the obliques and core.',
+    instructions: [
+      "Start in a plank position",
+      "Drive right knee toward left elbow, then switch sides",
+      "Continue alternating in a controlled manner"
+    ],
+    imageUrl: '/placeholder.svg?height=300&width=400&text=Cross-Body+Mountain+Climbers',
+    estimatedDuration: 1,
+    benefits: [
+      "Targets obliques",
+      "Improves core stability"
+    ],
+    tips: [
+      "Keep your shoulders over your wrists",
+      "Engage your core throughout"
+    ],
+    variations: [
+      {
+        name: "Slow Cross-Body Mountain Climber",
+        description: "Perform the movement slowly for more control"
+      }
+    ],
+    recommendedSets: {
+      sets: 3,
+      reps: "20-30 sec",
+      rest: 45,
+    },
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10010,
+    name: 'High Knees March',
+    category: 'Cardio',
+    muscleGroups: ['Hip Flexors', 'Quadriceps', 'Core'],
+    difficulty: 'Beginner',
+    equipment: 'Bodyweight',
+    description: 'A cardio exercise that involves marching in place while lifting knees high to engage the core and legs.',
+    instructions: [
+      "Stand tall with feet hip-width apart",
+      "March in place, lifting knees as high as possible",
+      "Pump your arms for added intensity"
+    ],
+    imageUrl: '/placeholder.svg?height=300&width=400&text=High+Knees+March',
+    estimatedDuration: 1,
+    benefits: [
+      "Improves cardiovascular endurance",
+      "Engages hip flexors and core"
+    ],
+    tips: [
+      "Keep your chest up",
+      "Move at a brisk pace"
+    ],
+    variations: [
+      {
+        name: "High Knees Run",
+        description: "Perform at a running pace for more intensity"
+      }
+    ],
+    recommendedSets: {
+      sets: 2,
+      reps: "30 sec",
+      rest: 45,
+    },
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10011,
+    name: 'Standard Push-ups',
+    category: 'Strength',
+    muscleGroups: ['Chest', 'Shoulders', 'Triceps', 'Core'],
+    difficulty: 'Intermediate',
+    equipment: 'Bodyweight',
+    description: 'A classic push-up variation focusing on chest, shoulders, and triceps.',
+    instructions: [
+      'Keep body straight, lower chest to ground, push back up maintaining form.'
+    ],
+    imageUrl: '',
+    estimatedDuration: 2,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10012,
+    name: 'Wide-Grip Push-ups',
+    category: 'Strength',
+    muscleGroups: ['Chest', 'Shoulders'],
+    difficulty: 'Intermediate',
+    equipment: 'Bodyweight',
+    description: 'Push-up variation with hands wider than shoulders to emphasize chest.',
+    instructions: [
+      'Place hands wider than shoulders, focus on chest engagement.'
+    ],
+    imageUrl: '',
+    estimatedDuration: 2,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10013,
+    name: 'Diamond Push-ups',
+    category: 'Strength',
+    muscleGroups: ['Triceps', 'Chest'],
+    difficulty: 'Intermediate',
+    equipment: 'Bodyweight',
+    description: 'Push-up variation with hands in diamond shape to target triceps.',
+    instructions: [
+      'Form diamond shape with hands, targets triceps more intensely.'
+    ],
+    imageUrl: '',
+    estimatedDuration: 2,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10014,
+    name: 'Jump Squats',
+    category: 'Strength',
+    muscleGroups: ['Quadriceps', 'Glutes', 'Hamstrings', 'Core'],
+    difficulty: 'Intermediate',
+    equipment: 'Bodyweight',
+    description: 'Explosive squat variation to build power and strength in the lower body.',
+    instructions: [
+      'Perform squat then explode up into jump, land softly and repeat.'
+    ],
+    imageUrl: '',
+    estimatedDuration: 2,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10015,
+    name: 'Single-Leg Squats',
+    category: 'Strength',
+    muscleGroups: ['Quadriceps', 'Glutes', 'Hamstrings', 'Core'],
+    difficulty: 'Intermediate',
+    equipment: 'Bodyweight',
+    description: 'Squat performed on one leg to improve balance and strength.',
+    instructions: [
+      'Squat on one leg, use chair for balance if needed, focus on control.'
+    ],
+    imageUrl: '',
+    estimatedDuration: 2,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10016,
+    name: 'Forward Lunges',
+    category: 'Strength',
+    muscleGroups: ['Quadriceps', 'Glutes', 'Hamstrings', 'Calves'],
+    difficulty: 'Beginner',
+    equipment: 'Bodyweight',
+    description: 'Lunge forward to strengthen legs and improve balance.',
+    instructions: [
+      'Step forward into lunge, lower back knee toward ground, push back to start.'
+    ],
+    imageUrl: '',
+    estimatedDuration: 2,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10017,
+    name: 'Reverse Lunges',
+    category: 'Strength',
+    muscleGroups: ['Quadriceps', 'Glutes', 'Hamstrings', 'Calves'],
+    difficulty: 'Beginner',
+    equipment: 'Bodyweight',
+    description: 'Lunge backward to target legs and improve stability.',
+    instructions: [
+      'Step backward into lunge, focus on front leg stability, return to center.'
+    ],
+    imageUrl: '',
+    estimatedDuration: 2,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10018,
+    name: 'Lateral Lunges',
+    category: 'Strength',
+    muscleGroups: ['Quadriceps', 'Glutes', 'Hamstrings', 'Calves'],
+    difficulty: 'Beginner',
+    equipment: 'Bodyweight',
+    description: 'Side lunge to work inner and outer thighs and improve mobility.',
+    instructions: [
+      'Step to side, sit back on one leg, keep other leg straight, return to center.'
+    ],
+    imageUrl: '',
+    estimatedDuration: 2,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10019,
+    name: 'Standard Plank',
+    category: 'Strength',
+    muscleGroups: ['Core', 'Shoulders', 'Arms'],
+    difficulty: 'Intermediate',
+    equipment: 'Bodyweight',
+    description: 'Isometric core exercise to build stability and endurance.',
+    instructions: [
+      'Hold plank position, keep body straight from head to heels, engage core.'
+    ],
+    imageUrl: '',
+    estimatedDuration: 1,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10020,
+    name: 'Side Planks',
+    category: 'Strength',
+    muscleGroups: ['Core', 'Shoulders', 'Arms'],
+    difficulty: 'Intermediate',
+    equipment: 'Bodyweight',
+    description: 'Plank variation performed on the side to target obliques.',
+    instructions: [
+      'Lie on side, prop up on elbow, lift hips to create straight line.'
+    ],
+    imageUrl: '',
+    estimatedDuration: 1,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10021,
+    name: 'Plank Up-Downs',
+    category: 'Strength',
+    muscleGroups: ['Core', 'Shoulders', 'Arms'],
+    difficulty: 'Intermediate',
+    equipment: 'Bodyweight',
+    description: 'Dynamic plank variation to build core and shoulder strength.',
+    instructions: [
+      'Start in plank, lower to forearms one arm at a time, return to plank.'
+    ],
+    imageUrl: '',
+    estimatedDuration: 1,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10022,
+    name: 'Romanian Deadlifts',
+    category: 'Strength',
+    muscleGroups: ['Hamstrings', 'Glutes', 'Lower Back'],
+    difficulty: 'Advanced',
+    equipment: 'Dumbbells',
+    description: 'Deadlift variation focusing on hamstrings and glutes.',
+    instructions: [
+      'Hinge at hips, lower weight while keeping back straight, feel stretch in hamstrings.'
+    ],
+    imageUrl: '',
+    estimatedDuration: 2,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10023,
+    name: 'Single-Leg Deadlifts',
+    category: 'Strength',
+    muscleGroups: ['Hamstrings', 'Glutes', 'Lower Back'],
+    difficulty: 'Advanced',
+    equipment: 'Dumbbells',
+    description: 'Deadlift performed on one leg to improve balance and posterior chain strength.',
+    instructions: [
+      'Balance on one leg, hinge forward, touch ground with fingertips, return to standing.'
+    ],
+    imageUrl: '',
+    estimatedDuration: 2,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 10024,
+    name: 'Sumo Deadlift Stretch',
+    category: 'Strength',
+    muscleGroups: ['Hamstrings', 'Glutes', 'Lower Back'],
+    difficulty: 'Advanced',
+    equipment: 'Dumbbells',
+    description: 'Wide-stance deadlift variation to improve hip mobility and strength.',
+    instructions: [
+      'Wide stance, toes out, squat down and up focusing on hip mobility.'
+    ],
+    imageUrl: '',
+    estimatedDuration: 2,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
   },
 ]
 

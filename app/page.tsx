@@ -21,8 +21,8 @@ import { Button } from "@/components/ui/button"
 import { exerciseDatabase } from "@/lib/exercise-database"
 
 export type Exercise = {
-  id: string
-  name: string
+  id: number
+  exerciseId: number
   sets?: number
   reps?: number
   time?: number // in seconds
@@ -31,7 +31,7 @@ export type Exercise = {
 }
 
 export type Workout = {
-  id: string
+  id: number
   date: string
   name: string
   exercises: Exercise[]
@@ -42,7 +42,7 @@ export type Workout = {
 }
 
 export type TemplateExerciseRef = {
-  exerciseId: string;
+  exerciseId: number;
   sets?: number;
   reps?: number;
   time?: number;
@@ -51,7 +51,7 @@ export type TemplateExerciseRef = {
 };
 
 export type Template = {
-  id: string;
+  id: number;
   name: string;
   exercises: TemplateExerciseRef[];
   category: string;
@@ -59,7 +59,7 @@ export type Template = {
 };
 
 export type WorkoutTemplate = {
-  id: string
+  id: number
   name: string
   category: string
   exercises: Exercise[]
@@ -86,11 +86,28 @@ export default function WorkoutPlannerApp() {
     const savedUser = localStorage.getItem("workout-planner-user")
 
     if (savedWorkouts) {
-      setWorkouts(JSON.parse(savedWorkouts))
+      const parsed = JSON.parse(savedWorkouts)
+      setWorkouts(parsed.map((w: any) => ({
+        ...w,
+        id: Number(w.id),
+        exercises: w.exercises.map((ex: any) => ({
+          ...ex,
+          id: Number(ex.id),
+          exerciseId: Number(ex.exerciseId),
+        }))
+      })))
     }
 
     if (savedLogs) {
-      setWorkoutLogs(JSON.parse(savedLogs))
+      const parsed = JSON.parse(savedLogs)
+      setWorkoutLogs(parsed.map((log: any) => ({
+        ...log,
+        workoutId: Number(log.workoutId),
+        exercises: log.exercises.map((ex: any) => ({
+          ...ex,
+          exerciseId: Number(ex.exerciseId),
+        }))
+      })))
     }
 
     if (savedLanguage) {
@@ -106,29 +123,17 @@ export default function WorkoutPlannerApp() {
       try {
         const parsed = JSON.parse(savedTemplates)
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const migratedTemplates = parsed.map((tpl) => {
-            if (tpl.exercises && tpl.exercises.length > 0 && tpl.exercises[0].exerciseId === undefined) {
-              migrated = true
-              return {
-                ...tpl,
-                exercises: tpl.exercises.map((ex: any) => {
-                  let found = exerciseDatabase.find(e => e.name === ex.name) || exerciseDatabase.find(e => e.id === ex.id)
-                  return found ? { exerciseId: found.id, sets: ex.sets, reps: ex.reps, time: ex.time, weight: ex.weight, notes: ex.notes } : { exerciseId: ex.id || ex.name || "unknown" }
-                })
-              }
-            }
-            return tpl
-          })
-          if (migrated) {
-            localStorage.setItem("workout-planner-templates", JSON.stringify(migratedTemplates))
-            setTemplates(migratedTemplates)
-    } else {
-            setTemplates(parsed)
-          }
+          const migratedTemplates = parsed.map((tpl: any) => ({
+            ...tpl,
+            id: Number(tpl.id),
+            exercises: tpl.exercises.map((ex: any) => ({
+              ...ex,
+              exerciseId: Number(ex.exerciseId),
+            }))
+          }))
+          setTemplates(migratedTemplates)
         }
-      } catch {
-        // ...
-      }
+      } catch {}
     }
   }, [])
 
@@ -159,11 +164,11 @@ export default function WorkoutPlannerApp() {
     setWorkouts((prev) => [...prev, workout])
   }
 
-  const updateWorkout = (workoutId: string, updatedWorkout: Partial<Workout>) => {
+  const updateWorkout = (workoutId: number, updatedWorkout: Partial<Workout>) => {
     setWorkouts((prev) => prev.map((w) => (w.id === workoutId ? { ...w, ...updatedWorkout } : w)))
   }
 
-  const deleteWorkout = (workoutId: string) => {
+  const deleteWorkout = (workoutId: number) => {
     setWorkouts((prev) => prev.filter((w) => w.id !== workoutId))
   }
 
@@ -171,11 +176,11 @@ export default function WorkoutPlannerApp() {
     setTemplates((prev) => [...prev, template])
   }
 
-  const updateTemplate = (templateId: string, updatedTemplate: Partial<Template>) => {
+  const updateTemplate = (templateId: number, updatedTemplate: Partial<Template>) => {
     setTemplates((prev) => prev.map((t) => (t.id === templateId ? { ...t, ...updatedTemplate } : t)))
   }
 
-  const deleteTemplate = (templateId: string) => {
+  const deleteTemplate = (templateId: number) => {
     setTemplates((prev) => prev.filter((t) => t.id !== templateId))
   }
 
@@ -204,22 +209,21 @@ export default function WorkoutPlannerApp() {
   const handleAddExerciseFromDragDrop = (exercise: any) => {
     // Create a new workout with the dragged exercise
     const newWorkout: Workout = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Date.now() + Math.floor(Math.random() * 10000),
       date: selectedDate.toLocaleDateString("sv-SE") ,
       name: `${exercise.name} Workout`,
       exercises: [
         {
-          id: Math.random().toString(36).substr(2, 9),
-          name: exercise.name,
-          sets: exercise.sets || 3,
-          reps: exercise.reps,
-          time: exercise.duration,
-        },
+          id: Date.now() + Math.floor(Math.random() * 10000),
+          exerciseId: exercise.id,
+          // สามารถเพิ่ม sets/reps/notes ตามต้องการ
+        }
       ],
+      notes: "",
       completed: false,
       createdAt: new Date().toISOString(),
     }
-    addWorkout(newWorkout)
+    setWorkouts((prev) => [...prev, newWorkout])
   }
 
   // Show login form if user is not authenticated
@@ -230,6 +234,25 @@ export default function WorkoutPlannerApp() {
       </ThemeProvider>
     )
   }
+
+  // สร้าง mergedDatabase ที่รวม exerciseDatabase กับ exerciseId ที่อ้างถึงใน templates แต่ไม่มีใน database
+  const allExerciseIds = templates.flatMap(tpl => tpl.exercises.map(ex => ex.exerciseId))
+  const missingIds = allExerciseIds.filter(id => !exerciseDatabase.some(e => e.id === id))
+  const newExercises = missingIds.map((id: number) => ({
+    id,
+    name: 'Unknown Exercise',
+    category: 'Strength' as const,
+    muscleGroups: [],
+    difficulty: 'Beginner' as const,
+    equipment: '',
+    description: '',
+    instructions: [],
+    imageUrl: '',
+    estimatedDuration: 1,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+  }))
+  const mergedDatabase = [...exerciseDatabase, ...newExercises]
 
   const renderActiveView = () => {
     switch (activeView) {
@@ -249,6 +272,7 @@ export default function WorkoutPlannerApp() {
                   updateWorkout={updateWorkout}
                   deleteWorkout={deleteWorkout}
                   setActiveWorkout={setActiveWorkout}
+                  exerciseDatabase={mergedDatabase}
                 />
               </div>
               <div className="2xl:col-span-4 space-y-4 md:space-y-6">
@@ -269,6 +293,7 @@ export default function WorkoutPlannerApp() {
             addTemplate={addTemplate}
             updateTemplate={updateTemplate}
             deleteTemplate={deleteTemplate}
+            exerciseDatabase={mergedDatabase}
           />
         )
       case "progress":
@@ -281,7 +306,7 @@ export default function WorkoutPlannerApp() {
           </div>
         )
       case "library":
-        return <ExerciseLibrary />
+        return <ExerciseLibrary exerciseDatabase={mergedDatabase} />
       default:
         return <Dashboard workouts={workouts} />
     }

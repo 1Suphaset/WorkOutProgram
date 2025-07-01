@@ -8,12 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TrendingUp, Target, Clock, Dumbbell, Download } from "lucide-react"
 import type { Workout } from "@/app/page"
+import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
 
 interface ReportsProps {
   workouts: Workout[]
+  exerciseDatabase?: typeof defaultExerciseDatabase
 }
 
-export function Reports({ workouts }: ReportsProps) {
+export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase }: ReportsProps) {
   const [timeRange, setTimeRange] = useState("30")
   const [reportType, setReportType] = useState("overview")
 
@@ -46,7 +48,9 @@ export function Reports({ workouts }: ReportsProps) {
     const exerciseCount: Record<string, number> = {}
     filteredWorkouts.forEach((workout) => {
       workout.exercises.forEach((exercise) => {
-        exerciseCount[exercise.name] = (exerciseCount[exercise.name] || 0) + 1
+        const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
+        const name = exData?.name || exercise.name || "Unknown Exercise";
+        exerciseCount[name] = (exerciseCount[name] || 0) + 1
       })
     })
 
@@ -85,7 +89,7 @@ export function Reports({ workouts }: ReportsProps) {
       topExercises,
       weeklyData,
     }
-  }, [filteredWorkouts, timeRange])
+  }, [filteredWorkouts, timeRange, exerciseDatabase])
 
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 

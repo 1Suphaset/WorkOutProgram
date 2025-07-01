@@ -19,16 +19,18 @@ import { FitnessAssessment } from "@/components/fitness-assessment"
 interface ExerciseLibraryProps {
   onAddToWorkout?: (exercise: ExerciseLibraryItem) => void
   showAddButton?: boolean
+  exerciseDatabase?: ExerciseLibraryItem[]
 }
 
-export function ExerciseLibrary({ onAddToWorkout, showAddButton = false }: ExerciseLibraryProps) {
+export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exerciseDatabase: propExerciseDatabase }: ExerciseLibraryProps) {
+  const exerciseDatabase = propExerciseDatabase || require("@/lib/exercise-database").exerciseDatabase;
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string>("all")
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("all")
   const [selectedEquipment, setSelectedEquipment] = useState<string>("all")
   const [selectedExercise, setSelectedExercise] = useState<ExerciseLibraryItem | null>(null)
-  const [favorites, setFavorites] = useState<Set<string>>(new Set())
+  const [favorites, setFavorites] = useState<Set<number>>(new Set())
 
   const [customExercises, setCustomExercises] = useState<CustomExerciseType[]>([])
   const [showCustomForm, setShowCustomForm] = useState(false)
@@ -46,19 +48,19 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false }: Exerc
   }, [customExercises])
 
   // Get unique values for filters
-  const categories = [...new Set(exerciseDatabase.map((ex) => ex.category))]
-  const muscleGroups = [...new Set(exerciseDatabase.flatMap((ex) => ex.muscleGroups))]
-  const difficulties = [...new Set(exerciseDatabase.map((ex) => ex.difficulty))]
-  const equipment = [...new Set(exerciseDatabase.map((ex) => ex.equipment))]
+  const categories: string[] = Array.from(new Set(exerciseDatabase.map((ex: ExerciseLibraryItem) => ex.category)));
+  const muscleGroups: string[] = Array.from(new Set(exerciseDatabase.flatMap((ex: ExerciseLibraryItem) => ex.muscleGroups)));
+  const difficulties: string[] = Array.from(new Set(exerciseDatabase.map((ex: ExerciseLibraryItem) => ex.difficulty)));
+  const equipment: string[] = Array.from(new Set(exerciseDatabase.map((ex: ExerciseLibraryItem) => ex.equipment)));
 
   // Filter exercises based on search and filters
   const allExercises = [...exerciseDatabase, ...customExercises]
   const filteredExercises = useMemo(() => {
-    return allExercises.filter((exercise) => {
+    return allExercises.filter((exercise: ExerciseLibraryItem) => {
       const matchesSearch =
         exercise.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         exercise.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        exercise.muscleGroups.some((mg) => mg.toLowerCase().includes(searchTerm.toLowerCase()))
+        exercise.muscleGroups.some((mg: string) => mg.toLowerCase().includes(searchTerm.toLowerCase()))
 
       const matchesCategory = selectedCategory === "all" || exercise.category === selectedCategory
       const matchesMuscleGroup = selectedMuscleGroup === "all" || exercise.muscleGroups.includes(selectedMuscleGroup)
@@ -69,7 +71,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false }: Exerc
     })
   }, [searchTerm, selectedCategory, selectedMuscleGroup, selectedDifficulty, selectedEquipment, customExercises])
 
-  const toggleFavorite = (exerciseId: string) => {
+  const toggleFavorite = (exerciseId: number) => {
     setFavorites((prev) => {
       const newFavorites = new Set(prev)
       if (newFavorites.has(exerciseId)) {
@@ -153,7 +155,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false }: Exerc
     setShowCustomForm(false)
   }
 
-  const handleDeleteCustomExercise = (exerciseId: string) => {
+  const handleDeleteCustomExercise = (exerciseId: number) => {
     if (confirm("Are you sure you want to delete this custom exercise?")) {
       setCustomExercises((prev) => prev.filter((ex) => ex.id !== exerciseId))
     }
@@ -210,8 +212,8 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false }: Exerc
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
+                  {categories.map((category: string) => (
+                    <SelectItem key={category} value={category || 'all'}>
                       {category}
                     </SelectItem>
                   ))}
@@ -227,8 +229,8 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false }: Exerc
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Muscles</SelectItem>
-                  {muscleGroups.map((muscle) => (
-                    <SelectItem key={muscle} value={muscle}>
+                  {muscleGroups.map((muscle: string) => (
+                    <SelectItem key={muscle} value={muscle || 'all'}>
                       {muscle}
                     </SelectItem>
                   ))}
@@ -244,8 +246,8 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false }: Exerc
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Levels</SelectItem>
-                  {difficulties.map((difficulty) => (
-                    <SelectItem key={difficulty} value={difficulty}>
+                  {difficulties.map((difficulty: string) => (
+                    <SelectItem key={difficulty} value={difficulty || 'all'}>
                       {difficulty}
                     </SelectItem>
                   ))}
@@ -261,8 +263,8 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false }: Exerc
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Equipment</SelectItem>
-                  {equipment.map((eq) => (
-                    <SelectItem key={eq} value={eq}>
+                  {equipment.map((eq: string) => (
+                    <SelectItem key={eq} value={eq || 'all'}>
                       {eq}
                     </SelectItem>
                   ))}
@@ -285,8 +287,8 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false }: Exerc
 
         <TabsContent value="grid">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredExercises.map((exercise) => (
-              <Card key={exercise.id} className="hover:shadow-md transition-shadow cursor-pointer group">
+            {filteredExercises.filter((exercise: ExerciseLibraryItem) => exercise.id !== 0).map((exercise: ExerciseLibraryItem) => (
+              <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow cursor-pointer group">
                 <div className="relative">
                   <img
                     src={exercise.imageUrl || "/placeholder.svg"}
@@ -327,7 +329,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false }: Exerc
                 <CardContent className="space-y-3">
                   <div className="flex flex-wrap gap-1">
                     {exercise.muscleGroups.slice(0, 3).map((muscle) => (
-                      <Badge key={muscle} variant="outline" className="text-xs">
+                      <Badge key={String(muscle)} variant="outline" className="text-xs">
                         {muscle}
                       </Badge>
                     ))}
@@ -376,8 +378,8 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false }: Exerc
 
         <TabsContent value="list">
           <div className="space-y-4">
-            {filteredExercises.map((exercise) => (
-              <Card key={exercise.id} className="hover:shadow-md transition-shadow">
+            {filteredExercises.filter((exercise: ExerciseLibraryItem) => exercise.id !== 0).map((exercise: ExerciseLibraryItem) => (
+              <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-4">
                     <img
@@ -436,7 +438,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false }: Exerc
                       </div>
                       <div className="flex flex-wrap gap-1">
                         {exercise.muscleGroups.map((muscle) => (
-                          <Badge key={muscle} variant="outline" className="text-xs">
+                          <Badge key={String(muscle)} variant="outline" className="text-xs">
                             {muscle}
                           </Badge>
                         ))}
@@ -455,7 +457,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false }: Exerc
             {exerciseDatabase
               .filter((exercise) => favorites.has(exercise.id))
               .map((exercise) => (
-                <Card key={exercise.id} className="hover:shadow-md transition-shadow">
+                <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow">
                   <div className="relative">
                     <img
                       src={exercise.imageUrl || "/placeholder.svg"}
@@ -631,7 +633,7 @@ function ExerciseDetailModal({
                 <h3 className="font-semibold mb-2">Target Muscles</h3>
                 <div className="flex flex-wrap gap-2">
                   {exercise.muscleGroups.map((muscle) => (
-                    <Badge key={muscle} variant="outline">
+                    <Badge key={String(muscle)} variant="outline">
                       {muscle}
                     </Badge>
                   ))}
@@ -661,7 +663,7 @@ function ExerciseDetailModal({
                   <h3 className="font-semibold mb-2">Benefits</h3>
                   <ul className="text-sm text-muted-foreground space-y-1">
                     {exercise.benefits.map((benefit, index) => (
-                      <li key={index} className="flex items-start">
+                      <li key={String(index)} className="flex items-start">
                         <span className="mr-2">•</span>
                         <span>{benefit}</span>
                       </li>
@@ -677,7 +679,7 @@ function ExerciseDetailModal({
             <h3 className="font-semibold">Step-by-Step Instructions</h3>
             <div className="space-y-3">
               {exercise.instructions.map((instruction, index) => (
-                <div key={index} className="flex items-start space-x-3">
+                <div key={String(index)} className="flex items-start space-x-3">
                   <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">
                     {index + 1}
                   </div>
@@ -694,7 +696,7 @@ function ExerciseDetailModal({
               <div className="bg-muted/50 rounded-lg p-4">
                 <ul className="text-sm space-y-2">
                   {exercise.tips.map((tip, index) => (
-                    <li key={index} className="flex items-start">
+                    <li key={String(index)} className="flex items-start">
                       <span className="mr-2 text-primary">💡</span>
                       <span>{tip}</span>
                     </li>
@@ -710,7 +712,7 @@ function ExerciseDetailModal({
               <h3 className="font-semibold">Variations</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {exercise.variations.map((variation, index) => (
-                  <div key={index} className="border rounded-lg p-3">
+                  <div key={String(index)} className="border rounded-lg p-3">
                     <h4 className="font-medium text-sm mb-1">{variation.name}</h4>
                     <p className="text-xs text-muted-foreground">{variation.description}</p>
                   </div>

@@ -1,5 +1,5 @@
 export interface ExerciseTemplate {
-  id: string
+  id: number
   name: string
   movementPattern: string
   category: "Strength" | "Cardio" | "Flexibility" | "Sports"
@@ -47,7 +47,7 @@ export const movementPatterns = [
 export const exerciseTemplates: ExerciseTemplate[] = [
   // PUSH PATTERNS
   {
-    id: "horizontal-push-template",
+    id: 1,
     name: "Horizontal Push Template",
     movementPattern: "Push (Horizontal)",
     category: "Strength",
@@ -99,7 +99,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
     tags: ["push", "horizontal", "chest", "compound"],
   },
   {
-    id: "vertical-push-template",
+    id: 2,
     name: "Vertical Push Template",
     movementPattern: "Push (Vertical)",
     category: "Strength",
@@ -153,7 +153,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
 
   // PULL PATTERNS
   {
-    id: "horizontal-pull-template",
+    id: 3,
     name: "Horizontal Pull Template",
     movementPattern: "Pull (Horizontal)",
     category: "Strength",
@@ -205,7 +205,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
     tags: ["pull", "horizontal", "back", "rows"],
   },
   {
-    id: "vertical-pull-template",
+    id: 4,
     name: "Vertical Pull Template",
     movementPattern: "Pull (Vertical)",
     category: "Strength",
@@ -259,7 +259,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
 
   // SQUAT PATTERNS
   {
-    id: "squat-template",
+    id: 5,
     name: "Squat Pattern Template",
     movementPattern: "Squat",
     category: "Strength",
@@ -313,7 +313,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
 
   // HINGE PATTERNS
   {
-    id: "hinge-template",
+    id: 6,
     name: "Hip Hinge Template",
     movementPattern: "Hinge",
     category: "Strength",
@@ -367,7 +367,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
 
   // LUNGE PATTERNS
   {
-    id: "lunge-template",
+    id: 7,
     name: "Lunge Pattern Template",
     movementPattern: "Lunge",
     category: "Strength",
@@ -421,7 +421,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
 
   // CORE PATTERNS
   {
-    id: "anti-extension-template",
+    id: 8,
     name: "Anti-Extension Template",
     movementPattern: "Anti-Extension",
     category: "Strength",
@@ -474,7 +474,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
 
   // CARDIO PATTERNS
   {
-    id: "gait-template",
+    id: 9,
     name: "Gait Pattern Template",
     movementPattern: "Gait",
     category: "Cardio",
@@ -523,7 +523,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
 
   // PLYOMETRIC PATTERNS
   {
-    id: "jump-template",
+    id: 10,
     name: "Jump/Plyometric Template",
     movementPattern: "Jump/Plyometric",
     category: "Sports",
@@ -577,7 +577,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
 
   // CARRY PATTERNS
   {
-    id: "carry-template",
+    id: 11,
     name: "Carry Pattern Template",
     movementPattern: "Carry",
     category: "Strength",
@@ -630,7 +630,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
   },
   // ADDITIONAL MOVEMENT PATTERNS
   {
-    id: "rotation-template",
+    id: 12,
     name: "Rotation Pattern Template",
     movementPattern: "Rotation",
     category: "Sports",
@@ -682,7 +682,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
     tags: ["rotation", "core", "power", "athletic"],
   },
   {
-    id: "unilateral-template",
+    id: 13,
     name: "Unilateral Training Template",
     movementPattern: "Unilateral",
     category: "Strength",
@@ -734,7 +734,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
     tags: ["unilateral", "balance", "stability", "imbalances"],
   },
   {
-    id: "bilateral-template",
+    id: 14,
     name: "Bilateral Training Template",
     movementPattern: "Bilateral",
     category: "Strength",
@@ -786,7 +786,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
     tags: ["bilateral", "strength", "coordination", "loading"],
   },
   {
-    id: "isometric-template",
+    id: 15,
     name: "Isometric Hold Template",
     movementPattern: "Isometric Hold",
     category: "Strength",
@@ -838,7 +838,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
     tags: ["isometric", "endurance", "stability", "mental"],
   },
   {
-    id: "throw-slam-template",
+    id: 16,
     name: "Throw/Slam Template",
     movementPattern: "Throw/Slam",
     category: "Sports",
@@ -890,7 +890,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
     tags: ["explosive", "power", "athletic", "full-body"],
   },
   {
-    id: "anti-flexion-template",
+    id: 17,
     name: "Anti-Flexion Template",
     movementPattern: "Anti-Flexion",
     category: "Strength",
@@ -937,7 +937,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
     tags: ["anti-flexion", "posterior-chain", "spinal-health", "posture"],
   },
   {
-    id: "anti-lateral-flexion-template",
+    id: 18,
     name: "Anti-Lateral Flexion Template",
     movementPattern: "Anti-Lateral Flexion",
     category: "Strength",
@@ -989,7 +989,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
     tags: ["anti-lateral-flexion", "obliques", "stability", "functional"],
   },
   {
-    id: "metabolic-template",
+    id: 19,
     name: "Metabolic Conditioning Template",
     movementPattern: "Gait",
     category: "Cardio",
@@ -1041,7 +1041,7 @@ export const exerciseTemplates: ExerciseTemplate[] = [
     tags: ["metabolic", "conditioning", "hiit", "cardio"],
   },
   {
-    id: "mobility-template",
+    id: 20,
     name: "Mobility Enhancement Template",
     movementPattern: "Gait",
     category: "Flexibility",

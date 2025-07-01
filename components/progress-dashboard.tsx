@@ -21,14 +21,16 @@ import { TrendingUp, Target, Clock, Dumbbell, Calendar, Award } from "lucide-rea
 import type { Workout } from "@/app/page"
 import type { WorkoutLog } from "@/components/workout-logger"
 import { useTranslation } from "@/lib/i18n"
+import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
 
 interface ProgressDashboardProps {
   workouts: Workout[]
   workoutLogs: WorkoutLog[]
   language: "en" | "th"
+  exerciseDatabase?: typeof defaultExerciseDatabase
 }
 
-export function ProgressDashboard({ workouts, workoutLogs, language }: ProgressDashboardProps) {
+export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDatabase = defaultExerciseDatabase }: ProgressDashboardProps) {
   const { t } = useTranslation(language)
 
   // Calculate statistics
@@ -61,7 +63,9 @@ export function ProgressDashboard({ workouts, workoutLogs, language }: ProgressD
   const exerciseFrequency = completedWorkouts.reduce(
     (acc, workout) => {
       workout.exercises.forEach((exercise) => {
-        acc[exercise.name] = (acc[exercise.name] || 0) + 1
+        const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
+        const name = exData?.name || exercise.name || "Unknown Exercise";
+        acc[name] = (acc[name] || 0) + 1
       })
       return acc
     },

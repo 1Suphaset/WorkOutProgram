@@ -19,15 +19,17 @@ import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Plus, Edit, Trash2, Dumbbell, Heart, Zap, Trophy } from "lucide-react"
 import type { WorkoutTemplate, Exercise } from "@/app/page"
+import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
 
 interface ExercisesProps {
   templates: WorkoutTemplate[]
   addTemplate: (template: WorkoutTemplate) => void
   updateTemplate: (templateId: string, updatedTemplate: Partial<WorkoutTemplate>) => void
   deleteTemplate: (templateId: string) => void
+  exerciseDatabase?: typeof defaultExerciseDatabase
 }
 
-export function Exercises({ templates, addTemplate, updateTemplate, deleteTemplate }: ExercisesProps) {
+export function Exercises({ templates, addTemplate, updateTemplate, deleteTemplate, exerciseDatabase = defaultExerciseDatabase }: ExercisesProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<WorkoutTemplate | null>(null)
   const [newTemplate, setNewTemplate] = useState<Partial<WorkoutTemplate>>({
@@ -276,7 +278,9 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                         <div key={exercise.id} className="flex items-center justify-between bg-muted/50 rounded p-2">
                           <div className="flex items-center space-x-2">
                             {getTypeIcon(exercise.type)}
-                            <span className="text-sm">{exercise.name}</span>
+                            <span className="text-sm">
+                              {(() => { const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id)); return exData?.name || exercise.name || "Unknown Exercise" })()}
+                            </span>
                             <Badge variant="outline">{exercise.type}</Badge>
                             {exercise.reps && exercise.sets && (
                               <span className="text-xs text-muted-foreground">
@@ -328,7 +332,9 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                     <div key={exercise.id} className="flex items-center justify-between text-sm">
                       <div className="flex items-center space-x-2">
                         {getTypeIcon(exercise.type)}
-                        <span>{exercise.name}</span>
+                        <span>
+                          {(() => { const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id)); return exData?.name || exercise.name || "Unknown Exercise" })()}
+                        </span>
                       </div>
                       <div className="text-muted-foreground">{Math.round(exercise.duration / 60)}min</div>
                     </div>
