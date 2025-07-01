@@ -167,7 +167,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
 
   const mergedDatabase = [...exerciseDatabase, ...newExercises];
 
-  const loadTemplate = (templateId: string) => {
+  const loadTemplate = (templateId: number) => {
     const template = templates.find((t) => t.id === templateId)
     if (template) {
       setExercises(
@@ -175,7 +175,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
           const exData = exerciseDatabase.find(e => e.id === ex.exerciseId)
           return {
             ...ex,
-            id: Math.random().toString(36).substr(2, 9),
+            id: Date.now() + Math.floor(Math.random() * 10000),
             name: exData?.name || "Unknown Exercise",
           }
         }),
@@ -212,8 +212,8 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
               <ScrollArea className="h-32">
                 <div className="space-y-2">
                   {template.exercises.filter((exercise: TemplateExerciseRef) => exercise.exerciseId !== 0).map((exercise: TemplateExerciseRef, index: number) => {
-                    const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
-                    const exerciseName = exData?.name || exercise.name || "Unknown Exercise";
+                    const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId));
+                    const exerciseName = exData?.name || "Unknown Exercise";
                     return (
                       <div key={String(exercise.exerciseId) + '-' + index} className="flex items-center justify-between text-sm">
                         <span>{exerciseName}</span>
@@ -298,10 +298,10 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
             <ScrollArea className="h-[300px]">
               <div className="space-y-4">
                 {exercises.map((exercise, index) => {
-                  const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
-                  const exerciseName = exData?.name || exercise.name || "Unknown Exercise";
+                  const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId));
+                  const exerciseName = exData?.name || "Unknown Exercise";
                   return (
-                    <Card key={exercise.exerciseId + '-' + index}>
+                    <Card key={String(exercise.exerciseId) + '-' + index}>
                       <CardHeader className="pb-3">
                         <CardTitle className="text-sm flex items-center justify-between">
                           {exerciseName}
@@ -534,11 +534,11 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                       {previewTemplate.exercises
                         .slice(previewExerciseIndex + 1, previewExerciseIndex + 4)
                         .map((exercise, index) => {
-                          const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
-                          const exerciseName = exData?.name || exercise.name || "Unknown Exercise";
+                          const exData = exerciseDatabase.find(e => e.id === exercise.exerciseId);
+                          const exerciseName = exData?.name || "Unknown Exercise";
                           return (
                             <div
-                              key={exercise.exerciseId + '-' + index}
+                              key={String(exercise.exerciseId) + '-' + index}
                               className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
                             >
                               <span className="font-medium">{exerciseName}</span>
@@ -607,10 +607,10 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                     <ScrollArea className="h-[400px]">
                       <div className="space-y-3">
                         {previewTemplate.exercises.map((exercise, index) => {
-                          const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
-                          const exerciseName = exData?.name || exercise.name || "Unknown Exercise";
+                          const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId));
+                          const exerciseName = exData?.name || "Unknown Exercise";
                           return (
-                            <div key={exercise.exerciseId + '-' + index}>
+                            <div key={String(exercise.exerciseId) + '-' + index}>
                               <div className="flex items-center justify-between p-3 rounded-lg border">
                                 <div>
                                   <h4 className="font-medium">

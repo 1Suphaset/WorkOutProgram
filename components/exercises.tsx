@@ -25,8 +25,8 @@ import { useTranslation } from "@/lib/i18n"
 interface ExercisesProps {
   templates: WorkoutTemplate[]
   addTemplate: (template: WorkoutTemplate) => void
-  updateTemplate: (templateId: string, updatedTemplate: Partial<WorkoutTemplate>) => void
-  deleteTemplate: (templateId: string) => void
+  updateTemplate: (templateId: number, updatedTemplate: Partial<WorkoutTemplate>) => void
+  deleteTemplate: (templateId: number) => void
   exerciseDatabase?: typeof defaultExerciseDatabase
   language?: "en" | "th"
 }
@@ -39,6 +39,8 @@ type ExerciseForm = {
   sets?: number;
   calories?: number;
   description?: string;
+  id?: number;
+  exerciseId?: number;
 };
 
 type NewTemplateForm = {
@@ -84,7 +86,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
   const handleCreateTemplate = () => {
     if (!newTemplate.name.trim() || !newTemplate.category.trim()) return
     const template: WorkoutTemplate = {
-      id: Math.random().toString(36).substr(2, 9) as unknown as number,
+      id: Date.now() + Math.floor(Math.random() * 10000),
       name: newTemplate.name,
       category: newTemplate.category,
       exercises: newTemplate.exercises.map((ex, idx) => ({
@@ -95,7 +97,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
         time: ex.duration,
         weight: undefined,
         notes: ex.description,
-      })),
+      } as Exercise)),
     }
     addTemplate(template)
     setIsCreateDialogOpen(false)
@@ -104,7 +106,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
 
   const handleUpdateTemplate = () => {
     if (!editingTemplate || !newTemplate.name.trim() || !newTemplate.category.trim()) return
-    updateTemplate(editingTemplate.id, {
+    updateTemplate(Number(editingTemplate.id), {
       name: newTemplate.name,
       category: newTemplate.category,
       exercises: newTemplate.exercises.map((ex, idx) => ({
@@ -115,7 +117,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
         time: ex.duration,
         weight: undefined,
         notes: ex.description,
-      })),
+      } as Exercise)),
     })
     setEditingTemplate(null)
     setNewTemplate({ name: "", category: "", exercises: [] })
@@ -229,7 +231,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                     <Select
                       value={newExercise.type}
                       onValueChange={(value) =>
-                        setNewExercise((prev) => ({ ...prev, type: value as Exercise["type"] }))
+                        setNewExercise((prev) => ({ ...prev, type: value as ExerciseForm["type"] }))
                       }
                     >
                       <SelectTrigger>
@@ -359,12 +361,11 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                   {template.exercises.map((exercise) => (
                     <div key={exercise.id} className="flex items-center justify-between text-sm">
                       <div className="flex items-center space-x-2">
-                        {getTypeIcon(exercise.type)}
                         <span>
-                          {(() => { const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id)); return exData?.name || exercise.name || "Unknown Exercise" })()}
+                          {(() => { const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id)); return exData?.name || "Unknown Exercise" })()}
                         </span>
                       </div>
-                      <div className="text-muted-foreground">{Math.round(exercise.duration / 60)}min</div>
+                      <div className="text-muted-foreground">{exercise.time ? Math.round(exercise.time / 60) + "min" : ""}</div>
                     </div>
                   ))}
                 </div>
@@ -378,7 +379,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => deleteTemplate(template.id)}
+                  onClick={() => deleteTemplate(Number(template.id))}
                   className="text-destructive hover:text-destructive"
                 >
                   <Trash2 className="w-4 h-4" />

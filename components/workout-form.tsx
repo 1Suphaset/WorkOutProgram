@@ -108,7 +108,9 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{workout ? t("editWorkout") : t("createNewWorkout")}</DialogTitle>
-          <DialogDescription>{t("planYourWorkoutFor", { date: selectedDate.toLocaleDateString(language === "th" ? "th-TH" : "en-US") })}</DialogDescription>
+          <DialogDescription>
+            {t("planYourWorkoutFor")}: {selectedDate.toLocaleDateString(language === "th" ? "th-TH" : "en-US")}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
