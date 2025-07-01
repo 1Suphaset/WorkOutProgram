@@ -124,7 +124,7 @@ export function ExerciseCountdownTimer({
             variant={isCompleted ? "default" : isActive ? "secondary" : "outline"}
             className={isCompleted ? "bg-green-600" : isActive ? "bg-blue-600" : ""}
           >
-            {isCompleted ? t("completed") : isActive ? "Active" : "Ready"}
+            {isCompleted ? t("completed") : isActive ? t("active") : t("ready")}
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -146,7 +146,7 @@ export function ExerciseCountdownTimer({
             {formatTime(timeLeft)}
           </div>
           <p className="text-lg text-muted-foreground mt-2 font-medium">
-            {isCompleted ? t("exerciseComplete") : isActive ? "Time Remaining" : "Duration"}
+            {isCompleted ? t("exerciseComplete") : isActive ? t("timeRemaining") : t("duration")}
           </p>
         </div>
 
@@ -159,8 +159,8 @@ export function ExerciseCountdownTimer({
             }`}
           />
           <div className="flex justify-between text-sm text-muted-foreground font-medium">
-            <span>Start</span>
-            <span>{Math.round(progressPercentage)}% Complete</span>
+            <span>{t("start")}</span>
+            <span>{Math.round(progressPercentage)}% {t("complete")}</span>
             <span>{formatTime(duration)}</span>
           </div>
         </div>

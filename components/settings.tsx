@@ -10,8 +10,10 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { SettingsIcon, User, Bell, Download, Upload, Trash2, ExternalLink } from "lucide-react"
+import { useTranslation } from "@/lib/i18n"
 
-export function Settings() {
+export function Settings({ language }: { language: "en" | "th" }) {
+  const { t } = useTranslation(language)
   const [settings, setSettings] = useState({
     name: "",
     email: "",
@@ -125,8 +127,8 @@ export function Settings() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Settings</h1>
-          <p className="text-muted-foreground">Manage your preferences and data</p>
+          <h1 className="text-3xl font-bold">{t("settings")}</h1>
+          <p className="text-muted-foreground">{t("managePreferencesAndData")}</p>
         </div>
         <SettingsIcon className="w-8 h-8 text-muted-foreground" />
       </div>
@@ -137,32 +139,32 @@ export function Settings() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <User className="w-5 h-5 mr-2" />
-              Profile
+              {t("profile")}
             </CardTitle>
-            <CardDescription>Update your personal information</CardDescription>
+            <CardDescription>{t("updatePersonalInfo")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t("name")}</Label>
               <Input
                 id="name"
                 value={settings.name}
                 onChange={(e) => setSettings((prev) => ({ ...prev, name: e.target.value }))}
-                placeholder="Your name"
+                placeholder={t("yourName")}
               />
             </div>
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("email")}</Label>
               <Input
                 id="email"
                 type="email"
                 value={settings.email}
                 onChange={(e) => setSettings((prev) => ({ ...prev, email: e.target.value }))}
-                placeholder="your.email@example.com"
+                placeholder={t("yourEmail")}
               />
             </div>
             <Button onClick={saveSettings} className="w-full">
-              Save Profile
+              {t("saveProfile")}
             </Button>
           </CardContent>
         </Card>
@@ -172,15 +174,15 @@ export function Settings() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Bell className="w-5 h-5 mr-2" />
-              Notifications
+              {t("notifications")}
             </CardTitle>
-            <CardDescription>Configure your notification preferences</CardDescription>
+            <CardDescription>{t("configureNotificationPreferences")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <Label>Workout Reminders</Label>
-                <p className="text-sm text-muted-foreground">Get notified about scheduled workouts</p>
+                <Label>{t("workoutReminders")}</Label>
+                <p className="text-sm text-muted-foreground">{t("getNotifiedAboutScheduledWorkouts")}</p>
               </div>
               <Switch
                 checked={settings.notifications}
@@ -188,7 +190,7 @@ export function Settings() {
               />
             </div>
             <div>
-              <Label htmlFor="reminder-time">Reminder Time</Label>
+              <Label htmlFor="reminder-time">{t("reminderTime")}</Label>
               <Input
                 id="reminder-time"
                 type="time"
@@ -198,7 +200,7 @@ export function Settings() {
               />
             </div>
             <Button onClick={saveSettings} className="w-full">
-              Save Notifications
+              {t("saveNotificationSettings")}
             </Button>
           </CardContent>
         </Card>
@@ -227,29 +229,41 @@ export function Settings() {
         {/* Data Management */}
         <Card>
           <CardHeader>
-            <CardTitle>Data Management</CardTitle>
-            <CardDescription>Export, import, or clear your workout data</CardDescription>
+            <CardTitle className="flex items-center">
+              <Download className="w-5 h-5 mr-2" />
+              {t("dataManagement")}
+            </CardTitle>
+            <CardDescription>{t("importExportClearData")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button onClick={exportData} variant="outline" className="w-full">
-              <Download className="w-4 h-4 mr-2" />
-              Export Data
-            </Button>
-
-            <div>
-              <input type="file" accept=".json" onChange={importData} className="hidden" id="import-file" />
-              <Button asChild variant="outline" className="w-full">
-                <label htmlFor="import-file" className="flex items-center cursor-pointer">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Import Data
-                </label>
+            <div className="flex flex-col md:flex-row gap-2">
+              <Button onClick={exportData} variant="outline">
+                <Download className="w-4 h-4 mr-2" />
+                {t("exportData")}
+              </Button>
+              <label htmlFor="import-data" className="w-full md:w-auto">
+                <input
+                  id="import-data"
+                  type="file"
+                  accept="application/json"
+                  className="hidden"
+                  onChange={importData}
+                />
+                <Button asChild variant="outline">
+                  <span>
+                    <Upload className="w-4 h-4 mr-2" />
+                    {t("importData")}
+                  </span>
+                </Button>
+              </label>
+              <Button onClick={clearAllData} variant="destructive">
+                <Trash2 className="w-4 h-4 mr-2" />
+                {t("clearAllData")}
               </Button>
             </div>
-
-            <Button onClick={clearAllData} variant="destructive" className="w-full">
-              <Trash2 className="w-4 h-4 mr-2" />
-              Clear All Data
-            </Button>
+            <p className="text-xs text-muted-foreground mt-2">
+              {t("importExportWarning")}
+            </p>
           </CardContent>
         </Card>
       </div>

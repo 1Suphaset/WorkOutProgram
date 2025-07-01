@@ -147,7 +147,7 @@ export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDat
           <CardContent className="pb-2">
             <div className="text-xl md:text-2xl font-bold">{completedWorkouts.length}</div>
             <Progress value={completionRate} className="mt-2" />
-            <p className="text-xs text-muted-foreground mt-1">{Math.round(completionRate)}% completion rate</p>
+            <p className="text-xs text-muted-foreground mt-1">{Math.round(completionRate)}% {t("completionRate")}</p>
           </CardContent>
         </Card>
 
@@ -160,13 +160,7 @@ export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDat
             <div className="text-xl md:text-2xl font-bold">
               {Math.round(completedWorkouts.reduce((sum, w) => sum + (w.duration || 0), 0) / 3600)}h
             </div>
-            <p className="text-xs text-muted-foreground">
-              Avg:{" "}
-              {Math.round(
-                completedWorkouts.reduce((sum, w) => sum + (w.duration || 0), 0) / completedWorkouts.length / 60 || 0,
-              )}
-              min per workout
-            </p>
+            <p className="text-xs text-muted-foreground">{t("avg")}: {Math.round(completedWorkouts.reduce((sum, w) => sum + (w.duration || 0), 0) / completedWorkouts.length / 60 || 0)} {t("minPerWorkout")}</p>
           </CardContent>
         </Card>
 
@@ -177,13 +171,13 @@ export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDat
           </CardHeader>
           <CardContent className="pb-2">
             <div className="text-xl md:text-2xl font-bold">{weeklyData[weeklyData.length - 1]?.workouts || 0}</div>
-            <p className="text-xs text-muted-foreground">workouts this week</p>
+            <p className="text-xs text-muted-foreground">{t("workoutsThisWeek")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs md:text-sm font-medium">Avg Effort</CardTitle>
+            <CardTitle className="text-xs md:text-sm font-medium">{t("avgEffort")}</CardTitle>
             <Award className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="pb-2">
@@ -194,7 +188,7 @@ export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDat
                 : 0}
               /10
             </div>
-            <p className="text-xs text-muted-foreground">perceived effort</p>
+            <p className="text-xs text-muted-foreground">{t("perceivedEffort")}</p>
           </CardContent>
         </Card>
       </div>

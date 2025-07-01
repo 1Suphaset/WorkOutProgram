@@ -141,8 +141,8 @@ export function DailyNotes({ selectedDate, language }: DailyNotesProps) {
       {recentNotes.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base md:text-lg">Recent Notes</CardTitle>
-            <CardDescription className="text-sm md:text-base">Your recent daily notes</CardDescription>
+            <CardTitle className="text-base md:text-lg">{t("recentNotes")}</CardTitle>
+            <CardDescription className="text-sm md:text-base">{t("yourRecentDailyNotes")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-48 md:h-64">

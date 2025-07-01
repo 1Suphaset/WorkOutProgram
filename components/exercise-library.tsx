@@ -15,14 +15,17 @@ import { CustomExerciseForm } from "@/components/custom-exercise-form"
 import type { CustomExercise as CustomExerciseType } from "@/lib/exercise-database"
 import { ProgressiveExerciseTracker } from "@/components/progressive-exercise-tracker"
 import { FitnessAssessment } from "@/components/fitness-assessment"
+import { useTranslation } from "@/lib/i18n"
 
 interface ExerciseLibraryProps {
   onAddToWorkout?: (exercise: ExerciseLibraryItem) => void
   showAddButton?: boolean
   exerciseDatabase?: ExerciseLibraryItem[]
+  language?: "en" | "th"
 }
 
-export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exerciseDatabase: propExerciseDatabase }: ExerciseLibraryProps) {
+export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exerciseDatabase: propExerciseDatabase, language = "en" }: ExerciseLibraryProps) {
+  const { t } = useTranslation(language)
   const exerciseDatabase = propExerciseDatabase || require("@/lib/exercise-database").exerciseDatabase;
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
@@ -165,16 +168,16 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Exercise Library</h1>
-          <p className="text-muted-foreground">Discover exercises with detailed instructions and demonstrations</p>
+          <h1 className="text-3xl font-bold">{t('exerciseLibrary.title')}</h1>
+          <p className="text-muted-foreground">{t('exerciseLibrary.description')}</p>
         </div>
         <div className="flex items-center space-x-2">
           <Button onClick={handleCreateCustomExercise}>
             <Plus className="w-4 h-4 mr-2" />
-            Create Exercise
+            {t('exerciseLibrary.createExerciseButton')}
           </Button>
           <Badge variant="secondary" className="text-lg px-4 py-2">
-            {filteredExercises.length} exercises
+            {filteredExercises.length} {t('exerciseLibrary.exercises')}
           </Badge>
         </div>
       </div>
@@ -184,14 +187,14 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
         <CardHeader>
           <CardTitle className="flex items-center">
             <Search className="w-5 h-5 mr-2" />
-            Search & Filter
+            {t('exerciseLibrary.searchFilterTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <Input
-                placeholder="Search exercises, muscle groups, or descriptions..."
+                placeholder={t('exerciseLibrary.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full"
@@ -199,19 +202,19 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
             </div>
             <Button onClick={clearFilters} variant="outline">
               <Filter className="w-4 h-4 mr-2" />
-              Clear Filters
+              {t('exerciseLibrary.clearFiltersButton')}
             </Button>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Category</label>
+              <label className="text-sm font-medium mb-2 block">{t('exerciseLibrary.categoryLabel')}</label>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="all">{t('exerciseLibrary.allCategories')}</SelectItem>
                   {categories.map((category: string) => (
                     <SelectItem key={category} value={category || 'all'}>
                       {category}
@@ -222,13 +225,13 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Muscle Group</label>
+              <label className="text-sm font-medium mb-2 block">{t('exerciseLibrary.muscleGroupLabel')}</label>
               <Select value={selectedMuscleGroup} onValueChange={setSelectedMuscleGroup}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Muscles</SelectItem>
+                  <SelectItem value="all">{t('exerciseLibrary.allMuscles')}</SelectItem>
                   {muscleGroups.map((muscle: string) => (
                     <SelectItem key={muscle} value={muscle || 'all'}>
                       {muscle}
@@ -239,13 +242,13 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Difficulty</label>
+              <label className="text-sm font-medium mb-2 block">{t('exerciseLibrary.difficultyLabel')}</label>
               <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Levels</SelectItem>
+                  <SelectItem value="all">{t('exerciseLibrary.allLevels')}</SelectItem>
                   {difficulties.map((difficulty: string) => (
                     <SelectItem key={difficulty} value={difficulty || 'all'}>
                       {difficulty}
@@ -256,13 +259,13 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Equipment</label>
+              <label className="text-sm font-medium mb-2 block">{t('exerciseLibrary.equipmentLabel')}</label>
               <Select value={selectedEquipment} onValueChange={setSelectedEquipment}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Equipment</SelectItem>
+                  <SelectItem value="all">{t('exerciseLibrary.allEquipment')}</SelectItem>
                   {equipment.map((eq: string) => (
                     <SelectItem key={eq} value={eq || 'all'}>
                       {eq}
@@ -278,11 +281,11 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
       {/* Exercise Grid */}
       <Tabs defaultValue="grid" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="grid">Grid View</TabsTrigger>
-          <TabsTrigger value="list">List View</TabsTrigger>
-          <TabsTrigger value="favorites">Favorites ({favorites.size})</TabsTrigger>
-          <TabsTrigger value="progressions">Progressive Programs</TabsTrigger>
-          <TabsTrigger value="assessment">Fitness Assessment</TabsTrigger>
+          <TabsTrigger value="grid">{t('exerciseLibrary.gridView')}</TabsTrigger>
+          <TabsTrigger value="list">{t('exerciseLibrary.listView')}</TabsTrigger>
+          <TabsTrigger value="favorites">{t('exerciseLibrary.favorites')}({favorites.size})</TabsTrigger>
+          <TabsTrigger value="progressions">{t('exerciseLibrary.progressivePrograms')}</TabsTrigger>
+          <TabsTrigger value="assessment">{t('exerciseLibrary.fitnessAssessment')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="grid">
@@ -297,7 +300,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                   />
                   {exercise.isCustom && (
                     <Badge variant="outline" className="absolute top-2 left-2 bg-white/80">
-                      Custom
+                      {t('exerciseLibrary.custom')}
                     </Badge>
                   )}
                   <Button
@@ -347,7 +350,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                     </div>
                     <div className="flex space-x-2">
                       <Button size="sm" variant="outline" onClick={() => setSelectedExercise(exercise)}>
-                        View
+                        {t('exerciseLibrary.view')}
                       </Button>
                       {showAddButton && onAddToWorkout && (
                         <Button size="sm" onClick={() => onAddToWorkout(exercise)}>
@@ -397,12 +400,12 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                             />
                           </Button>
                           <Button size="sm" variant="outline" onClick={() => setSelectedExercise(exercise)}>
-                            View Details
+                            {t('exerciseLibrary.viewDetails')}
                           </Button>
                           {showAddButton && onAddToWorkout && (
                             <Button size="sm" onClick={() => onAddToWorkout(exercise)}>
                               <Plus className="w-4 h-4 mr-2" />
-                              Add
+                              {t('exerciseLibrary.add')}
                             </Button>
                           )}
                           {exercise.isCustom && (
@@ -486,7 +489,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                       onClick={() => setSelectedExercise(exercise)}
                       className="w-full"
                     >
-                      View Details
+                      {t('exerciseLibrary.viewDetails')}
                     </Button>
                   </CardContent>
                 </Card>
@@ -494,8 +497,8 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
             {favorites.size === 0 && (
               <div className="col-span-full text-center py-12">
                 <Star className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="text-lg font-medium mb-2">No favorites yet</h3>
-                <p className="text-muted-foreground">Click the star icon on exercises to add them to your favorites</p>
+                <h3 className="text-lg font-medium mb-2">{t('exerciseLibrary.noFavoritesYet')}</h3>
+                <p className="text-muted-foreground">{t('exerciseLibrary.clickStarIcon')}</p>
               </div>
             )}
           </div>
@@ -513,8 +516,8 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
       {filteredExercises.length === 0 && (
         <div className="text-center py-12">
           <Search className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-          <h3 className="text-lg font-medium mb-2">No exercises found</h3>
-          <p className="text-muted-foreground">Try adjusting your search terms or filters</p>
+          <h3 className="text-lg font-medium mb-2">{t('exerciseLibrary.noExercisesFound')}</h3>
+          <p className="text-muted-foreground">{t('exerciseLibrary.tryAdjusting')}</p>
         </div>
       )}
 
@@ -558,6 +561,7 @@ function ExerciseDetailModal({
   isFavorite,
   onToggleFavorite,
 }: ExerciseDetailModalProps) {
+  const { t } = useTranslation("en")
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "Beginner":
@@ -584,12 +588,12 @@ function ExerciseDetailModal({
               {showAddButton && onAddToWorkout && (
                 <Button onClick={() => onAddToWorkout(exercise)}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Add to Workout
+                  {t('exerciseLibrary.addToWorkout')}
                 </Button>
               )}
             </div>
           </DialogTitle>
-          <DialogDescription>Detailed exercise instructions and demonstration</DialogDescription>
+          <DialogDescription>{t('exerciseLibrary.detailedExerciseInstructions')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -606,31 +610,31 @@ function ExerciseDetailModal({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold mb-2">Exercise Details</h3>
+                <h3 className="font-semibold mb-2">{t('exerciseLibrary.exerciseDetails')}</h3>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium">Category:</span>
+                    <span className="text-sm font-medium">{t('exerciseLibrary.category')}:</span>
                     <Badge variant="secondary">{exercise.category}</Badge>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium">Difficulty:</span>
+                    <span className="text-sm font-medium">{t('exerciseLibrary.difficulty')}:</span>
                     <Badge className={`${getDifficultyColor(exercise.difficulty)} text-white`}>
                       {exercise.difficulty}
                     </Badge>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium">Equipment:</span>
+                    <span className="text-sm font-medium">{t('exerciseLibrary.equipment')}:</span>
                     <Badge variant="outline">{exercise.equipment}</Badge>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium">Duration:</span>
-                    <span className="text-sm">{exercise.estimatedDuration} minutes</span>
+                    <span className="text-sm font-medium">{t('exerciseLibrary.duration')}:</span>
+                    <span className="text-sm">{exercise.estimatedDuration} {t('exerciseLibrary.minutes')}</span>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="font-semibold mb-2">Target Muscles</h3>
+                <h3 className="font-semibold mb-2">{t('exerciseLibrary.targetMuscles')}</h3>
                 <div className="flex flex-wrap gap-2">
                   {exercise.muscleGroups.map((muscle) => (
                     <Badge key={String(muscle)} variant="outline">
@@ -642,11 +646,11 @@ function ExerciseDetailModal({
 
               {exercise.recommendedSets && (
                 <div>
-                  <h3 className="font-semibold mb-2">Recommended</h3>
+                  <h3 className="font-semibold mb-2">{t('exerciseLibrary.recommended')}</h3>
                   <div className="text-sm space-y-1">
-                    <div>Sets: {exercise.recommendedSets.sets}</div>
-                    <div>Reps: {exercise.recommendedSets.reps}</div>
-                    {exercise.recommendedSets.rest && <div>Rest: {exercise.recommendedSets.rest} seconds</div>}
+                    <div>{t('exerciseLibrary.sets')}: {exercise.recommendedSets.sets}</div>
+                    <div>{t('exerciseLibrary.reps')}: {exercise.recommendedSets.reps}</div>
+                    {exercise.recommendedSets.rest && <div>{t('exerciseLibrary.rest')}: {exercise.recommendedSets.rest} {t('exerciseLibrary.seconds')}</div>}
                   </div>
                 </div>
               )}
@@ -654,13 +658,13 @@ function ExerciseDetailModal({
 
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold mb-2">Description</h3>
+                <h3 className="font-semibold mb-2">{t('exerciseLibrary.description')}</h3>
                 <p className="text-sm text-muted-foreground">{exercise.description}</p>
               </div>
 
               {exercise.benefits && exercise.benefits.length > 0 && (
                 <div>
-                  <h3 className="font-semibold mb-2">Benefits</h3>
+                  <h3 className="font-semibold mb-2">{t('exerciseLibrary.benefits')}</h3>
                   <ul className="text-sm text-muted-foreground space-y-1">
                     {exercise.benefits.map((benefit, index) => (
                       <li key={String(index)} className="flex items-start">
@@ -676,7 +680,7 @@ function ExerciseDetailModal({
 
           {/* Instructions */}
           <div className="space-y-4">
-            <h3 className="font-semibold">Step-by-Step Instructions</h3>
+            <h3 className="font-semibold">{t('exerciseLibrary.stepByStepInstructions')}</h3>
             <div className="space-y-3">
               {exercise.instructions.map((instruction, index) => (
                 <div key={String(index)} className="flex items-start space-x-3">
@@ -692,7 +696,7 @@ function ExerciseDetailModal({
           {/* Tips and Safety */}
           {exercise.tips && exercise.tips.length > 0 && (
             <div className="space-y-4">
-              <h3 className="font-semibold">Tips & Safety</h3>
+              <h3 className="font-semibold">{t('exerciseLibrary.tipsSafety')}</h3>
               <div className="bg-muted/50 rounded-lg p-4">
                 <ul className="text-sm space-y-2">
                   {exercise.tips.map((tip, index) => (
@@ -709,7 +713,7 @@ function ExerciseDetailModal({
           {/* Variations */}
           {exercise.variations && exercise.variations.length > 0 && (
             <div className="space-y-4">
-              <h3 className="font-semibold">Variations</h3>
+              <h3 className="font-semibold">{t('exerciseLibrary.variations')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {exercise.variations.map((variation, index) => (
                   <div key={String(index)} className="border rounded-lg p-3">

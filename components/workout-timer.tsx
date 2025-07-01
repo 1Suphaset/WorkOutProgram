@@ -383,20 +383,20 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
 
       <div className="flex flex-col md:flex-row justify-between gap-3">
         <Button variant="outline" onClick={previousExercise} disabled={currentExerciseIndex === 0}>
-          <SkipBack className="w-4 h-4 mr-2" /> Previous
+          <SkipBack className="w-4 h-4 mr-2" /> {t("previous")}
         </Button>
         <div className="flex flex-wrap gap-2 justify-center">
           {!isRunning ? (
             <Button onClick={startTimer}>
-              <Play className="w-4 h-4 mr-2" /> Start
+              <Play className="w-4 h-4 mr-2" /> {t("start")}
             </Button>
           ) : (
             <Button onClick={pauseTimer} variant="outline">
-              <Pause className="w-4 h-4 mr-2" /> Pause
+              <Pause className="w-4 h-4 mr-2" /> {t("pause")}
             </Button>
           )}
           <Button onClick={stopWorkout} variant="destructive">
-            <Square className="w-4 h-4 mr-2" /> Finish
+            <Square className="w-4 h-4 mr-2" /> {t("finish")}
           </Button>
         </div>
         <Button
@@ -404,7 +404,7 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
           onClick={nextExercise}
           disabled={currentExerciseIndex === totalExercises - 1}
         >
-          Next <SkipForward className="w-4 h-4 ml-2" />
+          {t("next")} <SkipForward className="w-4 h-4 ml-2" />
         </Button>
       </div>
 

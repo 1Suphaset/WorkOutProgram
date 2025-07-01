@@ -66,7 +66,7 @@ export type WorkoutTemplate = {
 }
 
 export default function WorkoutPlannerApp() {
-  const [activeView, setActiveView] = useState("dashboard")
+  const [activeView, setActiveView] = useState<string>("dashboard")
   const [workouts, setWorkouts] = useState<Workout[]>([])
   const [templates, setTemplates] = useState<Template[]>([])
   const [workoutLogs, setWorkoutLogs] = useState<WorkoutLog[]>([])
@@ -236,7 +236,7 @@ export default function WorkoutPlannerApp() {
   }
 
   // สร้าง mergedDatabase ที่รวม exerciseDatabase กับ exerciseId ที่อ้างถึงใน templates แต่ไม่มีใน database
-  const allExerciseIds = templates.flatMap(tpl => tpl.exercises.map(ex => ex.exerciseId))
+  const allExerciseIds = templates.flatMap(tpl => tpl.exercises.map(ex => Number(ex.exerciseId)))
   const missingIds = allExerciseIds.filter(id => !exerciseDatabase.some(e => e.id === id))
   const newExercises = missingIds.map((id: number) => ({
     id,
@@ -257,7 +257,7 @@ export default function WorkoutPlannerApp() {
   const renderActiveView = () => {
     switch (activeView) {
       case "dashboard":
-        return <Dashboard workouts={workouts} />
+        return <Dashboard workouts={workouts} language={language} />
       case "calendar":
         return (
           <div className="max-w-7xl mx-auto">
@@ -294,6 +294,7 @@ export default function WorkoutPlannerApp() {
             updateTemplate={updateTemplate}
             deleteTemplate={deleteTemplate}
             exerciseDatabase={mergedDatabase}
+            language={language}
           />
         )
       case "progress":
@@ -301,14 +302,14 @@ export default function WorkoutPlannerApp() {
       case "settings":
         return (
           <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
-            <SettingsComponent />
+            <SettingsComponent language={language} />
             <NotificationSettings language={language} />
           </div>
         )
       case "library":
-        return <ExerciseLibrary exerciseDatabase={mergedDatabase} />
+        return <ExerciseLibrary exerciseDatabase={mergedDatabase} language={language} />
       default:
-        return <Dashboard workouts={workouts} />
+        return <Dashboard workouts={workouts} language={language} />
     }
   }
 

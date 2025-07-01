@@ -20,6 +20,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Plus, Edit, Trash2, Dumbbell, Heart, Zap, Trophy } from "lucide-react"
 import type { WorkoutTemplate, Exercise } from "@/app/page"
 import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
+import { useTranslation } from "@/lib/i18n"
 
 interface ExercisesProps {
   templates: WorkoutTemplate[]
@@ -27,23 +28,42 @@ interface ExercisesProps {
   updateTemplate: (templateId: string, updatedTemplate: Partial<WorkoutTemplate>) => void
   deleteTemplate: (templateId: string) => void
   exerciseDatabase?: typeof defaultExerciseDatabase
+  language?: "en" | "th"
 }
 
-export function Exercises({ templates, addTemplate, updateTemplate, deleteTemplate, exerciseDatabase = defaultExerciseDatabase }: ExercisesProps) {
+type ExerciseForm = {
+  name: string;
+  type: string;
+  duration: number;
+  reps?: number;
+  sets?: number;
+  calories?: number;
+  description?: string;
+};
+
+type NewTemplateForm = {
+  name: string;
+  category: string;
+  exercises: ExerciseForm[];
+};
+
+export function Exercises({ templates, addTemplate, updateTemplate, deleteTemplate, exerciseDatabase = defaultExerciseDatabase, language = "en" }: ExercisesProps) {
+  const { t } = useTranslation(language)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<WorkoutTemplate | null>(null)
-  const [newTemplate, setNewTemplate] = useState<Partial<WorkoutTemplate>>({
+  const [newTemplate, setNewTemplate] = useState<NewTemplateForm>({
     name: "",
     category: "",
     exercises: [],
   })
-  const [newExercise, setNewExercise] = useState<Partial<Exercise>>({
+  const [newExercise, setNewExercise] = useState<ExerciseForm>({
     name: "",
     type: "strength",
     duration: 300,
     reps: 10,
     sets: 3,
     calories: 50,
+    description: "",
   })
 
   const getTypeIcon = (type: string) => {
@@ -62,52 +82,51 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
   }
 
   const handleCreateTemplate = () => {
-    if (!newTemplate.name?.trim() || !newTemplate.category?.trim()) return
-
+    if (!newTemplate.name.trim() || !newTemplate.category.trim()) return
     const template: WorkoutTemplate = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substr(2, 9) as unknown as number,
       name: newTemplate.name,
       category: newTemplate.category,
-      exercises: newTemplate.exercises || [],
+      exercises: newTemplate.exercises.map((ex, idx) => ({
+        id: idx + 1,
+        exerciseId: idx + 1,
+        sets: ex.sets,
+        reps: ex.reps,
+        time: ex.duration,
+        weight: undefined,
+        notes: ex.description,
+      })),
     }
-
     addTemplate(template)
     setIsCreateDialogOpen(false)
     setNewTemplate({ name: "", category: "", exercises: [] })
   }
 
   const handleUpdateTemplate = () => {
-    if (!editingTemplate || !newTemplate.name?.trim() || !newTemplate.category?.trim()) return
-
+    if (!editingTemplate || !newTemplate.name.trim() || !newTemplate.category.trim()) return
     updateTemplate(editingTemplate.id, {
       name: newTemplate.name,
       category: newTemplate.category,
-      exercises: newTemplate.exercises,
+      exercises: newTemplate.exercises.map((ex, idx) => ({
+        id: idx + 1,
+        exerciseId: idx + 1,
+        sets: ex.sets,
+        reps: ex.reps,
+        time: ex.duration,
+        weight: undefined,
+        notes: ex.description,
+      })),
     })
-
     setEditingTemplate(null)
     setNewTemplate({ name: "", category: "", exercises: [] })
   }
 
   const addExerciseToTemplate = () => {
-    if (!newExercise.name?.trim()) return
-
-    const exercise: Exercise = {
-      id: Math.random().toString(36).substr(2, 9),
-      name: newExercise.name,
-      type: newExercise.type as Exercise["type"],
-      duration: newExercise.duration || 300,
-      reps: newExercise.reps,
-      sets: newExercise.sets,
-      description: newExercise.description,
-      calories: newExercise.calories || 50,
-    }
-
+    if (!newExercise.name.trim()) return
     setNewTemplate((prev) => ({
       ...prev,
-      exercises: [...(prev.exercises || []), exercise],
+      exercises: [...prev.exercises, { ...newExercise }],
     }))
-
     setNewExercise({
       name: "",
       type: "strength",
@@ -115,13 +134,14 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
       reps: 10,
       sets: 3,
       calories: 50,
+      description: "",
     })
   }
 
-  const removeExerciseFromTemplate = (exerciseId: string) => {
+  const removeExerciseFromTemplate = (exerciseIdx: number) => {
     setNewTemplate((prev) => ({
       ...prev,
-      exercises: prev.exercises?.filter((ex) => ex.id !== exerciseId) || [],
+      exercises: prev.exercises.filter((_, idx) => idx !== exerciseIdx),
     }))
   }
 
@@ -130,7 +150,15 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
     setNewTemplate({
       name: template.name,
       category: template.category,
-      exercises: [...template.exercises],
+      exercises: template.exercises.map((ex) => ({
+        name: "",
+        type: "strength",
+        duration: ex.time || 0,
+        reps: ex.reps,
+        sets: ex.sets,
+        calories: 0,
+        description: ex.notes || "",
+      })),
     })
     setIsCreateDialogOpen(true)
   }
@@ -145,59 +173,59 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Exercise Templates</h1>
-          <p className="text-muted-foreground">Create and manage workout templates</p>
+          <h1 className="text-3xl font-bold">{t('exercises.exerciseTemplates')}</h1>
+          <p className="text-muted-foreground">{t('exercises.createAndManageWorkoutTemplates')}</p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="w-4 h-4 mr-2" />
-              New Template
+              {t('exercises.newTemplate')}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingTemplate ? "Edit Template" : "Create New Template"}</DialogTitle>
+              <DialogTitle>{editingTemplate ? t('exercises.editTemplate') : t('exercises.createNewTemplate')}</DialogTitle>
               <DialogDescription>
-                {editingTemplate ? "Update your workout template" : "Create a reusable workout template"}
+                {editingTemplate ? t('exercises.updateYourWorkoutTemplate') : t('exercises.createAReusableWorkoutTemplate')}
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="template-name">Template Name</Label>
+                  <Label htmlFor="template-name">{t('exercises.templateName')}</Label>
                   <Input
                     id="template-name"
                     value={newTemplate.name || ""}
                     onChange={(e) => setNewTemplate((prev) => ({ ...prev, name: e.target.value }))}
-                    placeholder="e.g., Full Body Strength"
+                    placeholder={t('exercises.e.g.FullBodyStrength')}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="template-category">Category</Label>
+                  <Label htmlFor="template-category">{t('exercises.category')}</Label>
                   <Input
                     id="template-category"
                     value={newTemplate.category || ""}
                     onChange={(e) => setNewTemplate((prev) => ({ ...prev, category: e.target.value }))}
-                    placeholder="e.g., Strength, Cardio"
+                    placeholder={t('exercises.e.g.StrengthCardio')}
                   />
                 </div>
               </div>
 
               <div className="border rounded-lg p-4 space-y-4">
-                <h4 className="font-medium">Add Exercise</h4>
+                <h4 className="font-medium">{t('exercises.addExercise')}</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Exercise Name</Label>
+                    <Label>{t('exercises.exerciseName')}</Label>
                     <Input
                       value={newExercise.name || ""}
                       onChange={(e) => setNewExercise((prev) => ({ ...prev, name: e.target.value }))}
-                      placeholder="e.g., Push-ups"
+                      placeholder={t('exercises.e.g.Pushups')}
                     />
                   </div>
                   <div>
-                    <Label>Type</Label>
+                    <Label>{t('exercises.type')}</Label>
                     <Select
                       value={newExercise.type}
                       onValueChange={(value) =>
@@ -208,15 +236,15 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="strength">Strength</SelectItem>
-                        <SelectItem value="cardio">Cardio</SelectItem>
-                        <SelectItem value="flexibility">Flexibility</SelectItem>
-                        <SelectItem value="sports">Sports</SelectItem>
+                        <SelectItem value="strength">{t('exercises.strength')}</SelectItem>
+                        <SelectItem value="cardio">{t('exercises.cardio')}</SelectItem>
+                        <SelectItem value="flexibility">{t('exercises.flexibility')}</SelectItem>
+                        <SelectItem value="sports">{t('exercises.sports')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <Label>Duration (seconds)</Label>
+                    <Label>{t('exercises.duration')}</Label>
                     <Input
                       type="number"
                       value={newExercise.duration || 300}
@@ -226,7 +254,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                     />
                   </div>
                   <div>
-                    <Label>Calories</Label>
+                    <Label>{t('exercises.calories')}</Label>
                     <Input
                       type="number"
                       value={newExercise.calories || 50}
@@ -236,7 +264,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                     />
                   </div>
                   <div>
-                    <Label>Reps (optional)</Label>
+                    <Label>{t('exercises.reps')}</Label>
                     <Input
                       type="number"
                       value={newExercise.reps || ""}
@@ -246,7 +274,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                     />
                   </div>
                   <div>
-                    <Label>Sets (optional)</Label>
+                    <Label>{t('exercises.sets')}</Label>
                     <Input
                       type="number"
                       value={newExercise.sets || ""}
@@ -257,24 +285,24 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                   </div>
                 </div>
                 <div>
-                  <Label>Description (optional)</Label>
+                  <Label>{t('exercises.description')}</Label>
                   <Textarea
                     value={newExercise.description || ""}
                     onChange={(e) => setNewExercise((prev) => ({ ...prev, description: e.target.value }))}
-                    placeholder="Exercise instructions or notes"
+                    placeholder={t('exercises.exerciseInstructionsOrNotes')}
                   />
                 </div>
                 <Button onClick={addExerciseToTemplate} className="w-full">
-                  Add Exercise
+                  {t('exercises.addExercise')}
                 </Button>
               </div>
 
               {(newTemplate.exercises?.length || 0) > 0 && (
                 <div className="border rounded-lg p-4">
-                  <h4 className="font-medium mb-2">Template Exercises</h4>
+                  <h4 className="font-medium mb-2">{t('exercises.templateExercises')}</h4>
                   <ScrollArea className="h-40">
                     <div className="space-y-2">
-                      {newTemplate.exercises?.map((exercise) => (
+                      {newTemplate.exercises?.map((exercise, idx) => (
                         <div key={exercise.id} className="flex items-center justify-between bg-muted/50 rounded p-2">
                           <div className="flex items-center space-x-2">
                             {getTypeIcon(exercise.type)}
@@ -288,7 +316,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                               </span>
                             )}
                           </div>
-                          <Button variant="ghost" size="sm" onClick={() => removeExerciseFromTemplate(exercise.id)}>
+                          <Button variant="ghost" size="sm" onClick={() => removeExerciseFromTemplate(idx)}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -300,11 +328,11 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
 
               <div className="flex space-x-2">
                 <Button onClick={editingTemplate ? handleUpdateTemplate : handleCreateTemplate} className="flex-1">
-                  {editingTemplate ? "Update Template" : "Create Template"}
+                  {editingTemplate ? t('exercises.updateTemplate') : t('exercises.createTemplate')}
                 </Button>
                 {editingTemplate && (
                   <Button variant="outline" onClick={cancelEditing}>
-                    Cancel
+                    {t('exercises.cancel')}
                   </Button>
                 )}
               </div>
@@ -322,7 +350,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                 <Badge variant="secondary">{template.category}</Badge>
               </div>
               <CardDescription>
-                {template.exercises.length} exercise{template.exercises.length !== 1 ? "s" : ""}
+                {template.exercises.length} {template.exercises.length !== 1 ? t('exercises.exercises') : t('exercises.exercise')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -345,7 +373,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
               <div className="flex space-x-2">
                 <Button variant="outline" size="sm" onClick={() => startEditing(template)} className="flex-1">
                   <Edit className="w-4 h-4 mr-1" />
-                  Edit
+                  {t('exercises.edit')}
                 </Button>
                 <Button
                   variant="outline"
@@ -364,11 +392,11 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
       {templates.length === 0 && (
         <div className="text-center py-12">
           <Dumbbell className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-          <h3 className="text-lg font-medium mb-2">No templates yet</h3>
-          <p className="text-muted-foreground mb-4">Create your first workout template to get started</p>
+          <h3 className="text-lg font-medium mb-2">{t('exercises.noTemplatesYet')}</h3>
+          <p className="text-muted-foreground mb-4">{t('exercises.createYourFirstWorkoutTemplateToGetStarted')}</p>
           <Button onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />
-            Create Template
+            {t('exercises.createTemplate')}
           </Button>
         </div>
       )}

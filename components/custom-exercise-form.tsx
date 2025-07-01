@@ -16,11 +16,13 @@ import { Plus, X, Upload } from "lucide-react"
 import type { CustomExercise } from "@/lib/exercise-database"
 import { ExerciseTemplateSelector } from "@/components/exercise-template-selector"
 import type { ExerciseTemplate } from "@/lib/exercise-templates"
+import { useTranslation } from "@/lib/i18n"
 
 interface CustomExerciseFormProps {
   exercise?: CustomExercise | null
   onSave: (exercise: Omit<CustomExercise, "id" | "createdAt">) => void
   onClose: () => void
+  language?: "en" | "th"
 }
 
 const muscleGroupOptions = [
@@ -65,7 +67,8 @@ const equipmentOptions = [
   "Other",
 ]
 
-export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExerciseFormProps) {
+export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" }: CustomExerciseFormProps) {
+  const { t } = useTranslation(language)
   const [formData, setFormData] = useState({
     name: exercise?.name || "",
     category: exercise?.category || ("Strength" as const),
@@ -231,7 +234,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
           <div className="flex justify-between items-center pt-4">
             <Button onClick={() => setShowTemplateSelector(true)} variant="outline">
               <Plus className="w-4 h-4 mr-2" />
-              Use Template
+              {t('Use Template')}
             </Button>
           </div>
         </DialogHeader>
@@ -241,12 +244,12 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
             {/* Basic Information */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Basic Information</CardTitle>
+                <CardTitle className="text-lg">{t('Basic Information')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="exercise-name">Exercise Name *</Label>
+                    <Label htmlFor="exercise-name">{t('Exercise Name *')}</Label>
                     <Input
                       id="exercise-name"
                       value={formData.name}
@@ -255,7 +258,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
                     />
                   </div>
                   <div>
-                    <Label htmlFor="category">Category *</Label>
+                    <Label htmlFor="category">{t('Category *')}</Label>
                     <Select value={formData.category} onValueChange={(value) => updateFormData("category", value)}>
                       <SelectTrigger>
                         <SelectValue />
@@ -269,7 +272,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="difficulty">Difficulty *</Label>
+                    <Label htmlFor="difficulty">{t('Difficulty *')}</Label>
                     <Select value={formData.difficulty} onValueChange={(value) => updateFormData("difficulty", value)}>
                       <SelectTrigger>
                         <SelectValue />
@@ -282,7 +285,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="equipment">Equipment *</Label>
+                    <Label htmlFor="equipment">{t('Equipment *')}</Label>
                     <Select value={formData.equipment} onValueChange={(value) => updateFormData("equipment", value)}>
                       <SelectTrigger>
                         <SelectValue />
@@ -299,7 +302,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
                 </div>
 
                 <div>
-                  <Label htmlFor="description">Description *</Label>
+                  <Label htmlFor="description">{t('Description *')}</Label>
                   <Textarea
                     id="description"
                     value={formData.description}
@@ -310,7 +313,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
                 </div>
 
                 <div>
-                  <Label htmlFor="duration">Estimated Duration (minutes) *</Label>
+                  <Label htmlFor="duration">{t('Estimated Duration (minutes) *')}</Label>
                   <Input
                     id="duration"
                     type="number"
@@ -326,7 +329,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
             {/* Muscle Groups */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Target Muscle Groups *</CardTitle>
+                <CardTitle className="text-lg">{t('Target Muscle Groups *')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex flex-wrap gap-2">
@@ -363,7 +366,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
                     }}
                     disabled={!newMuscleGroup}
                   >
-                    Add
+                    {t('Add')}
                   </Button>
                 </div>
               </CardContent>
@@ -372,7 +375,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
             {/* Exercise Image */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Exercise Image</CardTitle>
+                <CardTitle className="text-lg">{t('Exercise Image')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {formData.imageUrl && (
@@ -395,7 +398,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
                   <Button asChild variant="outline" className="flex-1">
                     <label htmlFor="image-upload" className="flex items-center cursor-pointer">
                       <Upload className="w-4 h-4 mr-2" />
-                      Upload Image
+                      {t('Upload Image')}
                     </label>
                   </Button>
                   <Input
@@ -411,7 +414,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
             {/* Instructions */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Step-by-Step Instructions *</CardTitle>
+                <CardTitle className="text-lg">{t('Step-by-Step Instructions *')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {formData.instructions.map((instruction, index) => (
@@ -441,7 +444,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
                 ))}
                 <Button type="button" onClick={addInstruction} variant="outline" className="w-full">
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Step
+                  {t('Add Step')}
                 </Button>
               </CardContent>
             </Card>
@@ -449,12 +452,12 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
             {/* Recommended Sets */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Recommended Sets & Reps</CardTitle>
+                <CardTitle className="text-lg">{t('Recommended Sets & Reps')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="sets">Sets</Label>
+                    <Label htmlFor="sets">{t('Sets')}</Label>
                     <Input
                       id="sets"
                       type="number"
@@ -469,7 +472,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
                     />
                   </div>
                   <div>
-                    <Label htmlFor="reps">Reps</Label>
+                    <Label htmlFor="reps">{t('Reps')}</Label>
                     <Input
                       id="reps"
                       value={formData.recommendedSets.reps}
@@ -483,7 +486,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
                     />
                   </div>
                   <div>
-                    <Label htmlFor="rest">Rest (seconds)</Label>
+                    <Label htmlFor="rest">{t('Rest (seconds)')}</Label>
                     <Input
                       id="rest"
                       type="number"
@@ -504,7 +507,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
             {/* Benefits */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Benefits</CardTitle>
+                <CardTitle className="text-lg">{t('Benefits')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -525,7 +528,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
                     onKeyPress={(e) => e.key === "Enter" && addBenefit()}
                   />
                   <Button type="button" onClick={addBenefit} disabled={!newBenefit.trim()}>
-                    Add
+                    {t('Add')}
                   </Button>
                 </div>
               </CardContent>
@@ -534,7 +537,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
             {/* Tips */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Tips & Safety</CardTitle>
+                <CardTitle className="text-lg">{t('Tips & Safety')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -555,7 +558,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
                     onKeyPress={(e) => e.key === "Enter" && addTip()}
                   />
                   <Button type="button" onClick={addTip} disabled={!newTip.trim()}>
-                    Add
+                    {t('Add')}
                   </Button>
                 </div>
               </CardContent>
@@ -564,7 +567,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
             {/* Variations */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Exercise Variations</CardTitle>
+                <CardTitle className="text-lg">{t('Exercise Variations')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
@@ -599,7 +602,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
                     disabled={!newVariation.name.trim() || !newVariation.description.trim()}
                     className="w-full"
                   >
-                    Add Variation
+                    {t('Add Variation')}
                   </Button>
                 </div>
               </CardContent>
@@ -609,9 +612,9 @@ export function CustomExerciseForm({ exercise, onSave, onClose }: CustomExercise
 
         <div className="flex justify-end space-x-2 pt-4 border-t">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t('Cancel')}
           </Button>
-          <Button onClick={handleSave}>{exercise ? "Update Exercise" : "Create Exercise"}</Button>
+          <Button onClick={handleSave}>{exercise ? t('Update Exercise') : t('Create Exercise')}</Button>
         </div>
       </DialogContent>
       {showTemplateSelector && (

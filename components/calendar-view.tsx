@@ -207,11 +207,11 @@ export function Calendar({
                         {workout.exercises.slice(0, 3).map((exercise) => {
                           const exData = exerciseDatabase.find(e => e.id === ("exerciseId" in exercise ? exercise.exerciseId : exercise.id));
                           return (
-                            <div key={exercise.id} className="text-xs md:text-sm text-muted-foreground">
+                          <div key={exercise.id} className="text-xs md:text-sm text-muted-foreground">
                               • {exData?.name || exercise.name || "Unknown Exercise"}
-                              {exercise.sets && exercise.reps && ` - ${exercise.sets}x${exercise.reps}`}
-                              {exercise.time && ` - ${exercise.time}s`}
-                            </div>
+                            {exercise.sets && exercise.reps && ` - ${exercise.sets}x${exercise.reps}`}
+                            {exercise.time && ` - ${exercise.time}s`}
+                          </div>
                           );
                         })}
                         {workout.exercises.length > 3 && (

@@ -89,7 +89,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
         <div className="space-y-6">
           {/* Exercise Logs */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Exercises</h3>
+            <h3 className="text-lg font-semibold">{t("exercises")}</h3>
             {workout.exercises.map((exercise, index) => {
               const log = exerciseLogs.find((l) => l.exerciseId === exercise.id)
               if (!log) return null
@@ -104,9 +104,9 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
                         {index + 1}. {exerciseName}
                       </span>
                       <Badge variant="outline">
-                        {exercise.sets && `${exercise.sets} sets`}
-                        {exercise.reps && ` × ${exercise.reps} reps`}
-                        {exercise.time && `${exercise.time}s`}
+                        {exercise.sets && `${exercise.sets} ${t("sets")}`}
+                        {exercise.reps && ` × ${exercise.reps} ${t("reps")}`}
+                        {exercise.time && `${exercise.time}${t("seconds")}`}
                       </Badge>
                     </CardTitle>
                   </CardHeader>
@@ -154,7 +154,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
                         <div>
                           <Label className="flex items-center">
                             <Clock className="w-4 h-4 mr-1" />
-                            Actual Time (s)
+                            {t("actualTime")}
                           </Label>
                           <Input
                             type="number"
@@ -185,11 +185,11 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
                     </div>
 
                     <div>
-                      <Label>Exercise Notes</Label>
+                      <Label>{t("exerciseNotes")}</Label>
                       <Input
                         value={log.notes}
                         onChange={(e) => updateExerciseLog(exercise.id, { notes: e.target.value })}
-                        placeholder="How did this exercise feel?"
+                        placeholder={t("howDidThisExerciseFeel")}
                       />
                     </div>
                   </CardContent>
@@ -201,12 +201,12 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
           {/* Overall Workout */}
           <Card>
             <CardHeader>
-              <CardTitle>Overall Workout</CardTitle>
+              <CardTitle>{t("overallWorkout")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <Label>
-                  Overall {t("perceivedEffort")}: {overallEffort[0]}/10
+                  {t("overallPerceivedEffort")}: {overallEffort[0]}/10
                 </Label>
                 <Slider
                   value={overallEffort}
@@ -223,7 +223,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
                 <Textarea
                   value={workoutNotes}
                   onChange={(e) => setWorkoutNotes(e.target.value)}
-                  placeholder="How was your workout today?"
+                  placeholder={t("howWasYourWorkoutToday")}
                   rows={3}
                 />
               </div>

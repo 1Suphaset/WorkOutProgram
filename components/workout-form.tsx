@@ -15,6 +15,7 @@ import type { Workout, Template, Exercise } from "@/app/page"
 import { ExerciseLibrary } from "@/components/exercise-library"
 import { useToast } from "@/hooks/use-toast"
 import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
+import { useTranslation } from "@/lib/i18n"
 
 interface WorkoutFormProps {
   workout?: Workout | null
@@ -23,9 +24,11 @@ interface WorkoutFormProps {
   onSave: (workout: Omit<Workout, "id" | "date" | "completed" | "createdAt">) => void
   onClose: () => void
   exerciseDatabase?: typeof defaultExerciseDatabase
+  language: "en" | "th"
 }
 
-export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose, exerciseDatabase = defaultExerciseDatabase }: WorkoutFormProps) {
+export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose, exerciseDatabase = defaultExerciseDatabase, language }: WorkoutFormProps) {
+  const { t } = useTranslation(language)
   const [workoutName, setWorkoutName] = useState("")
   const [exercises, setExercises] = useState<Exercise[]>([])
   const [notes, setNotes] = useState("")
@@ -104,23 +107,23 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{workout ? "Edit Workout" : "Create New Workout"}</DialogTitle>
-          <DialogDescription>Plan your workout for {selectedDate.toLocaleDateString()}</DialogDescription>
+          <DialogTitle>{workout ? t("editWorkout") : t("createNewWorkout")}</DialogTitle>
+          <DialogDescription>{t("planYourWorkoutFor", { date: selectedDate.toLocaleDateString(language === "th" ? "th-TH" : "en-US") })}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="workout-name">Workout Name</Label>
+              <Label htmlFor="workout-name">{t("workoutName")}</Label>
               <Input
                 id="workout-name"
                 value={workoutName}
                 onChange={(e) => setWorkoutName(e.target.value)}
-                placeholder="e.g., Push Day, Cardio Session"
+                placeholder={t("workoutNamePlaceholder")}
               />
             </div>
             <div>
-              <Label>Load from Template</Label>
+              <Label>{t("loadFromTemplate")}</Label>
               <Select
                 value={selectedTemplate ? selectedTemplate.toString() : ""}
                 onValueChange={(value) => {
@@ -130,12 +133,12 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose a template" />
+                  <SelectValue placeholder={t("chooseATemplate")}/>
                 </SelectTrigger>
                 <SelectContent>
                   {templates.map((template) => (
                     <SelectItem key={template.id} value={template.id.toString()}>
-                      {template.name} ({template.exercises.length} exercises)
+                      {template.name} ({template.exercises.length} {t("exercises")})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -144,22 +147,22 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
           </div>
 
           <div>
-            <Label htmlFor="notes">Notes (optional)</Label>
+            <Label htmlFor="notes">{t("notesOptional")}</Label>
             <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Any additional notes for this workout..."
+              placeholder={t("additionalNotesPlaceholder")}
               rows={2}
             />
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="text-lg font-medium">Exercises</Label>
+              <Label className="text-lg font-medium">{t("exercises")}</Label>
               <Button onClick={addExercise} size="sm">
                 <Plus className="w-4 h-4 mr-2" />
-                Add Exercise
+                {t("addExercise")}
               </Button>
             </div>
 
@@ -171,7 +174,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                     <Card key={exercise.id}>
                       <CardHeader className="pb-3">
                         <CardTitle className="text-sm flex items-center justify-between">
-                          Exercise {index + 1}
+                          {t("exercise")} {index + 1}
                           <Button variant="ghost" size="sm" onClick={() => removeExercise(exercise.id)}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -179,18 +182,18 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div>
-                          <Label>Exercise Name</Label>
-                          <div className="py-2 px-3 bg-muted rounded text-base">{exData?.name || "Unknown Exercise"}</div>
+                          <Label>{t("exerciseName")}</Label>
+                          <div className="py-2 px-3 bg-muted rounded text-base">{exData?.name || t("unknownExercise")}</div>
                         </div>
                         <Tabs defaultValue="sets-reps" className="w-full">
                           <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="sets-reps">Sets & Reps</TabsTrigger>
-                            <TabsTrigger value="time">Time Based</TabsTrigger>
+                            <TabsTrigger value="sets-reps">{t("setsAndReps")}</TabsTrigger>
+                            <TabsTrigger value="time">{t("timeBased")}</TabsTrigger>
                           </TabsList>
                           <TabsContent value="sets-reps" className="space-y-4">
                             <div className="grid grid-cols-3 gap-4">
                               <div>
-                                <Label>Sets</Label>
+                                <Label>{t("sets")}</Label>
                                 <Input
                                   type="number"
                                   value={exercise.sets || ""}
@@ -201,7 +204,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                                 />
                               </div>
                               <div>
-                                <Label>Reps</Label>
+                                <Label>{t("reps")}</Label>
                                 <Input
                                   type="number"
                                   value={exercise.reps || ""}
@@ -212,14 +215,14 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                                 />
                               </div>
                               <div>
-                                <Label>Weight (lbs)</Label>
+                                <Label>{t("weight")}</Label>
                                 <Input
                                   type="number"
                                   value={exercise.weight || ""}
                                   onChange={(e) =>
-                                    updateExercise(exercise.id, { weight: Number.parseInt(e.target.value) || undefined })
+                                    updateExercise(exercise.id, { weight: Number.parseFloat(e.target.value) || undefined })
                                   }
-                                  placeholder="135"
+                                  placeholder=""
                                 />
                               </div>
                             </div>
@@ -227,7 +230,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                           <TabsContent value="time" className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                               <div>
-                                <Label>Time (seconds)</Label>
+                                <Label>{t("time")}</Label>
                                 <Input
                                   type="number"
                                   value={exercise.time || ""}
@@ -238,27 +241,18 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                                 />
                               </div>
                               <div>
-                                <Label>Sets</Label>
+                                <Label>{t("notes")}</Label>
                                 <Input
-                                  type="number"
-                                  value={exercise.sets || ""}
+                                  value={exercise.notes || ""}
                                   onChange={(e) =>
-                                    updateExercise(exercise.id, { sets: Number.parseInt(e.target.value) || undefined })
+                                    updateExercise(exercise.id, { notes: e.target.value })
                                   }
-                                  placeholder="3"
+                                  placeholder={t("exerciseNotesPlaceholder")}
                                 />
                               </div>
                             </div>
                           </TabsContent>
                         </Tabs>
-                        <div>
-                          <Label>Notes (optional)</Label>
-                          <Input
-                            value={exercise.notes || ""}
-                            onChange={(e) => updateExercise(exercise.id, { notes: e.target.value })}
-                            placeholder="Form cues, modifications, etc."
-                          />
-                        </div>
                       </CardContent>
                     </Card>
                   )
@@ -287,12 +281,8 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
           </div>
 
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={!workoutName.trim() || exercises.length === 0}>
-              {workout ? "Update Workout" : "Save Workout"}
-            </Button>
+            <Button variant="outline" onClick={onClose}>{t("cancel")}</Button>
+            <Button onClick={handleSave} disabled={!workoutName.trim() || exercises.length === 0}>{t("saveWorkout")}</Button>
           </div>
         </div>
       </DialogContent>

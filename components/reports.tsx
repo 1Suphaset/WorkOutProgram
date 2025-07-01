@@ -9,13 +9,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { TrendingUp, Target, Clock, Dumbbell, Download } from "lucide-react"
 import type { Workout } from "@/app/page"
 import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
+import { useTranslation } from "@/lib/i18n"
 
 interface ReportsProps {
   workouts: Workout[]
   exerciseDatabase?: typeof defaultExerciseDatabase
+  language: "en" | "th"
 }
 
-export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase }: ReportsProps) {
+export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase, language }: ReportsProps) {
+  const { t } = useTranslation(language)
   const [timeRange, setTimeRange] = useState("30")
   const [reportType, setReportType] = useState("overview")
 
@@ -91,7 +94,7 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase }
     }
   }, [filteredWorkouts, timeRange, exerciseDatabase])
 
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  const dayNames = [t("sun"), t("mon"), t("tue"), t("wed"), t("thu"), t("fri"), t("sat")]
 
   const exportReport = () => {
     const reportData = {
@@ -120,8 +123,8 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase }
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Workout Reports</h1>
-          <p className="text-muted-foreground">Analyze your fitness progress and patterns</p>
+          <h1 className="text-3xl font-bold">{t("workoutReports")}</h1>
+          <p className="text-muted-foreground">{t("analyzeFitnessProgress")}</p>
         </div>
         <div className="flex items-center space-x-2">
           <Select value={timeRange} onValueChange={setTimeRange}>
@@ -129,15 +132,15 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase }
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="7">Last 7 days</SelectItem>
-              <SelectItem value="30">Last 30 days</SelectItem>
-              <SelectItem value="90">Last 90 days</SelectItem>
-              <SelectItem value="365">Last year</SelectItem>
+              <SelectItem value="7">{t("last7days")}</SelectItem>
+              <SelectItem value="30">{t("last30days")}</SelectItem>
+              <SelectItem value="90">{t("last90days")}</SelectItem>
+              <SelectItem value="365">{t("lastYear")}</SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={exportReport} variant="outline">
             <Download className="w-4 h-4 mr-2" />
-            Export
+            {t("export")}
           </Button>
         </div>
       </div>
@@ -146,65 +149,65 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase }
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Workouts</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("totalWorkouts")}</CardTitle>
             <Dumbbell className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalWorkouts}</div>
-            <p className="text-xs text-muted-foreground">In the last {timeRange} days</p>
+            <p className="text-xs text-muted-foreground">{t("inLastXDays", { days: timeRange })}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Time</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("totalTime")}</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{Math.round(stats.totalDuration / 60)}min</div>
-            <p className="text-xs text-muted-foreground">Avg: {Math.round(stats.avgDuration / 60)}min per workout</p>
+            <p className="text-xs text-muted-foreground">{t("avgPerWorkout", { avg: Math.round(stats.avgDuration / 60) })}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Exercises</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("totalExercises")}</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalExercises}</div>
-            <p className="text-xs text-muted-foreground">Avg: {Math.round(stats.avgExercises)} per workout</p>
+            <p className="text-xs text-muted-foreground">{t("avgExercisesPerWorkout", { avg: Math.round(stats.avgExercises) })}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Frequency</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("frequency")}</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {stats.totalWorkouts > 0 ? Math.round((stats.totalWorkouts / Number.parseInt(timeRange)) * 7) : 0}
             </div>
-            <p className="text-xs text-muted-foreground">Workouts per week</p>
+            <p className="text-xs text-muted-foreground">{t("workoutsPerWeek")}</p>
           </CardContent>
         </Card>
       </div>
 
       <Tabs value={reportType} onValueChange={setReportType} className="space-y-4">
         <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="trends">Trends</TabsTrigger>
-          <TabsTrigger value="exercises">Exercises</TabsTrigger>
-          <TabsTrigger value="schedule">Schedule</TabsTrigger>
+          <TabsTrigger value="overview">{t("overview")}</TabsTrigger>
+          <TabsTrigger value="trends">{t("trends")}</TabsTrigger>
+          <TabsTrigger value="exercises">{t("exercises")}</TabsTrigger>
+          <TabsTrigger value="schedule">{t("schedule")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Weekly Progress</CardTitle>
-                <CardDescription>Workout frequency over time</CardDescription>
+                <CardTitle>{t("weeklyProgress")}</CardTitle>
+                <CardDescription>{t("workoutFrequencyOverTime")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -233,8 +236,8 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase }
 
             <Card>
               <CardHeader>
-                <CardTitle>Workout Distribution</CardTitle>
-                <CardDescription>By day of the week</CardDescription>
+                <CardTitle>{t("workoutDistribution")}</CardTitle>
+                <CardDescription>{t("byDayOfTheWeek")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -263,13 +266,13 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase }
         <TabsContent value="trends" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Performance Trends</CardTitle>
-              <CardDescription>Your workout patterns over time</CardDescription>
+              <CardTitle>{t("performanceTrends")}</CardTitle>
+              <CardDescription>{t("yourWorkoutPatternsOverTime")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
                 <div>
-                  <h4 className="font-medium mb-3">Consistency Score</h4>
+                  <h4 className="font-medium mb-3">{t("consistencyScore")}</h4>
                   <div className="flex items-center space-x-4">
                     <div className="flex-1 bg-muted rounded-full h-3">
                       <div
@@ -283,14 +286,14 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase }
                       {Math.round((stats.totalWorkouts / ((Number.parseInt(timeRange) / 7) * 3)) * 100)}%
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">Based on 3 workouts per week target</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t("basedOn3WorkoutsPerWeekTarget")}</p>
                 </div>
 
                 <div>
-                  <h4 className="font-medium mb-3">Average Workout Duration</h4>
+                  <h4 className="font-medium mb-3">{t("averageWorkoutDuration")}</h4>
                   <div className="text-2xl font-bold">{Math.round(stats.avgDuration / 60)} minutes</div>
                   <p className="text-sm text-muted-foreground">
-                    {stats.avgDuration > 45 * 60 ? "Above average" : "Below average"} workout length
+                    {stats.avgDuration > 45 * 60 ? t("aboveAverage") : t("belowAverage")} workout length
                   </p>
                 </div>
               </div>
@@ -301,8 +304,8 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase }
         <TabsContent value="exercises" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Most Popular Exercises</CardTitle>
-              <CardDescription>Your most frequently performed exercises</CardDescription>
+              <CardTitle>{t("mostPopularExercises")}</CardTitle>
+              <CardDescription>{t("yourMostFrequentlyPerformedExercises")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -330,7 +333,7 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase }
                   ))
                 ) : (
                   <p className="text-muted-foreground text-center py-8">
-                    No exercise data available for the selected time range
+                    {t("noExerciseDataAvailableForSelectedTimeRange")}
                   </p>
                 )}
               </div>
@@ -341,13 +344,13 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase }
         <TabsContent value="schedule" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Workout Schedule Analysis</CardTitle>
-              <CardDescription>When you prefer to work out</CardDescription>
+              <CardTitle>{t("workoutScheduleAnalysis")}</CardTitle>
+              <CardDescription>{t("whenYouPreferToWorkOut")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
                 <div>
-                  <h4 className="font-medium mb-3">Most Active Day</h4>
+                  <h4 className="font-medium mb-3">{t("mostActiveDay")}</h4>
                   <div className="text-2xl font-bold">
                     {dayNames[stats.dayFrequency.indexOf(Math.max(...stats.dayFrequency))]}
                   </div>
@@ -357,7 +360,7 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase }
                 </div>
 
                 <div>
-                  <h4 className="font-medium mb-3">Workout Frequency</h4>
+                  <h4 className="font-medium mb-3">{t("workoutFrequency")}</h4>
                   <div className="grid grid-cols-7 gap-2">
                     {dayNames.map((day, index) => (
                       <div key={day} className="text-center">

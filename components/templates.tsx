@@ -18,6 +18,7 @@ import { Eye, Clock, Weight, Repeat, Timer, CheckCircle } from "lucide-react"
 import { exerciseDatabase } from "@/lib/exercise-database"
 import type { TemplateExerciseRef } from "@/app/page"
 import { workoutTemplates } from "@/lib/workout-templates"
+import { useTranslation } from "@/lib/i18n"
 
 interface TemplatesProps {
   templates: Template[]
@@ -25,9 +26,11 @@ interface TemplatesProps {
   updateTemplate: (templateId: number, updatedTemplate: Partial<Template>) => void
   deleteTemplate: (templateId: number) => void
   exerciseDatabase: ExerciseLibraryItem[]
+  language?: "en" | "th"
 }
 
-export function Templates({ templates, addTemplate, updateTemplate, deleteTemplate, exerciseDatabase }: TemplatesProps) {
+export function Templates({ templates, addTemplate, updateTemplate, deleteTemplate, exerciseDatabase, language = "en" }: TemplatesProps) {
+  const { t } = useTranslation(language)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null)
   const [templateName, setTemplateName] = useState("")
@@ -184,12 +187,12 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Workout Templates</h1>
-          <p className="text-muted-foreground">Create and manage reusable workout routines</p>
+          <h1 className="text-3xl font-bold">{t('workoutTemplates')}</h1>
+          <p className="text-muted-foreground">{t('createAndManageReusableWorkoutRoutines')}</p>
         </div>
         <Button onClick={handleCreateTemplate}>
           <Plus className="w-4 h-4 mr-2" />
-          New Template
+          {t('newTemplate')}
         </Button>
       </div>
 
@@ -202,7 +205,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                 <Badge variant="secondary">{template.category}</Badge>
               </div>
               <CardDescription>
-                {template.exercises.length} exercise{template.exercises.length !== 1 ? "s" : ""}
+                {template.exercises.length} {template.exercises.length !== 1 ? t('exercises') : t('exercise')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -230,7 +233,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => handleEditTemplate(template)} className="flex-1">
                   <Edit className="w-4 h-4 mr-1" />
-                  Edit
+                  {t('edit')}
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => deleteTemplate(Number(template.id))}>
                   <Trash2 className="w-4 h-4" />
@@ -244,8 +247,8 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
       {templates.length === 0 && (
         <div className="text-center py-12">
           <Dumbbell className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-          <h3 className="text-lg font-medium mb-2">No templates yet</h3>
-          <p className="text-muted-foreground mb-4">Create your first workout template to get started</p>
+          <h3 className="text-lg font-medium mb-2">{t('noTemplatesYet')}</h3>
+          <p className="text-muted-foreground mb-4">{t('createYourFirstWorkoutTemplateToGetStarted')}</p>
           <Button onClick={handleCreateTemplate}>
             <Plus className="w-4 h-4 mr-2" />
             Create Template

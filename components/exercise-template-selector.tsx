@@ -12,13 +12,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, Target, Heart, Zap, Trophy, Clock, Users, Filter } from "lucide-react"
 import { exerciseTemplates, movementPatterns, getTemplatesByMovementPattern } from "@/lib/exercise-templates"
 import type { ExerciseTemplate } from "@/lib/exercise-templates"
+import { useTranslation } from "@/lib/i18n"
 
 interface ExerciseTemplateSelectorProps {
   onSelectTemplate: (template: ExerciseTemplate) => void
   onClose: () => void
+  language?: "en" | "th"
 }
 
-export function ExerciseTemplateSelector({ onSelectTemplate, onClose }: ExerciseTemplateSelectorProps) {
+export function ExerciseTemplateSelector({ onSelectTemplate, onClose, language = "en" }: ExerciseTemplateSelectorProps) {
+  const { t } = useTranslation(language)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedMovementPattern, setSelectedMovementPattern] = useState<string>("all")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
@@ -90,9 +93,9 @@ export function ExerciseTemplateSelector({ onSelectTemplate, onClose }: Exercise
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Exercise Templates</DialogTitle>
+          <DialogTitle>{t('exerciseTemplates.title')}</DialogTitle>
           <DialogDescription>
-            Choose from movement pattern templates to quickly create exercises with proper form and structure
+            {t('exerciseTemplates.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -102,33 +105,33 @@ export function ExerciseTemplateSelector({ onSelectTemplate, onClose }: Exercise
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Search className="w-5 h-5 mr-2" />
-                Search & Filter Templates
+                {t('exerciseTemplates.searchFilter.title')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
                   <Input
-                    placeholder="Search templates by name, movement pattern, or muscle groups..."
+                    placeholder={t('exerciseTemplates.searchFilter.placeholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
                 <Button onClick={clearFilters} variant="outline">
                   <Filter className="w-4 h-4 mr-2" />
-                  Clear Filters
+                  {t('exerciseTemplates.searchFilter.clearFilters')}
                 </Button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Movement Pattern</label>
+                  <label className="text-sm font-medium mb-2 block">{t('exerciseTemplates.searchFilter.movementPattern')}</label>
                   <Select value={selectedMovementPattern} onValueChange={setSelectedMovementPattern}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Patterns</SelectItem>
+                      <SelectItem value="all">{t('exerciseTemplates.searchFilter.allPatterns')}</SelectItem>
                       {movementPatterns.map((pattern) => (
                         <SelectItem key={pattern} value={pattern}>
                           {pattern}
@@ -139,32 +142,32 @@ export function ExerciseTemplateSelector({ onSelectTemplate, onClose }: Exercise
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Category</label>
+                  <label className="text-sm font-medium mb-2 block">{t('exerciseTemplates.searchFilter.category')}</label>
                   <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
-                      <SelectItem value="Strength">Strength</SelectItem>
-                      <SelectItem value="Cardio">Cardio</SelectItem>
-                      <SelectItem value="Flexibility">Flexibility</SelectItem>
-                      <SelectItem value="Sports">Sports</SelectItem>
+                      <SelectItem value="all">{t('exerciseTemplates.searchFilter.allCategories')}</SelectItem>
+                      <SelectItem value="Strength">{t('exerciseTemplates.searchFilter.strength')}</SelectItem>
+                      <SelectItem value="Cardio">{t('exerciseTemplates.searchFilter.cardio')}</SelectItem>
+                      <SelectItem value="Flexibility">{t('exerciseTemplates.searchFilter.flexibility')}</SelectItem>
+                      <SelectItem value="Sports">{t('exerciseTemplates.searchFilter.sports')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Difficulty</label>
+                  <label className="text-sm font-medium mb-2 block">{t('exerciseTemplates.searchFilter.difficulty')}</label>
                   <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Levels</SelectItem>
-                      <SelectItem value="Beginner">Beginner</SelectItem>
-                      <SelectItem value="Intermediate">Intermediate</SelectItem>
-                      <SelectItem value="Advanced">Advanced</SelectItem>
+                      <SelectItem value="all">{t('exerciseTemplates.searchFilter.allLevels')}</SelectItem>
+                      <SelectItem value="Beginner">{t('exerciseTemplates.searchFilter.beginner')}</SelectItem>
+                      <SelectItem value="Intermediate">{t('exerciseTemplates.searchFilter.intermediate')}</SelectItem>
+                      <SelectItem value="Advanced">{t('exerciseTemplates.searchFilter.advanced')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -175,8 +178,8 @@ export function ExerciseTemplateSelector({ onSelectTemplate, onClose }: Exercise
           {/* Template Results */}
           <Tabs defaultValue="grid" className="space-y-4">
             <TabsList>
-              <TabsTrigger value="grid">Grid View</TabsTrigger>
-              <TabsTrigger value="patterns">By Movement Pattern</TabsTrigger>
+              <TabsTrigger value="grid">{t('exerciseTemplates.tabs.gridView')}</TabsTrigger>
+              <TabsTrigger value="patterns">{t('exerciseTemplates.tabs.byMovementPattern')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="grid">
@@ -216,10 +219,10 @@ export function ExerciseTemplateSelector({ onSelectTemplate, onClose }: Exercise
                         </div>
                         <div className="flex space-x-2">
                           <Button size="sm" variant="outline" onClick={() => setSelectedTemplate(template)}>
-                            Preview
+                            {t('exerciseTemplates.preview')}
                           </Button>
                           <Button size="sm" onClick={() => onSelectTemplate(template)}>
-                            Use Template
+                            {t('exerciseTemplates.useTemplate')}
                           </Button>
                         </div>
                       </div>
@@ -238,7 +241,7 @@ export function ExerciseTemplateSelector({ onSelectTemplate, onClose }: Exercise
                         <Users className="w-5 h-5 mr-2" />
                         {pattern}
                         <Badge variant="secondary" className="ml-2">
-                          {templates.length} templates
+                          {templates.length} {t('exerciseTemplates.templates')}
                         </Badge>
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -263,10 +266,10 @@ export function ExerciseTemplateSelector({ onSelectTemplate, onClose }: Exercise
                                 </div>
                                 <div className="flex flex-col space-y-1 ml-4">
                                   <Button size="sm" variant="outline" onClick={() => setSelectedTemplate(template)}>
-                                    Preview
+                                    {t('exerciseTemplates.preview')}
                                   </Button>
                                   <Button size="sm" onClick={() => onSelectTemplate(template)}>
-                                    Use
+                                    {t('exerciseTemplates.use')}
                                   </Button>
                                 </div>
                               </div>
@@ -284,8 +287,8 @@ export function ExerciseTemplateSelector({ onSelectTemplate, onClose }: Exercise
           {filteredTemplates.length === 0 && (
             <div className="text-center py-12">
               <Search className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <h3 className="text-lg font-medium mb-2">No templates found</h3>
-              <p className="text-muted-foreground">Try adjusting your search terms or filters</p>
+              <h3 className="text-lg font-medium mb-2">{t('exerciseTemplates.noTemplatesFound')}</h3>
+              <p className="text-muted-foreground">{t('exerciseTemplates.tryAdjusting')}</p>
             </div>
           )}
         </div>
@@ -313,6 +316,8 @@ interface TemplatePreviewModalProps {
 }
 
 function TemplatePreviewModal({ template, onClose, onUseTemplate }: TemplatePreviewModalProps) {
+  const { t } = useTranslation("en")
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "Beginner":
@@ -332,9 +337,9 @@ function TemplatePreviewModal({ template, onClose, onUseTemplate }: TemplatePrev
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <span>{template.name}</span>
-            <Button onClick={onUseTemplate}>Use This Template</Button>
+            <Button onClick={onUseTemplate}>{t('exerciseTemplates.useThisTemplate')}</Button>
           </DialogTitle>
-          <DialogDescription>Movement Pattern: {template.movementPattern}</DialogDescription>
+          <DialogDescription>{t('exerciseTemplates.movementPattern')}: {template.movementPattern}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -342,31 +347,31 @@ function TemplatePreviewModal({ template, onClose, onUseTemplate }: TemplatePrev
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold mb-2">Template Details</h3>
+                <h3 className="font-semibold mb-2">{t('exerciseTemplates.templateDetails')}</h3>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium">Category:</span>
+                    <span className="text-sm font-medium">{t('exerciseTemplates.category')}:</span>
                     <Badge variant="secondary">{template.category}</Badge>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium">Difficulty:</span>
+                    <span className="text-sm font-medium">{t('exerciseTemplates.difficulty')}:</span>
                     <Badge className={`${getDifficultyColor(template.difficulty)} text-white`}>
                       {template.difficulty}
                     </Badge>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium">Equipment:</span>
+                    <span className="text-sm font-medium">{t('exerciseTemplates.equipment')}:</span>
                     <Badge variant="outline">{template.equipment}</Badge>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium">Duration:</span>
-                    <span className="text-sm">{template.estimatedDuration} minutes</span>
+                    <span className="text-sm font-medium">{t('exerciseTemplates.duration')}:</span>
+                    <span className="text-sm">{template.estimatedDuration} {t('exerciseTemplates.minutes')}</span>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="font-semibold mb-2">Target Muscles</h3>
+                <h3 className="font-semibold mb-2">{t('exerciseTemplates.targetMuscles')}</h3>
                 <div className="flex flex-wrap gap-2">
                   {template.muscleGroups.map((muscle) => (
                     <Badge key={muscle} variant="outline">
@@ -377,23 +382,23 @@ function TemplatePreviewModal({ template, onClose, onUseTemplate }: TemplatePrev
               </div>
 
               <div>
-                <h3 className="font-semibold mb-2">Recommended Sets</h3>
+                <h3 className="font-semibold mb-2">{t('exerciseTemplates.recommendedSets')}</h3>
                 <div className="text-sm space-y-1">
-                  <div>Sets: {template.recommendedSets.sets}</div>
-                  <div>Reps: {template.recommendedSets.reps}</div>
-                  <div>Rest: {template.recommendedSets.rest} seconds</div>
+                  <div>{t('exerciseTemplates.sets')}: {template.recommendedSets.sets}</div>
+                  <div>{t('exerciseTemplates.reps')}: {template.recommendedSets.reps}</div>
+                  <div>{t('exerciseTemplates.rest')}: {template.recommendedSets.rest} {t('exerciseTemplates.seconds')}</div>
                 </div>
               </div>
             </div>
 
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold mb-2">Description</h3>
+                <h3 className="font-semibold mb-2">{t('exerciseTemplates.description')}</h3>
                 <p className="text-sm text-muted-foreground">{template.description}</p>
               </div>
 
               <div>
-                <h3 className="font-semibold mb-2">Benefits</h3>
+                <h3 className="font-semibold mb-2">{t('exerciseTemplates.benefits')}</h3>
                 <ul className="text-sm text-muted-foreground space-y-1">
                   {template.benefits.map((benefit, index) => (
                     <li key={index} className="flex items-start">
@@ -408,7 +413,7 @@ function TemplatePreviewModal({ template, onClose, onUseTemplate }: TemplatePrev
 
           {/* Instructions */}
           <div className="space-y-4">
-            <h3 className="font-semibold">Template Instructions</h3>
+            <h3 className="font-semibold">{t('exerciseTemplates.templateInstructions')}</h3>
             <div className="space-y-3">
               {template.instructions.map((instruction, index) => (
                 <div key={index} className="flex items-start space-x-3">
@@ -423,7 +428,7 @@ function TemplatePreviewModal({ template, onClose, onUseTemplate }: TemplatePrev
 
           {/* Tips */}
           <div className="space-y-4">
-            <h3 className="font-semibold">Form Tips</h3>
+            <h3 className="font-semibold">{t('exerciseTemplates.formTips')}</h3>
             <div className="bg-muted/50 rounded-lg p-4">
               <ul className="text-sm space-y-2">
                 {template.tips.map((tip, index) => (
@@ -438,7 +443,7 @@ function TemplatePreviewModal({ template, onClose, onUseTemplate }: TemplatePrev
 
           {/* Variations */}
           <div className="space-y-4">
-            <h3 className="font-semibold">Common Variations</h3>
+            <h3 className="font-semibold">{t('exerciseTemplates.commonVariations')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {template.variations.map((variation, index) => (
                 <div key={index} className="border rounded-lg p-3">
@@ -451,7 +456,7 @@ function TemplatePreviewModal({ template, onClose, onUseTemplate }: TemplatePrev
 
           {/* Tags */}
           <div className="space-y-2">
-            <h3 className="font-semibold">Tags</h3>
+            <h3 className="font-semibold">{t('exerciseTemplates.tags')}</h3>
             <div className="flex flex-wrap gap-2">
               {template.tags.map((tag) => (
                 <Badge key={tag} variant="outline" className="text-xs">
