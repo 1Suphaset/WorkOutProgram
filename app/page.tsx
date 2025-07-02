@@ -160,6 +160,49 @@ export default function WorkoutPlannerApp() {
     }
   }, [user])
 
+  // Migrate localStorage to DB (run once after login)
+  useEffect(() => {
+    if (user) {
+      const savedWorkouts = localStorage.getItem("workout-planner-workouts")
+      const savedTemplates = localStorage.getItem("workout-planner-templates")
+      const savedLogs = localStorage.getItem("workout-planner-logs")
+      const savedUser = localStorage.getItem("workout-planner-user")
+      const savedCustomExercises = localStorage.getItem("workout-planner-custom-exercises")
+      const savedSettings = localStorage.getItem("workout-planner-settings")
+      const savedProgressions = localStorage.getItem("workout-planner-progressions")
+      const savedDailyNotes = localStorage.getItem("daily-notes")
+      const savedReminders = localStorage.getItem("workout-reminders")
+      const savedAssessments = localStorage.getItem("workout-planner-assessments")
+
+      fetch("/api/migrate-localstorage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.email,
+          workouts: savedWorkouts ? JSON.parse(savedWorkouts) : [],
+          templates: savedTemplates ? JSON.parse(savedTemplates) : [],
+          logs: savedLogs ? JSON.parse(savedLogs) : [],
+          user: savedUser ? JSON.parse(savedUser) : user,
+          customExercises: savedCustomExercises ? JSON.parse(savedCustomExercises) : [],
+          settings: savedSettings ? JSON.parse(savedSettings) : null,
+          progressions: savedProgressions ? JSON.parse(savedProgressions) : [],
+          dailyNotes: savedDailyNotes ? JSON.parse(savedDailyNotes) : [],
+          reminders: savedReminders ? JSON.parse(savedReminders) : [],
+          assessments: savedAssessments ? JSON.parse(savedAssessments) : [],
+        }),
+      })
+        .then((res) => res.json())
+        .then((result) => {
+          if (result.success) {
+            localStorage.removeItem("workout-planner-workouts")
+            localStorage.removeItem("workout-planner-templates")
+            localStorage.removeItem("workout-planner-logs")
+            // localStorage.removeItem("workout-planner-user") // ไม่ลบ user เพื่อให้ยังล็อกอินอยู่
+          }
+        })
+    }
+  }, [user])
+
   const addWorkout = (workout: Workout) => {
     setWorkouts((prev) => [...prev, workout])
   }
@@ -192,7 +235,7 @@ export default function WorkoutPlannerApp() {
 
   const handleWorkoutLogged = (logData: WorkoutLog) => {
     setWorkoutLogs((prev) => [...prev, logData])
-    updateWorkout(logData.workoutId, { completed: true, duration: logData.duration })
+    updateWorkout(Number(logData.workoutId), { completed: true, duration: Number(logData.duration) })
     setShowWorkoutLogger(false)
     setWorkoutToLog(null)
   }
