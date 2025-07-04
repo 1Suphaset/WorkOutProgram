@@ -19,6 +19,7 @@ import { exerciseDatabase } from "@/lib/exercise-database"
 import type { TemplateExerciseRef } from "@/app/page"
 import { workoutTemplates } from "@/lib/workout-templates"
 import { useTranslation } from "@/lib/i18n"
+import { useToast } from "@/hooks/use-toast"
 
 interface TemplatesProps {
   templates: Template[]
@@ -32,6 +33,7 @@ interface TemplatesProps {
 
 export function Templates({ templates, addTemplate, updateTemplate, deleteTemplate, exerciseDatabase, language = "en", isLoading = false }: TemplatesProps) {
   const { t } = useTranslation(language)
+  const { toast } = useToast()
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null)
   const [templateName, setTemplateName] = useState("")
@@ -47,6 +49,8 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
   const [previewSetIndex, setPreviewSetIndex] = useState(0)
 
   const [showLibraryDialog, setShowLibraryDialog] = useState(false)
+
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
 
   const handleCreateTemplate = () => {
     setEditingTemplate(null)
@@ -65,19 +69,40 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
   }
 
   const handleSaveTemplate = async () => {
-    if (!templateName.trim() || exercises.length === 0) return
+    if (!templateName.trim()) {
+      toast({ title: t("error"), description: t("workoutNameRequired"), variant: "destructive" })
+      return
+    }
+    if (exercises.length === 0) {
+      toast({ title: t("error"), description: t("atLeastOneExerciseRequired"), variant: "destructive" })
+      return
+    }
     const templateData = {
       name: templateName,
       category: templateCategory,
-      exercises,
+      exercises: exercises.map(ex => ({
+        exerciseId: ex.exerciseId ?? ex.id ?? -1,
+        sets: ex.sets ?? 3,
+        reps: ex.reps ?? 10,
+        time: ex.time ?? ex.duration ?? undefined,
+        weight: ex.weight ?? undefined,
+        notes: ex.notes ?? "",
+      })),
       createdAt: new Date().toISOString(),
     }
-    if (editingTemplate) {
-      await updateTemplate(Number(editingTemplate.id), templateData)
-    } else {
-      await addTemplate(templateData)
+    try {
+      if (editingTemplate) {
+        console.log("Calling updateTemplate", editingTemplate.id, templateData)
+        await updateTemplate(Number(editingTemplate.id), templateData)
+        toast({ title: t("success"), description: t("templateUpdated") })
+      } else {
+        await addTemplate(templateData)
+        toast({ title: t("success"), description: t("templateCreated") })
+      }
+      setShowCreateDialog(false)
+    } catch (e) {
+      toast({ title: t("error"), description: t("errorOccurred"), variant: "destructive" })
     }
-    setShowCreateDialog(false)
   }
 
   const addExerciseFromLibrary = (libraryExercise: ExerciseLibraryItem) => {
@@ -249,7 +274,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                     <Edit className="w-4 h-4 mr-1" />
                     {t('edit')}
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => deleteTemplate(Number(template.id))}>
+                  <Button variant="outline" size="sm" onClick={() => setConfirmDeleteId(Number(template.id))}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -727,6 +752,29 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!confirmDeleteId} onOpenChange={() => setConfirmDeleteId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("confirmDelete")}</DialogTitle>
+            <DialogDescription>{t("areYouSureDeleteTemplate")}</DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setConfirmDeleteId(null)}>{t("cancel")}</Button>
+            <Button variant="destructive" onClick={async () => {
+              if (confirmDeleteId !== null) {
+                try {
+                  await deleteTemplate(confirmDeleteId)
+                  toast({ title: t("success"), description: t("templateDeleted") })
+                } catch {
+                  toast({ title: t("error"), description: t("errorOccurred"), variant: "destructive" })
+                }
+                setConfirmDeleteId(null)
+              }
+            }}>{t("delete")}</Button>
           </div>
         </DialogContent>
       </Dialog>

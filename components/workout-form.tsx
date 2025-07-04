@@ -59,12 +59,18 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
   const loadTemplate = (templateId: number) => {
     const template = templates.find((t) => t.id === templateId)
     if (template) {
-      console.log('Selected template:', template);
+      console.log("Loaded template:", template);
+      console.log("Exercises in template:", template.exercises);
       setWorkoutName(template.name)
       setExercises(
-        template.exercises.map((ex) => ({
-          ...ex,
+        (template.exercises || []).map((ex) => ({
           id: Date.now() + Math.floor(Math.random() * 10000),
+          exerciseId: ex.exerciseId ?? ex.id ?? -1,
+          sets: ex.sets ?? 3,
+          reps: ex.reps ?? 10,
+          time: ex.time ?? ex.duration ?? undefined,
+          weight: ex.weight ?? undefined,
+          notes: ex.notes ?? "",
         }))
       )
     }

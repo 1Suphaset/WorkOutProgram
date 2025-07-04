@@ -65,7 +65,7 @@ export function DailyNotes({ selectedDate, language, userEmail }: DailyNotesProp
         res = await fetch("/api/daily-notes", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...newNote, id: exist.id }),
+          body: JSON.stringify({ ...newNote, id: exist.id, userEmail }),
         })
         data = await res.json()
         setNotes((prev) => prev.map((n) => n.id === exist.id ? data.dailyNote : n))
@@ -82,7 +82,7 @@ export function DailyNotes({ selectedDate, language, userEmail }: DailyNotesProp
       await fetch("/api/daily-notes", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: exist.id }),
+        body: JSON.stringify({ id: exist.id, userEmail }),
       })
       setNotes((prev) => prev.filter((n) => n.id !== exist.id))
     }

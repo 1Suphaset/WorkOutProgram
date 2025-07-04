@@ -123,28 +123,39 @@ export default function WorkoutPlannerApp() {
       body: JSON.stringify({ ...workout, userEmail: user.email }),
     })
     const data = await res.json()
-    setWorkouts(prev => [data.workout, ...prev])
+    // แปลง date เป็น 'sv-SE' format ก่อน setWorkouts
+    const fixedWorkout = {
+      ...data.workout,
+      date: new Date(data.workout.date).toLocaleDateString("sv-SE"),
+    }
+    setWorkouts(prev => [fixedWorkout, ...prev])
   }
 
   // แก้ไข workout
   const updateWorkout = async (workoutId: number, updatedWorkout: Partial<Workout>) => {
     const workout = workouts.find(w => w.id === workoutId)
-    if (!workout) return
+    if (!workout || !user) return
     const res = await fetch("/api/workouts", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...workout, ...updatedWorkout }),
+      body: JSON.stringify({ ...workout, ...updatedWorkout, userEmail: user.email }),
     })
     const data = await res.json()
-    setWorkouts(prev => prev.map(w => w.id === workoutId ? data.workout : w))
+    // แปลง date เป็น 'sv-SE' format ก่อน setWorkouts
+    const fixedWorkout = {
+      ...data.workout,
+      date: new Date(data.workout.date).toLocaleDateString("sv-SE"),
+    }
+    setWorkouts(prev => prev.map(w => w.id === workoutId ? fixedWorkout : w))
   }
 
   // ลบ workout
   const deleteWorkout = async (workoutId: number) => {
+    if (!user) return;
     await fetch("/api/workouts", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: workoutId }),
+      body: JSON.stringify({ id: workoutId, userEmail: user.email }),
     })
     setWorkouts(prev => prev.filter(w => w.id !== workoutId))
   }
@@ -163,15 +174,19 @@ export default function WorkoutPlannerApp() {
 
   // แก้ไข template
   const updateTemplate = async (templateId: number, updatedTemplate: Partial<Template>) => {
-    const template = templates.find(t => t.id === templateId)
-    if (!template) return
+    console.log("updateTemplate called", templateId, updatedTemplate)
+    const template = templates.find(t => Number(t.id) === Number(templateId))
+    if (!template) {
+      console.log("Template not found for id", templateId, templates.map(t => t.id))
+      return
+    }
     const res = await fetch("/api/templates", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...template, ...updatedTemplate }),
     })
     const data = await res.json()
-    setTemplates(prev => prev.map(t => t.id === templateId ? data.template : t))
+    setTemplates(prev => prev.map(t => Number(t.id) === Number(templateId) ? data.template : t))
   }
 
   // ลบ template
@@ -181,7 +196,7 @@ export default function WorkoutPlannerApp() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: templateId }),
     })
-    setTemplates(prev => prev.filter(t => t.id !== templateId))
+    setTemplates(prev => prev.filter(t => Number(t.id) !== Number(templateId)))
   }
 
   // เพิ่ม workout log
