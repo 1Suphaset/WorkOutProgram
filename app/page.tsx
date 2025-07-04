@@ -100,23 +100,32 @@ export default function WorkoutPlannerApp() {
   }, [])
 
   // ดึงข้อมูลจาก API เมื่อ user login
-  useEffect(() => {
+  const fetchData = () => {
     if (!user) return;
     setLoading(true);
+    console.log("[GET] userEmail:", user.email);
     Promise.all([
       fetch(`/api/workouts?user=${encodeURIComponent(user.email)}`).then(res => res.json()),
       fetch(`/api/templates?user=${encodeURIComponent(user.email)}`).then(res => res.json()),
       fetch(`/api/workout-logs?user=${encodeURIComponent(user.email)}`).then(res => res.json()),
     ]).then(([w, t, l]) => {
+      console.log("[GET] workouts from API:", w.workouts);
       setWorkouts(w.workouts || [])
       setTemplates(t.templates || [])
       setWorkoutLogs(l.workoutLogs || [])
     }).finally(() => setLoading(false))
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    fetchData();
+    // ไม่มี setInterval อีกต่อไป
   }, [user])
 
   // เพิ่ม workout
   const addWorkout = async (workout: Workout) => {
     if (!user) return;
+    console.log("[POST] userEmail:", user.email);
     const res = await fetch("/api/workouts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -133,20 +142,21 @@ export default function WorkoutPlannerApp() {
 
   // แก้ไข workout
   const updateWorkout = async (workoutId: number, updatedWorkout: Partial<Workout>) => {
-    const workout = workouts.find(w => w.id === workoutId)
+    const workout = workouts.find(w => Number(w.id) === Number(workoutId))
     if (!workout || !user) return
     const res = await fetch("/api/workouts", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...workout, ...updatedWorkout, userEmail: user.email }),
+      body: JSON.stringify({ ...workout, ...updatedWorkout, id: Number(workoutId), userEmail: user.email }),
     })
     const data = await res.json()
+    console.log("[PUT] updateWorkout response:", data)
     // แปลง date เป็น 'sv-SE' format ก่อน setWorkouts
     const fixedWorkout = {
       ...data.workout,
       date: new Date(data.workout.date).toLocaleDateString("sv-SE"),
     }
-    setWorkouts(prev => prev.map(w => w.id === workoutId ? fixedWorkout : w))
+    setWorkouts(prev => prev.map(w => Number(w.id) === Number(workoutId) ? fixedWorkout : w))
   }
 
   // ลบ workout
@@ -220,6 +230,7 @@ export default function WorkoutPlannerApp() {
   const handleWorkoutLogged = async (logData: WorkoutLog) => {
     await addWorkoutLog(logData)
     await updateWorkout(Number(logData.workoutId), { completed: true, duration: Number(logData.duration) })
+    if (user) fetchData(); // refresh ข้อมูลหลัง finish workout
     setShowWorkoutLogger(false)
     setWorkoutToLog(null)
   }

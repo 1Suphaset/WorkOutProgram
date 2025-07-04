@@ -43,7 +43,9 @@ export function Calendar({
   const [calendarView, setCalendarView] = useState<"month" | "week">("month")
 
   const selectedDateString = selectedDate.toLocaleDateString("sv-SE")
-  const selectedDateWorkouts = workouts.filter((w) => w.date === selectedDateString)
+  const selectedDateWorkouts = workouts.filter((w) =>
+    new Date(w.date).toLocaleDateString("sv-SE") === selectedDateString
+  )
 
   const handleCreateWorkout = () => {
     setEditingWorkout(null)
@@ -65,8 +67,8 @@ export function Calendar({
   }
 
   const getWorkoutsForDate = (date: Date) => {
-    const dateString = date.toLocaleDateString("sv-SE") 
-    return workouts.filter((w) => w.date === dateString)
+    const dateString = date.toLocaleDateString("sv-SE")
+    return workouts.filter((w) => new Date(w.date).toLocaleDateString("sv-SE") === dateString)
   }
 
   return (

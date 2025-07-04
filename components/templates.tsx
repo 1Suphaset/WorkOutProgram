@@ -81,22 +81,22 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
       name: templateName,
       category: templateCategory,
       exercises: exercises.map(ex => ({
-        exerciseId: ex.exerciseId ?? ex.id ?? -1,
+        exerciseId: ex.exerciseId ?? -1,
         sets: ex.sets ?? 3,
         reps: ex.reps ?? 10,
-        time: ex.time ?? ex.duration ?? undefined,
+        time: ex.time ?? undefined,
         weight: ex.weight ?? undefined,
         notes: ex.notes ?? "",
       })),
       createdAt: new Date().toISOString(),
     }
-    try {
+    try { 
       if (editingTemplate) {
         console.log("Calling updateTemplate", editingTemplate.id, templateData)
         await updateTemplate(Number(editingTemplate.id), templateData)
         toast({ title: t("success"), description: t("templateUpdated") })
       } else {
-        await addTemplate(templateData)
+        await addTemplate(templateData as Template as Template)
         toast({ title: t("success"), description: t("templateCreated") })
       }
       setShowCreateDialog(false)
@@ -740,6 +740,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                       }
                     })
                     await addTemplate({
+                      id: Date.now(),
                       name: tpl.name,
                       category: tpl.type,
                       createdAt: new Date().toISOString(),

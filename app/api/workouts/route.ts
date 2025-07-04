@@ -14,7 +14,11 @@ export async function GET(req: NextRequest) {
   const userId = userRes.rows[0].id
 
   const result = await pool.query('SELECT * FROM workouts WHERE user_id=$1 ORDER BY date DESC', [userId])
-  return NextResponse.json({ workouts: result.rows })
+  const workouts = result.rows.map(w => ({
+    ...w,
+    exercises: typeof w.exercises === 'string' ? JSON.parse(w.exercises) : w.exercises
+  }))
+  return NextResponse.json({ workouts })
 }
 
 // POST: เพิ่ม workout ใหม่
@@ -39,7 +43,8 @@ export async function POST(req: NextRequest) {
       data.createdAt,
     ]
   )
-  return NextResponse.json({ workout: res.rows[0] })
+  const workout = res.rows[0]
+  return NextResponse.json({ workout: { ...workout, exercises: typeof workout.exercises === 'string' ? JSON.parse(workout.exercises) : workout.exercises } })
 }
 
 // PUT: แก้ไข workout (ต้องส่ง id)
@@ -61,7 +66,8 @@ export async function PUT(req: NextRequest) {
       data.createdAt,
     ]
   )
-  return NextResponse.json({ workout: res.rows[0] })
+  const workout = res.rows[0]
+  return NextResponse.json({ workout: { ...workout, exercises: typeof workout.exercises === 'string' ? JSON.parse(workout.exercises) : workout.exercises } })
 }
 
 // DELETE: ลบ workout (ต้องส่ง id)

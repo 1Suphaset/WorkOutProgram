@@ -19,9 +19,9 @@ export function Dashboard({ workouts, language }: DashboardProps) {
   const thisWeek = getThisWeekDates()
   const thisMonth = getThisMonthDates()
 
-  const todayWorkouts = workouts.filter((w) => w.date === today)
-  const weekWorkouts = workouts.filter((w) => thisWeek.includes(w.date))
-  const monthWorkouts = workouts.filter((w) => thisMonth.includes(w.date))
+  const todayWorkouts = workouts.filter((w) => new Date(w.date).toLocaleDateString("sv-SE") === today)
+  const weekWorkouts = workouts.filter((w) => thisWeek.includes(new Date(w.date).toLocaleDateString("sv-SE")))
+  const monthWorkouts = workouts.filter((w) => thisMonth.includes(new Date(w.date).toLocaleDateString("sv-SE")))
   const completedThisWeek = weekWorkouts.filter((w) => w.completed).length
   const completedThisMonth = monthWorkouts.filter((w) => w.completed).length
 
@@ -216,7 +216,7 @@ export function Dashboard({ workouts, language }: DashboardProps) {
           <CardContent>
             <div className="space-y-4">
               {thisWeek.map((date, index) => {
-                const dayWorkouts = workouts.filter((w) => w.date === date)
+                const dayWorkouts = workouts.filter((w) => new Date(w.date).toLocaleDateString("sv-SE") === date)
                 const completed = dayWorkouts.filter((w) => w.completed).length
                 const total = dayWorkouts.length
                 const dayName = new Date(date).toLocaleDateString("en-US", { weekday: "short" })
