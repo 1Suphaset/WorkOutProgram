@@ -22,9 +22,10 @@ interface ExerciseLibraryProps {
   showAddButton?: boolean
   exerciseDatabase?: ExerciseLibraryItem[]
   language?: "en" | "th"
+  userEmail?: string
 }
 
-export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exerciseDatabase: propExerciseDatabase, language = "en" }: ExerciseLibraryProps) {
+export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exerciseDatabase: propExerciseDatabase, language = "en", userEmail }: ExerciseLibraryProps) {
   const { t } = useTranslation(language)
   const exerciseDatabase = propExerciseDatabase || require("@/lib/exercise-database").exerciseDatabase;
   const [searchTerm, setSearchTerm] = useState("")
@@ -38,17 +39,58 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
   const [customExercises, setCustomExercises] = useState<CustomExerciseType[]>([])
   const [showCustomForm, setShowCustomForm] = useState(false)
   const [editingCustomExercise, setEditingCustomExercise] = useState<CustomExerciseType | null>(null)
+  const [loading, setLoading] = useState(false)
 
+  // ดึง custom exercises จาก API
   useEffect(() => {
-    const savedCustomExercises = localStorage.getItem("workout-planner-custom-exercises")
-    if (savedCustomExercises) {
-      setCustomExercises(JSON.parse(savedCustomExercises))
-    }
-  }, [])
+    if (!userEmail) return
+    setLoading(true)
+    fetch(`/api/exercises?user=${encodeURIComponent(userEmail)}`)
+      .then(res => res.json())
+      .then(data => setCustomExercises((data.exercises || []).filter((ex: any) => ex.is_custom)))
+      .finally(() => setLoading(false))
+  }, [userEmail])
 
-  useEffect(() => {
-    localStorage.setItem("workout-planner-custom-exercises", JSON.stringify(customExercises))
-  }, [customExercises])
+  // เพิ่ม custom exercise
+  const addCustomExercise = async (exercise: CustomExerciseType) => {
+    if (!userEmail) return
+    setLoading(true)
+    const res = await fetch("/api/exercises", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...exercise, userEmail, createdAt: new Date().toISOString() }),
+    })
+    const data = await res.json()
+    setCustomExercises(prev => [...prev, data.exercise])
+    setLoading(false)
+  }
+
+  // แก้ไข custom exercise
+  const updateCustomExercise = async (id: number, updates: Partial<CustomExerciseType>) => {
+    const exercise = customExercises.find(ex => ex.id === id)
+    if (!exercise) return
+    setLoading(true)
+    const res = await fetch("/api/exercises", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...exercise, ...updates }),
+    })
+    const data = await res.json()
+    setCustomExercises(prev => prev.map(ex => ex.id === id ? data.exercise : ex))
+    setLoading(false)
+  }
+
+  // ลบ custom exercise
+  const deleteCustomExercise = async (id: number) => {
+    setLoading(true)
+    await fetch("/api/exercises", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    })
+    setCustomExercises(prev => prev.filter(ex => ex.id !== id))
+    setLoading(false)
+  }
 
   // Get unique values for filters
   const categories: string[] = Array.from(new Set(exerciseDatabase.map((ex: ExerciseLibraryItem) => ex.category)));
@@ -134,33 +176,16 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
 
   const handleSaveCustomExercise = (exerciseData: Omit<CustomExerciseType, "id" | "createdAt">) => {
     if (editingCustomExercise) {
-      setCustomExercises((prev) =>
-        prev.map((ex) =>
-          ex.id === editingCustomExercise.id
-            ? {
-                ...exerciseData,
-                id: editingCustomExercise.id,
-                createdAt: editingCustomExercise.createdAt,
-                isCustom: true,
-              }
-            : ex,
-        ),
-      )
+      updateCustomExercise(editingCustomExercise.id, exerciseData)
     } else {
-      const newExercise: CustomExerciseType = {
-        ...exerciseData,
-        id: Math.random().toString(36).substr(2, 9),
-        createdAt: new Date().toISOString(),
-        isCustom: true,
-      }
-      setCustomExercises((prev) => [...prev, newExercise])
+      addCustomExercise(exerciseData as CustomExerciseType)
     }
     setShowCustomForm(false)
   }
 
   const handleDeleteCustomExercise = (exerciseId: number) => {
     if (confirm("Are you sure you want to delete this custom exercise?")) {
-      setCustomExercises((prev) => prev.filter((ex) => ex.id !== exerciseId))
+      deleteCustomExercise(exerciseId)
     }
   }
 

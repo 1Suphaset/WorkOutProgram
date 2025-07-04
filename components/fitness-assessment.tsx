@@ -22,9 +22,10 @@ import { progressiveTemplates } from "@/lib/progressive-templates"
 
 interface FitnessAssessmentProps {
   onAssessmentComplete?: (assessment: UserAssessment) => void
+  userEmail?: string
 }
 
-export function FitnessAssessment({ onAssessmentComplete }: FitnessAssessmentProps) {
+export function FitnessAssessment({ onAssessmentComplete, userEmail }: FitnessAssessmentProps) {
   const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string, Record<string, any>>>({})
@@ -32,13 +33,16 @@ export function FitnessAssessment({ onAssessmentComplete }: FitnessAssessmentPro
   const [assessmentResults, setAssessmentResults] = useState<AssessmentResult[]>([])
   const [showResults, setShowResults] = useState(false)
   const [savedAssessments, setSavedAssessments] = useState<UserAssessment[]>([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const saved = localStorage.getItem("workout-planner-assessments")
-    if (saved) {
-      setSavedAssessments(JSON.parse(saved))
-    }
-  }, [])
+    if (!userEmail) return
+    setLoading(true)
+    fetch(`/api/assessments?user=${encodeURIComponent(userEmail)}`)
+      .then(res => res.json())
+      .then(data => setSavedAssessments(data.assessments || []))
+      .finally(() => setLoading(false))
+  }, [userEmail])
 
   const currentCategory = fitnessAssessments[currentCategoryIndex]
   const currentQuestion = currentCategory?.questions[currentQuestionIndex]
@@ -88,30 +92,31 @@ export function FitnessAssessment({ onAssessmentComplete }: FitnessAssessmentPro
     }
   }
 
-  const completeAssessment = () => {
+  const completeAssessment = async () => {
     const results = fitnessAssessments.map((category) => calculateAssessmentScore(category, answers[category.id] || {}))
-
     const overallLevel = getOverallFitnessLevel(results)
     const recommendedProgressions = getRecommendedProgressions(results)
-
     const assessment: UserAssessment = {
-      id: Math.random().toString(36).substr(2, 9),
-      userId: "current-user",
       completedAt: new Date().toISOString(),
       results,
       overallFitnessLevel: overallLevel,
       recommendedProgressions,
+      createdAt: new Date().toISOString(),
     }
-
     setAssessmentResults(results)
     setIsAssessmentComplete(true)
     setShowResults(true)
-
-    // Save assessment
-    const updatedAssessments = [...savedAssessments, assessment]
-    setSavedAssessments(updatedAssessments)
-    localStorage.setItem("workout-planner-assessments", JSON.stringify(updatedAssessments))
-
+    if (userEmail) {
+      setLoading(true)
+      const res = await fetch("/api/assessments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...assessment, userEmail }),
+      })
+      const data = await res.json()
+      setSavedAssessments(prev => [...prev, data.assessment])
+      setLoading(false)
+    }
     if (onAssessmentComplete) {
       onAssessmentComplete(assessment)
     }

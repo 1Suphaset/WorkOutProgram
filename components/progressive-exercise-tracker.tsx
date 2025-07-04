@@ -33,30 +33,32 @@ interface ProgressionRecord {
   weekInLevel: number
   isActive: boolean
   notes: string[]
+  createdAt: string
 }
 
 interface ProgressiveExerciseTrackerProps {
   onStartProgression?: (templateId: string) => void
+  userEmail?: string
 }
 
-export function ProgressiveExerciseTracker({ onStartProgression }: ProgressiveExerciseTrackerProps) {
+export function ProgressiveExerciseTracker({ onStartProgression, userEmail }: ProgressiveExerciseTrackerProps & { userEmail?: string }) {
   const [progressionRecords, setProgressionRecords] = useState<ProgressionRecord[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<ProgressiveExerciseTemplate | null>(null)
   const [selectedRecord, setSelectedRecord] = useState<ProgressionRecord | null>(null)
   const [showTemplateDetails, setShowTemplateDetails] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const savedRecords = localStorage.getItem("workout-planner-progressions")
-    if (savedRecords) {
-      setProgressionRecords(JSON.parse(savedRecords))
-    }
-  }, [])
+    if (!userEmail) return
+    setLoading(true)
+    fetch(`/api/progressions?user=${encodeURIComponent(userEmail)}`)
+      .then(res => res.json())
+      .then(data => setProgressionRecords(data.progressions || []))
+      .finally(() => setLoading(false))
+  }, [userEmail])
 
-  useEffect(() => {
-    localStorage.setItem("workout-planner-progressions", JSON.stringify(progressionRecords))
-  }, [progressionRecords])
-
-  const startProgression = (template: ProgressiveExerciseTemplate) => {
+  const startProgression = async (template: ProgressiveExerciseTemplate) => {
+    if (!userEmail) return
     const newRecord: ProgressionRecord = {
       templateId: template.id,
       currentLevel: 1,
@@ -66,18 +68,32 @@ export function ProgressiveExerciseTracker({ onStartProgression }: ProgressiveEx
       weekInLevel: 1,
       isActive: true,
       notes: [],
+      createdAt: new Date().toISOString(),
     }
-
-    setProgressionRecords((prev) => [...prev, newRecord])
-    if (onStartProgression) {
-      onStartProgression(template.id)
-    }
+    setLoading(true)
+    const res = await fetch("/api/progressions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...newRecord, userEmail }),
+    })
+    const data = await res.json()
+    setProgressionRecords(prev => [...prev, data.progression])
+    setLoading(false)
+    if (onStartProgression) onStartProgression(template.id)
   }
 
-  const updateProgression = (recordIndex: number, updates: Partial<ProgressionRecord>) => {
-    setProgressionRecords((prev) =>
-      prev.map((record, index) => (index === recordIndex ? { ...record, ...updates } : record)),
-    )
+  const updateProgression = async (recordIndex: number, updates: Partial<ProgressionRecord>) => {
+    const record = progressionRecords[recordIndex]
+    if (!record) return
+    setLoading(true)
+    const res = await fetch("/api/progressions", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...record, ...updates }),
+    })
+    const data = await res.json()
+    setProgressionRecords(prev => prev.map((r, idx) => idx === recordIndex ? data.progression : r))
+    setLoading(false)
   }
 
   const advanceLevel = (recordIndex: number) => {

@@ -12,6 +12,7 @@ import { useTranslation } from "@/lib/i18n"
 interface DailyNotesProps {
   selectedDate: Date
   language: "en" | "th"
+  userEmail?: string
 }
 
 interface DailyNote {
@@ -19,47 +20,72 @@ interface DailyNote {
   content: string
   createdAt: string
   updatedAt: string
+  id?: string
 }
 
-export function DailyNotes({ selectedDate, language }: DailyNotesProps) {
+export function DailyNotes({ selectedDate, language, userEmail }: DailyNotesProps) {
   const { t } = useTranslation(language)
   const [notes, setNotes] = useState<DailyNote[]>([])
   const [currentNote, setCurrentNote] = useState("")
   const [isEditing, setIsEditing] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const selectedDateString = selectedDate.toLocaleDateString("sv-SE") 
   const todayNote = notes.find((note) => note.date === selectedDateString)
 
   useEffect(() => {
-    // Load notes from localStorage
-    const savedNotes = localStorage.getItem("daily-notes")
-    if (savedNotes) {
-      setNotes(JSON.parse(savedNotes))
-    }
-  }, [])
+    if (!userEmail) return
+    setLoading(true)
+    fetch(`/api/daily-notes?user=${encodeURIComponent(userEmail)}`)
+      .then(res => res.json())
+      .then(data => setNotes(data.dailyNotes || []))
+      .finally(() => setLoading(false))
+  }, [userEmail])
 
   useEffect(() => {
-    // Set current note content when date changes
     setCurrentNote(todayNote?.content || "")
     setIsEditing(false)
   }, [selectedDate, todayNote])
 
-  const saveNote = () => {
+  const saveNote = async () => {
+    if (!userEmail) return
     const now = new Date().toISOString()
-    const updatedNotes = notes.filter((note) => note.date !== selectedDateString)
-
+    const exist = notes.find((note) => note.date === selectedDateString)
+    let newNote: DailyNote
     if (currentNote.trim()) {
-      const newNote: DailyNote = {
+      newNote = {
+        ...(exist || {}),
         date: selectedDateString,
         content: currentNote.trim(),
-        createdAt: todayNote?.createdAt || now,
+        createdAt: exist?.createdAt || now,
         updatedAt: now,
       }
-      updatedNotes.push(newNote)
+      let res, data
+      if (exist) {
+        res = await fetch("/api/daily-notes", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...newNote, id: exist.id }),
+        })
+        data = await res.json()
+        setNotes((prev) => prev.map((n) => n.id === exist.id ? data.dailyNote : n))
+      } else {
+        res = await fetch("/api/daily-notes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...newNote, userEmail }),
+        })
+        data = await res.json()
+        setNotes((prev) => [...prev, data.dailyNote])
+      }
+    } else if (exist) {
+      await fetch("/api/daily-notes", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: exist.id }),
+      })
+      setNotes((prev) => prev.filter((n) => n.id !== exist.id))
     }
-
-    setNotes(updatedNotes)
-    localStorage.setItem("daily-notes", JSON.stringify(updatedNotes))
     setIsEditing(false)
   }
 

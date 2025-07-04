@@ -19,6 +19,7 @@ import { NotificationSettings } from "@/components/notification-settings"
 import { Home, CalendarIcon, Dumbbell, BarChart3,BookOpen, SettingsIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { exerciseDatabase } from "@/lib/exercise-database"
+import { jwtDecode } from "jwt-decode"
 
 export type Exercise = {
   id: number
@@ -76,155 +77,123 @@ export default function WorkoutPlannerApp() {
   const [workoutToLog, setWorkoutToLog] = useState<Workout | null>(null)
   const [language, setLanguage] = useState<"en" | "th">("en")
   const [user, setUser] = useState<{ name: string; email: string } | null>(null)
+  const [loading, setLoading] = useState(false)
 
-  // Load data from localStorage on mount
+  // Auto-login: เช็ค token อัตโนมัติ
   useEffect(() => {
-    const savedWorkouts = localStorage.getItem("workout-planner-workouts")
-    const savedTemplates = localStorage.getItem("workout-planner-templates")
-    const savedLogs = localStorage.getItem("workout-planner-logs")
-    const savedLanguage = localStorage.getItem("workout-planner-language")
-    const savedUser = localStorage.getItem("workout-planner-user")
-
-    if (savedWorkouts) {
-      const parsed = JSON.parse(savedWorkouts)
-      setWorkouts(parsed.map((w: any) => ({
-        ...w,
-        id: Number(w.id),
-        exercises: w.exercises.map((ex: any) => ({
-          ...ex,
-          id: Number(ex.id),
-          exerciseId: Number(ex.exerciseId),
-        }))
-      })))
-    }
-
-    if (savedLogs) {
-      const parsed = JSON.parse(savedLogs)
-      setWorkoutLogs(parsed.map((log: any) => ({
-        ...log,
-        workoutId: Number(log.workoutId),
-        exercises: log.exercises.map((ex: any) => ({
-          ...ex,
-          exerciseId: Number(ex.exerciseId),
-        }))
-      })))
-    }
-
-    if (savedLanguage) {
-      setLanguage(savedLanguage as "en" | "th")
-    }
-
-    if (savedUser) {
-      setUser(JSON.parse(savedUser))
-    }
-
-    if (savedTemplates) {
-      let migrated = false
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    if (token) {
       try {
-        const parsed = JSON.parse(savedTemplates)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const migratedTemplates = parsed.map((tpl: any) => ({
-            ...tpl,
-            id: Number(tpl.id),
-            exercises: tpl.exercises.map((ex: any) => ({
-              ...ex,
-              exerciseId: Number(ex.exerciseId),
-            }))
-          }))
-          setTemplates(migratedTemplates)
+        const decoded: any = jwtDecode(token)
+        // เช็ควันหมดอายุ (exp)
+        if (decoded.exp && Date.now() >= decoded.exp * 1000) {
+          localStorage.removeItem("token")
+          setUser(null)
+        } else {
+          setUser({ name: decoded.name, email: decoded.email })
         }
-      } catch {}
+      } catch {
+        localStorage.removeItem("token")
+        setUser(null)
+      }
     }
   }, [])
 
-  // Save data to localStorage whenever they change
+  // ดึงข้อมูลจาก API เมื่อ user login
   useEffect(() => {
-    localStorage.setItem("workout-planner-workouts", JSON.stringify(workouts))
-  }, [workouts])
-
-  useEffect(() => {
-    localStorage.setItem("workout-planner-templates", JSON.stringify(templates))
-  }, [templates])
-
-  useEffect(() => {
-    localStorage.setItem("workout-planner-logs", JSON.stringify(workoutLogs))
-  }, [workoutLogs])
-
-  useEffect(() => {
-    localStorage.setItem("workout-planner-language", language)
-  }, [language])
-
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem("workout-planner-user", JSON.stringify(user))
-    }
+    if (!user) return;
+    setLoading(true);
+    Promise.all([
+      fetch(`/api/workouts?user=${encodeURIComponent(user.email)}`).then(res => res.json()),
+      fetch(`/api/templates?user=${encodeURIComponent(user.email)}`).then(res => res.json()),
+      fetch(`/api/workout-logs?user=${encodeURIComponent(user.email)}`).then(res => res.json()),
+    ]).then(([w, t, l]) => {
+      setWorkouts(w.workouts || [])
+      setTemplates(t.templates || [])
+      setWorkoutLogs(l.workoutLogs || [])
+    }).finally(() => setLoading(false))
   }, [user])
 
-  // Migrate localStorage to DB (run once after login)
-  useEffect(() => {
-    if (user) {
-      const savedWorkouts = localStorage.getItem("workout-planner-workouts")
-      const savedTemplates = localStorage.getItem("workout-planner-templates")
-      const savedLogs = localStorage.getItem("workout-planner-logs")
-      const savedUser = localStorage.getItem("workout-planner-user")
-      const savedCustomExercises = localStorage.getItem("workout-planner-custom-exercises")
-      const savedSettings = localStorage.getItem("workout-planner-settings")
-      const savedProgressions = localStorage.getItem("workout-planner-progressions")
-      const savedDailyNotes = localStorage.getItem("daily-notes")
-      const savedReminders = localStorage.getItem("workout-reminders")
-      const savedAssessments = localStorage.getItem("workout-planner-assessments")
-
-      fetch("/api/migrate-localstorage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user.email,
-          workouts: savedWorkouts ? JSON.parse(savedWorkouts) : [],
-          templates: savedTemplates ? JSON.parse(savedTemplates) : [],
-          logs: savedLogs ? JSON.parse(savedLogs) : [],
-          user: savedUser ? JSON.parse(savedUser) : user,
-          customExercises: savedCustomExercises ? JSON.parse(savedCustomExercises) : [],
-          settings: savedSettings ? JSON.parse(savedSettings) : null,
-          progressions: savedProgressions ? JSON.parse(savedProgressions) : [],
-          dailyNotes: savedDailyNotes ? JSON.parse(savedDailyNotes) : [],
-          reminders: savedReminders ? JSON.parse(savedReminders) : [],
-          assessments: savedAssessments ? JSON.parse(savedAssessments) : [],
-        }),
-      })
-        .then((res) => res.json())
-        .then((result) => {
-          if (result.success) {
-            localStorage.removeItem("workout-planner-workouts")
-            localStorage.removeItem("workout-planner-templates")
-            localStorage.removeItem("workout-planner-logs")
-            // localStorage.removeItem("workout-planner-user") // ไม่ลบ user เพื่อให้ยังล็อกอินอยู่
-          }
-        })
-    }
-  }, [user])
-
-  const addWorkout = (workout: Workout) => {
-    setWorkouts((prev) => [...prev, workout])
+  // เพิ่ม workout
+  const addWorkout = async (workout: Workout) => {
+    if (!user) return;
+    const res = await fetch("/api/workouts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...workout, userEmail: user.email }),
+    })
+    const data = await res.json()
+    setWorkouts(prev => [data.workout, ...prev])
   }
 
-  const updateWorkout = (workoutId: number, updatedWorkout: Partial<Workout>) => {
-    setWorkouts((prev) => prev.map((w) => (w.id === workoutId ? { ...w, ...updatedWorkout } : w)))
+  // แก้ไข workout
+  const updateWorkout = async (workoutId: number, updatedWorkout: Partial<Workout>) => {
+    const workout = workouts.find(w => w.id === workoutId)
+    if (!workout) return
+    const res = await fetch("/api/workouts", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...workout, ...updatedWorkout }),
+    })
+    const data = await res.json()
+    setWorkouts(prev => prev.map(w => w.id === workoutId ? data.workout : w))
   }
 
-  const deleteWorkout = (workoutId: number) => {
-    setWorkouts((prev) => prev.filter((w) => w.id !== workoutId))
+  // ลบ workout
+  const deleteWorkout = async (workoutId: number) => {
+    await fetch("/api/workouts", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: workoutId }),
+    })
+    setWorkouts(prev => prev.filter(w => w.id !== workoutId))
   }
 
-  const addTemplate = (template: Template) => {
-    setTemplates((prev) => [...prev, template])
+  // เพิ่ม template
+  const addTemplate = async (template: Template) => {
+    if (!user) return;
+    const res = await fetch("/api/templates", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...template, userEmail: user.email }),
+    })
+    const data = await res.json()
+    setTemplates(prev => [data.template, ...prev])
   }
 
-  const updateTemplate = (templateId: number, updatedTemplate: Partial<Template>) => {
-    setTemplates((prev) => prev.map((t) => (t.id === templateId ? { ...t, ...updatedTemplate } : t)))
+  // แก้ไข template
+  const updateTemplate = async (templateId: number, updatedTemplate: Partial<Template>) => {
+    const template = templates.find(t => t.id === templateId)
+    if (!template) return
+    const res = await fetch("/api/templates", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...template, ...updatedTemplate }),
+    })
+    const data = await res.json()
+    setTemplates(prev => prev.map(t => t.id === templateId ? data.template : t))
   }
 
-  const deleteTemplate = (templateId: number) => {
-    setTemplates((prev) => prev.filter((t) => t.id !== templateId))
+  // ลบ template
+  const deleteTemplate = async (templateId: number) => {
+    await fetch("/api/templates", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: templateId }),
+    })
+    setTemplates(prev => prev.filter(t => t.id !== templateId))
+  }
+
+  // เพิ่ม workout log
+  const addWorkoutLog = async (logData: WorkoutLog) => {
+    if (!user) return;
+    const res = await fetch("/api/workout-logs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...logData, userEmail: user.email }),
+    })
+    const data = await res.json()
+    setWorkoutLogs(prev => [data.workoutLog, ...prev])
   }
 
   const handleWorkoutComplete = (workout: Workout) => {
@@ -233,9 +202,9 @@ export default function WorkoutPlannerApp() {
     setActiveWorkout(null)
   }
 
-  const handleWorkoutLogged = (logData: WorkoutLog) => {
-    setWorkoutLogs((prev) => [...prev, logData])
-    updateWorkout(Number(logData.workoutId), { completed: true, duration: Number(logData.duration) })
+  const handleWorkoutLogged = async (logData: WorkoutLog) => {
+    await addWorkoutLog(logData)
+    await updateWorkout(Number(logData.workoutId), { completed: true, duration: Number(logData.duration) })
     setShowWorkoutLogger(false)
     setWorkoutToLog(null)
   }
@@ -245,8 +214,8 @@ export default function WorkoutPlannerApp() {
   }
 
   const handleLogout = () => {
+    localStorage.removeItem("token")
     setUser(null)
-    localStorage.removeItem("workout-planner-user")
   }
 
   const handleAddExerciseFromDragDrop = (exercise: any) => {
@@ -266,7 +235,7 @@ export default function WorkoutPlannerApp() {
       completed: false,
       createdAt: new Date().toISOString(),
     }
-    setWorkouts((prev) => [...prev, newWorkout])
+    addWorkout(newWorkout)
   }
 
   // Show login form if user is not authenticated
@@ -338,6 +307,7 @@ export default function WorkoutPlannerApp() {
             deleteTemplate={deleteTemplate}
             exerciseDatabase={mergedDatabase}
             language={language}
+            isLoading={loading}
           />
         )
       case "progress":

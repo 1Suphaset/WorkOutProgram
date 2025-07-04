@@ -26,14 +26,50 @@ export function LoginForm({ onLogin, language }: LoginFormProps) {
     password: "",
     confirmPassword: "",
   })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Mock authentication
-    onLogin({
-      name: formData.name || formData.email.split("@")[0],
-      email: formData.email,
-    })
+    setError(null)
+    setLoading(true)
+    try {
+      if (!isLogin && formData.password !== formData.confirmPassword) {
+        setError(t("passwordsDoNotMatch") || "Passwords do not match")
+        setLoading(false)
+        return
+      }
+      const url = isLogin ? "/api/auth/login" : "/api/auth/register"
+      const payload = isLogin
+        ? { email: formData.email, password: formData.password }
+        : { name: formData.name, email: formData.email, password: formData.password }
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || t("error"))
+        setLoading(false)
+        return
+      }
+      if (isLogin) {
+        // บันทึก token ใน localStorage
+        if (data.token) {
+          localStorage.setItem("token", data.token)
+        }
+        onLogin(data.user)
+      } else {
+        // สมัครสำเร็จ ให้สลับไปหน้า login
+        setIsLogin(true)
+        setError(null)
+      }
+    } catch (err) {
+      setError(t("error") || "เกิดข้อผิดพลาด")
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleInputChange = (field: string, value: string) => {
@@ -135,15 +171,18 @@ export function LoginForm({ onLogin, language }: LoginFormProps) {
               </div>
             )}
 
-            <Button type="submit" className="w-full">
-              {isLogin ? t("signIn") : t("signUp")}
+            {error && (
+              <div className="text-red-500 text-sm text-center">{error}</div>
+            )}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? t("loading") : isLogin ? t("signIn") : t("signUp")}
             </Button>
           </form>
 
           <Separator className="my-6" />
 
           <div className="text-center">
-            <Button variant="link" onClick={() => setIsLogin(!isLogin)} className="text-sm">
+            <Button variant="link" onClick={() => { setIsLogin(!isLogin); setError(null); }} className="text-sm">
               {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
             </Button>
           </div>

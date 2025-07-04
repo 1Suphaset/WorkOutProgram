@@ -76,7 +76,7 @@ export function Sidebar({ activeView, setActiveView, language, onLanguageChange,
       <div className="p-4 border-t border-border space-y-3">
         <div className="flex items-center justify-between">
           <Badge variant="secondary" className="text-xs">
-            v2.0.4
+            v2.0.5
           </Badge>
           <LanguageSwitcher language={language} onLanguageChange={onLanguageChange} />
         </div>

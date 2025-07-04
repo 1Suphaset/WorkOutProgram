@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { SettingsIcon, User, Bell, Download, Upload, Trash2, ExternalLink } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 
-export function Settings({ language }: { language: "en" | "th" }) {
+export function Settings({ language, userEmail }: { language: "en" | "th", userEmail?: string }) {
   const { t } = useTranslation(language)
   const [settings, setSettings] = useState({
     name: "",
@@ -21,16 +21,28 @@ export function Settings({ language }: { language: "en" | "th" }) {
     reminderTime: "09:00",
     units: "metric",
   })
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const savedSettings = localStorage.getItem("workout-planner-settings")
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings))
-    }
-  }, [])
+    if (!userEmail) return
+    setLoading(true)
+    fetch(`/api/settings?user=${encodeURIComponent(userEmail)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.settings) setSettings(data.settings)
+      })
+      .finally(() => setLoading(false))
+  }, [userEmail])
 
-  const saveSettings = () => {
-    localStorage.setItem("workout-planner-settings", JSON.stringify(settings))
+  const saveSettings = async () => {
+    if (!userEmail) return
+    setLoading(true)
+    await fetch("/api/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...settings, userEmail, createdAt: new Date().toISOString() }),
+    })
+    setLoading(false)
   }
 
   const exportData = () => {

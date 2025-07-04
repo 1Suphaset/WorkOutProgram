@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,26 +12,57 @@ import { useTranslation } from "@/lib/i18n"
 
 interface NotificationSettingsProps {
   language: "en" | "th"
+  userEmail?: string
 }
 
-export function NotificationSettings({ language }: NotificationSettingsProps) {
+export function NotificationSettings({ language, userEmail }: NotificationSettingsProps) {
   const { t } = useTranslation(language)
   const [enabled, setEnabled] = useState(false)
   const [reminderTime, setReminderTime] = useState("18:00")
   const [method, setMethod] = useState("push")
-  const [savedSettings, setSavedSettings] = useState<{ time: string; method: string } | null>(null)
+  const [reminderId, setReminderId] = useState<number | null>(null)
+  const [loading, setLoading] = useState(false)
 
-  const handleSave = () => {
-    setSavedSettings({ time: reminderTime, method })
-    // Mock save to localStorage
-    localStorage.setItem(
-      "workout-reminders",
-      JSON.stringify({
-        enabled,
-        time: reminderTime,
-        method,
-      }),
-    )
+  // ดึง reminder จาก API
+  useEffect(() => {
+    if (!userEmail) return
+    setLoading(true)
+    fetch(`/api/reminders?user=${encodeURIComponent(userEmail)}`)
+      .then(res => res.json())
+      .then(data => {
+        const reminder = (data.reminders || [])[0]
+        if (reminder) {
+          setReminderId(reminder.id)
+          setEnabled(reminder.enabled)
+          setReminderTime(reminder.time)
+          setMethod(reminder.method)
+        }
+      })
+      .finally(() => setLoading(false))
+  }, [userEmail])
+
+  // บันทึก reminder ผ่าน API
+  const handleSave = async () => {
+    if (!userEmail) return
+    setLoading(true)
+    if (reminderId) {
+      // update
+      await fetch("/api/reminders", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: reminderId, enabled, time: reminderTime, method, createdAt: new Date().toISOString() }),
+      })
+    } else {
+      // create
+      const res = await fetch("/api/reminders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled, time: reminderTime, method, userEmail, createdAt: new Date().toISOString() }),
+      })
+      const data = await res.json()
+      setReminderId(data.reminder.id)
+    }
+    setLoading(false)
   }
 
   const getMethodIcon = (methodType: string) => {
@@ -116,24 +147,24 @@ export function NotificationSettings({ language }: NotificationSettingsProps) {
                 </div>
               </div>
 
-              <Button onClick={handleSave} className="w-full">
+              <Button onClick={handleSave} className="w-full" disabled={loading}>
                 <CheckCircle className="w-4 h-4 mr-2" />
-                {t("saveReminder")}
+                {loading ? t("saving") : t("saveReminder")}
               </Button>
             </div>
           )}
 
-          {savedSettings && enabled && (
+          {reminderId && enabled && (
             <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex items-center text-green-800">
                 <CheckCircle className="w-5 h-5 mr-2" />
                 <span className="font-medium">
-                  {t("reminderSet")} {savedSettings.time}
+                  {t("reminderSet")} {reminderTime}
                 </span>
               </div>
               <div className="flex items-center mt-2 text-green-700">
-                {getMethodIcon(savedSettings.method)}
-                <span className="ml-2 text-sm">via {getMethodLabel(savedSettings.method)}</span>
+                {getMethodIcon(method)}
+                <span className="ml-2 text-sm">via {getMethodLabel(method)}</span>
               </div>
             </div>
           )}

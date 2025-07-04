@@ -27,9 +27,10 @@ interface TemplatesProps {
   deleteTemplate: (templateId: number) => void
   exerciseDatabase: ExerciseLibraryItem[]
   language?: "en" | "th"
+  isLoading?: boolean
 }
 
-export function Templates({ templates, addTemplate, updateTemplate, deleteTemplate, exerciseDatabase, language = "en" }: TemplatesProps) {
+export function Templates({ templates, addTemplate, updateTemplate, deleteTemplate, exerciseDatabase, language = "en", isLoading = false }: TemplatesProps) {
   const { t } = useTranslation(language)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null)
@@ -63,21 +64,18 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
     setShowCreateDialog(true)
   }
 
-  const handleSaveTemplate = () => {
+  const handleSaveTemplate = async () => {
     if (!templateName.trim() || exercises.length === 0) return
     const templateData = {
       name: templateName,
       category: templateCategory,
       exercises,
+      createdAt: new Date().toISOString(),
     }
     if (editingTemplate) {
-      updateTemplate(Number(editingTemplate.id), templateData)
+      await updateTemplate(Number(editingTemplate.id), templateData)
     } else {
-      addTemplate({
-        ...templateData,
-        id: Date.now() + Math.floor(Math.random() * 10000),
-        createdAt: new Date().toISOString(),
-      })
+      await addTemplate(templateData)
     }
     setShowCreateDialog(false)
   }
@@ -196,55 +194,12 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {templates.map((template) => (
-          <Card key={Number(template.id)} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">{template.name}</CardTitle>
-                <Badge variant="secondary">{template.category}</Badge>
-              </div>
-              <CardDescription>
-                {template.exercises.length} {template.exercises.length !== 1 ? t('exercises') : t('exercise')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ScrollArea className="h-32">
-                <div className="space-y-2">
-                  {template.exercises.filter((exercise: TemplateExerciseRef) => exercise.exerciseId !== 0).map((exercise: TemplateExerciseRef, index: number) => {
-                    const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId));
-                    const exerciseName = exData?.name || "Unknown Exercise";
-                    return (
-                      <div key={String(exercise.exerciseId) + '-' + index} className="flex items-center justify-between text-sm">
-                        <span>{exerciseName}</span>
-                        <div className="text-muted-foreground">
-                          {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
-                          {exercise.time && `${exercise.time}s`}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </ScrollArea>
-
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm" onClick={() => handlePreviewTemplate(template)}>
-                  <Eye className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => handleEditTemplate(template)} className="flex-1">
-                  <Edit className="w-4 h-4 mr-1" />
-                  {t('edit')}
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => deleteTemplate(Number(template.id))}>
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {templates.length === 0 && (
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4" />
+          <p className="text-lg font-medium mb-2">{t('loading')}</p>
+        </div>
+      ) : templates.length === 0 ? (
         <div className="text-center py-12">
           <Dumbbell className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
           <h3 className="text-lg font-medium mb-2">{t('noTemplatesYet')}</h3>
@@ -253,6 +208,54 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
             <Plus className="w-4 h-4 mr-2" />
             Create Template
           </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {templates.map((template) => (
+            <Card key={Number(template.id)} className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">{template.name}</CardTitle>
+                  <Badge variant="secondary">{template.category}</Badge>
+                </div>
+                <CardDescription>
+                  {template.exercises.length} {template.exercises.length !== 1 ? t('exercises') : t('exercise')}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ScrollArea className="h-32">
+                  <div className="space-y-2">
+                    {template.exercises.filter((exercise: TemplateExerciseRef) => exercise.exerciseId !== 0).map((exercise: TemplateExerciseRef, index: number) => {
+                      const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId));
+                      const exerciseName = exData?.name || "Unknown Exercise";
+                      return (
+                        <div key={String(exercise.exerciseId) + '-' + index} className="flex items-center justify-between text-sm">
+                          <span>{exerciseName}</span>
+                          <div className="text-muted-foreground">
+                            {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
+                            {exercise.time && `${exercise.time}s`}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </ScrollArea>
+
+                <div className="flex space-x-2">
+                  <Button variant="outline" size="sm" onClick={() => handlePreviewTemplate(template)}>
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => handleEditTemplate(template)} className="flex-1">
+                    <Edit className="w-4 h-4 mr-1" />
+                    {t('edit')}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => deleteTemplate(Number(template.id))}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
 
@@ -694,7 +697,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                   <CardDescription>{tpl.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button onClick={() => {
+                  <Button onClick={async () => {
                     const exercises = tpl.exercises.map(ex => {
                       const found = exerciseDatabase.find(e => e.name === ex.name)
                       return found ? {
@@ -711,8 +714,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                         notes: (ex.instructions || "") + " (ชื่อท่าไม่พบในฐานข้อมูล)",
                       }
                     })
-                    addTemplate({
-                      id: Date.now() + Math.floor(Math.random() * 10000),
+                    await addTemplate({
                       name: tpl.name,
                       category: tpl.type,
                       createdAt: new Date().toISOString(),
