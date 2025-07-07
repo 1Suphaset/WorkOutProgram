@@ -52,7 +52,7 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase, 
     filteredWorkouts.forEach((workout) => {
       workout.exercises.forEach((exercise) => {
         const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
-        const name = exData?.name || exercise.name || "Unknown Exercise";
+        const name = exData?.name || "Unknown Exercise";
         exerciseCount[name] = (exerciseCount[name] || 0) + 1
       })
     })

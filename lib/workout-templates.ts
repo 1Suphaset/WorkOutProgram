@@ -861,6 +861,6 @@ export const searchWorkoutTemplates = (searchTerm: string): WorkoutTemplate[] =>
   )
 }
 
-export const getWorkoutTemplateById = (id: number): WorkoutTemplate | undefined => {
-  return workoutTemplates.find((template) => template.id === id)
+export const getWorkoutTemplateById = (id: number | string): WorkoutTemplate | undefined => {
+  return workoutTemplates.find((template) => String(template.id) === String(id))
 }

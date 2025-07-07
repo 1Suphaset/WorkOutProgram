@@ -14,12 +14,18 @@ export async function GET(req: NextRequest) {
   const userId = userRes.rows[0].id
 
   const result = await pool.query('SELECT * FROM workout_logs WHERE user_id=$1 ORDER BY completed_at DESC', [userId])
+  console.log("API GET workout-logs - retrieved logs:", result.rows)
+  console.log("API GET workout-logs - sample log overall_effort:", result.rows?.[0]?.overall_effort)
+  console.log("API GET workout-logs - all overall_effort values:", result.rows?.map(log => log.overall_effort))
   return NextResponse.json({ workoutLogs: result.rows })
 }
 
 // POST: เพิ่ม workout log ใหม่
 export async function POST(req: NextRequest) {
   const data = await req.json()
+  console.log("API POST workout-logs - received data:", data)
+  console.log("API POST workout-logs - overall_effort:", data.overall_effort)
+  
   const userRes = await pool.query('SELECT id FROM users WHERE email=$1', [data.userEmail])
   if (!userRes.rows[0]) return NextResponse.json({ error: 'User not found' }, { status: 400 })
   const userId = userRes.rows[0].id
@@ -35,9 +41,10 @@ export async function POST(req: NextRequest) {
       data.duration,
       JSON.stringify(data.exercises),
       data.notes,
-      data.overallEffort,
+      data.overall_effort,
     ]
   )
+  console.log("API POST workout-logs - saved to DB:", res.rows[0])
   return NextResponse.json({ workoutLog: res.rows[0] })
 }
 
@@ -56,7 +63,7 @@ export async function PUT(req: NextRequest) {
       data.duration,
       JSON.stringify(data.exercises),
       data.notes,
-      data.overallEffort,
+      data.overall_effort,
     ]
   )
   return NextResponse.json({ workoutLog: res.rows[0] })

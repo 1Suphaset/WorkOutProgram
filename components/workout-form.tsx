@@ -46,6 +46,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
   const addExercise = () => {
     // ไม่อนุญาตให้เพิ่ม exercise เปล่าๆ อีกต่อไป ให้เลือกจาก ExerciseLibrary เท่านั้น
     // สามารถลบปุ่ม Add Exercise ได้ หรือ disable
+    console.log("Add exercise button clicked - use ExerciseLibrary instead");
   }
 
   const updateExercise = (id: number, updates: Partial<Exercise>) => {
@@ -56,23 +57,36 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
     setExercises(exercises.filter((ex) => ex.id !== id))
   }
 
-  const loadTemplate = (templateId: number) => {
-    const template = templates.find((t) => t.id === templateId)
+  const loadTemplate = (templateId: number | string) => {
+    const template = templates.find((t) => String(t.id) === String(templateId))
     if (template) {
       console.log("Loaded template:", template);
       console.log("Exercises in template:", template.exercises);
-      setWorkoutName(template.name)
-      setExercises(
-        (template.exercises || []).map((ex) => ({
+      const convertedExercises = (template.exercises || []).map((ex, idx) => {
+        const exerciseId = typeof ex.exerciseId === 'number'
+          ? ex.exerciseId
+          : (typeof ex.id === 'number' ? ex.id : undefined);
+        if (typeof exerciseId !== 'number') {
+          console.warn('Template exercise missing valid exerciseId or id:', ex, 'at index', idx);
+        }
+        const result = {
           id: Date.now() + Math.floor(Math.random() * 10000),
-          exerciseId: ex.exerciseId ?? ex.id ?? -1,
+          exerciseId,
           sets: ex.sets ?? 3,
           reps: ex.reps ?? 10,
-          time: ex.time ?? ex.duration ?? undefined,
+          time: ex.time ?? undefined,
           weight: ex.weight ?? undefined,
           notes: ex.notes ?? "",
-        }))
-      )
+        };
+        console.log("Converted exercise:", result);
+        return result;
+      });
+      console.log("Converted exercises:", convertedExercises);
+      setWorkoutName(template.name)
+      setExercises(convertedExercises)
+    } else {
+      console.log("Template not found for id:", templateId);
+      console.log("Available template ids:", templates.map(t => t.id));
     }
   }
 
@@ -135,9 +149,8 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
               <Select
                 value={selectedTemplate ? selectedTemplate.toString() : ""}
                 onValueChange={(value) => {
-                  console.log("onValueChange", value);
-                  setSelectedTemplate(Number(value))
-                  loadTemplate(Number(value))
+                  setSelectedTemplate(value)
+                  loadTemplate(value)
                 }}
               >
                 <SelectTrigger>
@@ -146,7 +159,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                 <SelectContent>
                   {templates.map((template) => (
                     <SelectItem key={template.id} value={template.id.toString()}>
-                      {template.name} ({template.exercises.length} {t("exercises")})
+                      {template.name} ({template.exercises?.length || 0} {t("exercises")})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -178,6 +191,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
               <div className="space-y-4">
                 {exercises.map((exercise, index) => {
                   const exData = exerciseDatabase.find(e => e.id === exercise.exerciseId);
+                  console.log("Exercise:", exercise, "exData:", exData);
                   return (
                     <Card key={exercise.id}>
                       <CardHeader className="pb-3">
@@ -191,7 +205,9 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                       <CardContent className="space-y-4">
                         <div>
                           <Label>{t("exerciseName")}</Label>
-                          <div className="py-2 px-3 bg-muted rounded text-base">{exData?.name || t("unknownExercise")}</div>
+                          <div className="py-2 px-3 bg-muted rounded text-base">
+                            {exData?.name || `Unknown Exercise (ID: ${exercise.exerciseId})`}
+                          </div>
                         </div>
                         <Tabs defaultValue="sets-reps" className="w-full">
                           <TabsList className="grid w-full grid-cols-2">
@@ -268,7 +284,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                 {exercises.length === 0 && (
                   <div className="text-center py-8 text-muted-foreground">
                     <p>No exercises added yet</p>
-                    <p className="text-sm">Click "Add Exercise" to get started</p>
+                    <p className="text-sm">Select a template or add exercises from the library</p>
                   </div>
                 )}
                 <ExerciseLibrary

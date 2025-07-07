@@ -701,8 +701,8 @@ export const progressiveTemplates: ProgressiveExerciseTemplate[] = [
   },
 ]
 
-export const getProgressiveTemplateById = (id: string): ProgressiveExerciseTemplate | undefined => {
-  return progressiveTemplates.find((template) => template.id === id)
+export const getProgressiveTemplateById = (id: string | number): ProgressiveExerciseTemplate | undefined => {
+  return progressiveTemplates.find((template) => String(template.id) === String(id))
 }
 
 export const getProgressiveTemplatesByCategory = (category: string): ProgressiveExerciseTemplate[] => {

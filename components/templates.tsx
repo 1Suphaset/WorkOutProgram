@@ -168,10 +168,10 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
     return `${mins}:${secs.toString().padStart(2, "0")}`
   }
 
-  const exData = previewTemplate ? exerciseDatabase.find(e => e.id === previewTemplate.exercises[previewExerciseIndex]?.exerciseId) : undefined;
+  const exData = previewTemplate ? exerciseDatabase.find(e => String(e.id) === String(previewTemplate.exercises[previewExerciseIndex]?.exerciseId)) : undefined;
 
   const allExerciseIds = templates.flatMap(tpl => tpl.exercises.map(ex => ex.exerciseId));
-  const missingIds = allExerciseIds.filter(id => !exerciseDatabase.some(e => e.id === id));
+  const missingIds = allExerciseIds.filter(id => !exerciseDatabase.some(e => String(e.id) === String(id)));
 
   const newExercises = missingIds.map(id => ({
     id,
@@ -190,12 +190,12 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
 
   const mergedDatabase = [...exerciseDatabase, ...newExercises];
 
-  const loadTemplate = (templateId: number) => {
-    const template = templates.find((t) => t.id === templateId)
+  const loadTemplate = (templateId: number | string) => {
+    const template = templates.find((t) => String(t.id) === String(templateId))
     if (template) {
       setExercises(
         template.exercises.map((ex) => {
-          const exData = exerciseDatabase.find(e => e.id === ex.exerciseId)
+          const exData = exerciseDatabase.find(e => String(e.id) === String(ex.exerciseId))
           return {
             ...ex,
             id: Date.now() + Math.floor(Math.random() * 10000),
@@ -237,7 +237,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map((template) => (
-            <Card key={Number(template.id)} className="hover:shadow-md transition-shadow">
+            <Card key={String(template.id)} className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">{template.name}</CardTitle>
@@ -251,7 +251,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                 <ScrollArea className="h-32">
                   <div className="space-y-2">
                     {template.exercises.filter((exercise: TemplateExerciseRef) => exercise.exerciseId !== 0).map((exercise: TemplateExerciseRef, index: number) => {
-                      const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId));
+                      const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
                       const exerciseName = exData?.name || "Unknown Exercise";
                       return (
                         <div key={String(exercise.exerciseId) + '-' + index} className="flex items-center justify-between text-sm">
@@ -326,7 +326,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
             <ScrollArea className="h-[300px]">
               <div className="space-y-4">
                 {exercises.map((exercise, index) => {
-                  const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId));
+                  const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
                   const exerciseName = exData?.name || "Unknown Exercise";
                   return (
                     <Card key={String(exercise.exerciseId) + '-' + index}>
@@ -562,7 +562,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                       {previewTemplate.exercises
                         .slice(previewExerciseIndex + 1, previewExerciseIndex + 4)
                         .map((exercise, index) => {
-                          const exData = exerciseDatabase.find(e => e.id === exercise.exerciseId);
+                          const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
                           const exerciseName = exData?.name || "Unknown Exercise";
                           return (
                             <div
@@ -635,7 +635,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                     <ScrollArea className="h-[400px]">
                       <div className="space-y-3">
                         {previewTemplate.exercises.map((exercise, index) => {
-                          const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId));
+                          const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
                           const exerciseName = exData?.name || "Unknown Exercise";
                           return (
                             <div key={String(exercise.exerciseId) + '-' + index}>

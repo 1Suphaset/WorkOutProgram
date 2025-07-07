@@ -110,6 +110,7 @@ export default function WorkoutPlannerApp() {
       fetch(`/api/workout-logs?user=${encodeURIComponent(user.email)}`).then(res => res.json()),
     ]).then(([w, t, l]) => {
       console.log("[GET] workouts from API:", w.workouts);
+      console.log("[GET] workout logs from API:", l.workoutLogs);
       setWorkouts(w.workouts || [])
       setTemplates(t.templates || [])
       setWorkoutLogs(l.workoutLogs || [])
@@ -212,22 +213,27 @@ export default function WorkoutPlannerApp() {
   // เพิ่ม workout log
   const addWorkoutLog = async (logData: WorkoutLog) => {
     if (!user) return;
+    console.log("Adding workout log to API:", { ...logData, userEmail: user.email })
     const res = await fetch("/api/workout-logs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...logData, userEmail: user.email }),
     })
     const data = await res.json()
+    console.log("API response:", data)
     setWorkoutLogs(prev => [data.workoutLog, ...prev])
   }
 
-  const handleWorkoutComplete = (workout: Workout) => {
-    setWorkoutToLog(workout)
+  const handleWorkoutComplete = (workout: Workout, duration?: number) => {
+    console.log("handleWorkoutComplete - duration from timer:", duration)
+    setWorkoutToLog({ ...workout, duration })
     setShowWorkoutLogger(true)
     setActiveWorkout(null)
   }
 
   const handleWorkoutLogged = async (logData: WorkoutLog) => {
+    console.log("Workout logged:", logData)
+    console.log("Overall effort:", logData.overall_effort)
     await addWorkoutLog(logData)
     await updateWorkout(Number(logData.workoutId), { completed: true, duration: Number(logData.duration) })
     if (user) fetchData(); // refresh ข้อมูลหลัง finish workout
@@ -402,7 +408,7 @@ export default function WorkoutPlannerApp() {
           <WorkoutTimer
             workout={activeWorkout}
             onClose={() => setActiveWorkout(null)}
-            onComplete={() => handleWorkoutComplete(activeWorkout)}
+            onComplete={(duration) => handleWorkoutComplete(activeWorkout, duration)}
             language={language}
           />
         )}

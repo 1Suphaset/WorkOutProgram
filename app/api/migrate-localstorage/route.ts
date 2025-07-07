@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
             l.duration,
             JSON.stringify(l.exercises),
             l.notes,
-            l.overallEffort,
+            l.overall_effort,
           ]
         );
       }

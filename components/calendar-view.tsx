@@ -250,7 +250,7 @@ export function Calendar({
               addWorkout({
                 ...workout,
                 id: Date.now() + Math.floor(Math.random() * 10000),
-                date: selectedDateString,
+                date: selectedDate.toLocaleDateString("sv-SE"),
                 completed: false,
                 createdAt: new Date().toISOString(),
               })

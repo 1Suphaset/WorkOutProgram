@@ -309,7 +309,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                           <div className="flex items-center space-x-2">
                             {getTypeIcon(exercise.type)}
                             <span className="text-sm">
-                              {(() => { const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id)); return exData?.name || exercise.name || "Unknown Exercise" })()}
+                              {(() => { const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId ?? exercise.id)); return exData?.name || exercise.name || "Unknown Exercise" })()}
                             </span>
                             <Badge variant="outline">{exercise.type}</Badge>
                             {exercise.reps && exercise.sets && (
@@ -362,7 +362,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                     <div key={exercise.id} className="flex items-center justify-between text-sm">
                       <div className="flex items-center space-x-2">
                         <span>
-                          {(() => { const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id)); return exData?.name || "Unknown Exercise" })()}
+                          {(() => { const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId ?? exercise.id)); return exData?.name || "Unknown Exercise" })()}
                         </span>
                       </div>
                       <div className="text-muted-foreground">{exercise.time ? Math.round(exercise.time / 60) + "min" : ""}</div>

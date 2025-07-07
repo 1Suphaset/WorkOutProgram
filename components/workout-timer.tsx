@@ -316,6 +316,15 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
                 </div>
               </div>
             )}
+            {currentExercise?.sets && currentExercise?.reps && (
+              <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
+                <Repeat className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Target</p>
+                  <p className="font-semibold">{currentExercise.sets}×{currentExercise.reps}</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {currentExercise?.time && !showExerciseTimer && (

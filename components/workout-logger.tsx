@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,16 +24,16 @@ interface WorkoutLoggerProps {
 }
 
 export interface WorkoutLog {
-  workoutId: string
+  workoutId: number
   completedAt: string
   duration: number
   exercises: ExerciseLog[]
   notes: string
-  overallEffort: number
+  overall_effort: number
 }
 
 export interface ExerciseLog {
-  exerciseId: string
+  exerciseId: number
   actualReps?: number
   actualWeight?: number
   actualTime?: number
@@ -45,7 +45,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
   const { t } = useTranslation(language)
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>(
     workout.exercises.map((ex) => ({
-      exerciseId: ex.id,
+      exerciseId: Number(ex.id),
       actualReps: ex.reps,
       actualWeight: ex.weight,
       actualTime: ex.time,
@@ -57,20 +57,30 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
   const [workoutNotes, setWorkoutNotes] = useState("")
   const [startTime] = useState(Date.now())
 
-  const updateExerciseLog = (exerciseId: string, updates: Partial<ExerciseLog>) => {
+  useEffect(() => {
+    console.log("WorkoutLogger - duration from props:", workout.duration)
+  }, [workout.duration])
+
+  const updateExerciseLog = (exerciseId: number, updates: Partial<ExerciseLog>) => {
     setExerciseLogs((prev) => prev.map((log) => (log.exerciseId === exerciseId ? { ...log, ...updates } : log)))
   }
 
   const handleComplete = () => {
-    const duration = Math.floor((Date.now() - startTime) / 1000)
+    // ใช้ duration จาก workout (ที่ได้จาก timer) หรือจับเวลาเองถ้าไม่มี
+    const duration = workout.duration || Math.floor((Date.now() - startTime) / 1000)
     const logData: WorkoutLog = {
-      workoutId: workout.id,
+      workoutId: Number(workout.id),
       completedAt: new Date().toISOString(),
       duration,
       exercises: exerciseLogs,
       notes: workoutNotes,
-      overallEffort: overallEffort[0],
+      overall_effort: overallEffort[0],
     }
+    console.log("WorkoutLogger - duration from timer:", workout.duration)
+    console.log("WorkoutLogger - calculated duration:", Math.floor((Date.now() - startTime) / 1000))
+    console.log("WorkoutLogger - final duration:", duration)
+    console.log("WorkoutLogger - overallEffort:", overallEffort[0])
+    console.log("WorkoutLogger - logData:", logData)
     onComplete(logData)
     onClose()
   }
@@ -94,7 +104,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
               const log = exerciseLogs.find((l) => l.exerciseId === exercise.id)
               if (!log) return null
               const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
-              const exerciseName = exData?.name || exercise.name || "Unknown Exercise";
+              const exerciseName = exData?.name || "Unknown Exercise";
 
               return (
                 <Card key={exercise.id}>
@@ -122,7 +132,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
                             type="number"
                             value={log.actualReps || ""}
                             onChange={(e) =>
-                              updateExerciseLog(exercise.id, {
+                              updateExerciseLog(Number(exercise.id), {
                                 actualReps: Number.parseInt(e.target.value) || undefined,
                               })
                             }
@@ -141,7 +151,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
                             type="number"
                             value={log.actualWeight || ""}
                             onChange={(e) =>
-                              updateExerciseLog(exercise.id, {
+                              updateExerciseLog(Number(exercise.id), {
                                 actualWeight: Number.parseInt(e.target.value) || undefined,
                               })
                             }
@@ -160,7 +170,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
                             type="number"
                             value={log.actualTime || ""}
                             onChange={(e) =>
-                              updateExerciseLog(exercise.id, {
+                              updateExerciseLog(Number(exercise.id), {
                                 actualTime: Number.parseInt(e.target.value) || undefined,
                               })
                             }
@@ -176,7 +186,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
                       </Label>
                       <Slider
                         value={[log.effort]}
-                        onValueChange={(value) => updateExerciseLog(exercise.id, { effort: value[0] })}
+                        onValueChange={(value) => updateExerciseLog(Number(exercise.id), { effort: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -188,7 +198,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
                       <Label>{t("exerciseNotes")}</Label>
                       <Input
                         value={log.notes}
-                        onChange={(e) => updateExerciseLog(exercise.id, { notes: e.target.value })}
+                        onChange={(e) => updateExerciseLog(Number(exercise.id), { notes: e.target.value })}
                         placeholder={t("howDidThisExerciseFeel")}
                       />
                     </div>
