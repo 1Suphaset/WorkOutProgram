@@ -15,7 +15,6 @@ import type { ExerciseLibraryItem } from "@/lib/exercise-database"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Eye, Clock, Weight, Repeat, Timer, CheckCircle } from "lucide-react"
-import { exerciseDatabase } from "@/lib/exercise-database"
 import type { TemplateExerciseRef } from "@/app/page"
 import { workoutTemplates } from "@/lib/workout-templates"
 import { useTranslation } from "@/lib/i18n"
@@ -29,6 +28,19 @@ interface TemplatesProps {
   exerciseDatabase: ExerciseLibraryItem[]
   language?: "en" | "th"
   isLoading?: boolean
+}
+
+function mapExerciseFromDB(dbExercise: any) {
+  return {
+    ...dbExercise,
+    id: Number(dbExercise.id),
+    muscleGroups: dbExercise.muscle_groups || [],
+    imageUrl: dbExercise.image_url,
+    estimatedDuration: dbExercise.estimated_duration,
+    isCustom: dbExercise.is_custom,
+    createdAt: dbExercise.created_at,
+    userId: dbExercise.user_id,
+  };
 }
 
 export function Templates({ templates, addTemplate, updateTemplate, deleteTemplate, exerciseDatabase, language = "en", isLoading = false }: TemplatesProps) {
@@ -252,7 +264,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                   <div className="space-y-2">
                     {template.exercises.filter((exercise: TemplateExerciseRef) => exercise.exerciseId !== 0).map((exercise: TemplateExerciseRef, index: number) => {
                       const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
-                      const exerciseName = exData?.name || "Unknown Exercise";
+                      const exerciseName = exData?.name || t('unknownExercise');
                       return (
                         <div key={String(exercise.exerciseId) + '-' + index} className="flex items-center justify-between text-sm">
                           <span>{exerciseName}</span>
@@ -327,7 +339,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
               <div className="space-y-4">
                 {exercises.map((exercise, index) => {
                   const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
-                  const exerciseName = exData?.name || "Unknown Exercise";
+                  const exerciseName = exData?.name || t('unknownExercise');
                   return (
                     <Card key={String(exercise.exerciseId) + '-' + index}>
                       <CardHeader className="pb-3">

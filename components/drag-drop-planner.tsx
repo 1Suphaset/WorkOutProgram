@@ -10,32 +10,21 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { Dumbbell, Search, Plus, GripVertical, Calendar } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
-import { exerciseDatabase } from "@/lib/exercise-database"
 
 interface DragDropPlannerProps {
   selectedDate: Date
   language: "en" | "th"
   onAddExercise: (exercise: any) => void
+  exerciseDatabase: any[]
 }
 
-const exerciseBank = exerciseDatabase.map((ex) => ({
-  id: ex.id,
-  name: ex.name,
-  category: ex.category,
-  duration:
-  ex.recommendedSets?.sets
-    ? Math.round((ex.estimatedDuration * 60) / ex.recommendedSets.sets)
-    : ex.estimatedDuration * 60,
-  reps: ex.recommendedSets?.reps,
-}))
-
-export function DragDropPlanner({ selectedDate, language, onAddExercise }: DragDropPlannerProps) {
+export function DragDropPlanner({ selectedDate, language, onAddExercise, exerciseDatabase }: DragDropPlannerProps) {
   const { t } = useTranslation(language)
   const [searchTerm, setSearchTerm] = useState("")
   const [draggedExercise, setDraggedExercise] = useState<any>(null)
   const [dropZoneActive, setDropZoneActive] = useState(false)
 
-  const filteredExercises = exerciseBank.filter(
+  const filteredExercises = exerciseDatabase.filter(
     (exercise) =>
       exercise.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       exercise.category.toLowerCase().includes(searchTerm.toLowerCase()),

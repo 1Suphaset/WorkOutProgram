@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { CheckCircle, Clock, Weight, Repeat } from "lucide-react"
 import type { Workout } from "@/app/page"
 import { useTranslation } from "@/lib/i18n"
-import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
+import { ExerciseLibraryItem } from "@/lib/exercise-database"
 
 interface WorkoutLoggerProps {
   workout: Workout
@@ -20,7 +20,7 @@ interface WorkoutLoggerProps {
   onClose: () => void
   onComplete: (logData: WorkoutLog) => void
   language: "en" | "th"
-  exerciseDatabase?: typeof defaultExerciseDatabase
+  exerciseDatabase: ExerciseLibraryItem[]
 }
 
 export interface WorkoutLog {
@@ -41,7 +41,7 @@ export interface ExerciseLog {
   notes: string
 }
 
-export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, exerciseDatabase = defaultExerciseDatabase }: WorkoutLoggerProps) {
+export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, exerciseDatabase }: WorkoutLoggerProps) {
   const { t } = useTranslation(language)
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>(
     workout.exercises.map((ex) => ({
@@ -104,7 +104,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
               const log = exerciseLogs.find((l) => l.exerciseId === exercise.id)
               if (!log) return null
               const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
-              const exerciseName = exData?.name || "Unknown Exercise";
+              const exerciseName = exData?.name || t('unknownExercise');
 
               return (
                 <Card key={exercise.id}>

@@ -18,8 +18,8 @@ import { DragDropPlanner } from "@/components/drag-drop-planner"
 import { NotificationSettings } from "@/components/notification-settings"
 import { Home, CalendarIcon, Dumbbell, BarChart3,BookOpen, SettingsIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { exerciseDatabase } from "@/lib/exercise-database"
 import { jwtDecode } from "jwt-decode"
+import type { ExerciseLibraryItem } from "@/lib/exercise-database"
 
 export type Exercise = {
   id: number
@@ -66,6 +66,20 @@ export type WorkoutTemplate = {
   exercises: Exercise[]
 }
 
+function mapExerciseFromDB(dbExercise: any) {
+  return {
+    ...dbExercise,
+    id: Number(dbExercise.id),
+    muscleGroups: dbExercise.muscle_groups || [],
+    imageUrl: dbExercise.image_url,
+    estimatedDuration: dbExercise.estimated_duration,
+    isCustom: dbExercise.is_custom,
+    createdAt: dbExercise.created_at,
+    userId: dbExercise.user_id,
+    // ...แปลง field อื่น ๆ ตามต้องการ
+  };
+}
+
 export default function WorkoutPlannerApp() {
   const [activeView, setActiveView] = useState<string>("dashboard")
   const [workouts, setWorkouts] = useState<Workout[]>([])
@@ -78,6 +92,7 @@ export default function WorkoutPlannerApp() {
   const [language, setLanguage] = useState<"en" | "th">("en")
   const [user, setUser] = useState<{ name: string; email: string } | null>(null)
   const [loading, setLoading] = useState(false)
+  const [exerciseDatabase, setExerciseDatabase] = useState<ExerciseLibraryItem[]>([])
 
   // Auto-login: เช็ค token อัตโนมัติ
   useEffect(() => {
@@ -108,12 +123,14 @@ export default function WorkoutPlannerApp() {
       fetch(`/api/workouts?user=${encodeURIComponent(user.email)}`).then(res => res.json()),
       fetch(`/api/templates?user=${encodeURIComponent(user.email)}`).then(res => res.json()),
       fetch(`/api/workout-logs?user=${encodeURIComponent(user.email)}`).then(res => res.json()),
-    ]).then(([w, t, l]) => {
+      fetch(`/api/exercises?user=${encodeURIComponent(user.email)}`).then(res => res.json()),
+    ]).then(([w, t, l, e]) => {
       console.log("[GET] workouts from API:", w.workouts);
       console.log("[GET] workout logs from API:", l.workoutLogs);
       setWorkouts(w.workouts || [])
       setTemplates(t.templates || [])
       setWorkoutLogs(l.workoutLogs || [])
+      setExerciseDatabase((e.exercises || []).map(mapExerciseFromDB))
     }).finally(() => setLoading(false))
   };
 
@@ -279,25 +296,6 @@ export default function WorkoutPlannerApp() {
     )
   }
 
-  // สร้าง mergedDatabase ที่รวม exerciseDatabase กับ exerciseId ที่อ้างถึงใน templates แต่ไม่มีใน database
-  const allExerciseIds = templates.flatMap(tpl => tpl.exercises.map(ex => Number(ex.exerciseId)))
-  const missingIds = allExerciseIds.filter(id => !exerciseDatabase.some(e => e.id === id))
-  const newExercises = missingIds.map((id: number) => ({
-    id,
-    name: 'Unknown Exercise',
-    category: 'Strength' as const,
-    muscleGroups: [],
-    difficulty: 'Beginner' as const,
-    equipment: '',
-    description: '',
-    instructions: [],
-    imageUrl: '',
-    estimatedDuration: 1,
-    isCustom: true,
-    createdAt: new Date().toISOString(),
-  }))
-  const mergedDatabase = [...exerciseDatabase, ...newExercises]
-
   const renderActiveView = () => {
     switch (activeView) {
       case "dashboard":
@@ -316,7 +314,7 @@ export default function WorkoutPlannerApp() {
                   updateWorkout={updateWorkout}
                   deleteWorkout={deleteWorkout}
                   setActiveWorkout={setActiveWorkout}
-                  exerciseDatabase={mergedDatabase}
+                  exerciseDatabase={exerciseDatabase}
                 />
               </div>
               <div className="2xl:col-span-4 space-y-4 md:space-y-6">
@@ -325,6 +323,7 @@ export default function WorkoutPlannerApp() {
                   selectedDate={selectedDate}
                   language={language}
                   onAddExercise={handleAddExerciseFromDragDrop}
+                  exerciseDatabase={exerciseDatabase}
                 />
               </div>
             </div>
@@ -337,13 +336,13 @@ export default function WorkoutPlannerApp() {
             addTemplate={addTemplate}
             updateTemplate={updateTemplate}
             deleteTemplate={deleteTemplate}
-            exerciseDatabase={mergedDatabase}
+            exerciseDatabase={exerciseDatabase}
             language={language}
             isLoading={loading}
           />
         )
       case "progress":
-        return <ProgressDashboard workouts={workouts} workoutLogs={workoutLogs} language={language} />
+        return <ProgressDashboard workouts={workouts} workoutLogs={workoutLogs} language={language} exerciseDatabase={exerciseDatabase} />
       case "settings":
         return (
           <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
@@ -352,7 +351,7 @@ export default function WorkoutPlannerApp() {
           </div>
         )
       case "library":
-        return <ExerciseLibrary exerciseDatabase={mergedDatabase} language={language} />
+        return <ExerciseLibrary exerciseDatabase={exerciseDatabase} language={language} />
       default:
         return <Dashboard workouts={workouts} language={language} />
     }
@@ -410,6 +409,7 @@ export default function WorkoutPlannerApp() {
             onClose={() => setActiveWorkout(null)}
             onComplete={(duration) => handleWorkoutComplete(activeWorkout, duration)}
             language={language}
+            exerciseDatabase={exerciseDatabase}
           />
         )}
 
@@ -420,6 +420,7 @@ export default function WorkoutPlannerApp() {
             onClose={() => setShowWorkoutLogger(false)}
             onComplete={handleWorkoutLogged}
             language={language}
+            exerciseDatabase={exerciseDatabase}
           />
         )}
 

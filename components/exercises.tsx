@@ -19,7 +19,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Plus, Edit, Trash2, Dumbbell, Heart, Zap, Trophy } from "lucide-react"
 import type { WorkoutTemplate, Exercise } from "@/app/page"
-import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
 import { useTranslation } from "@/lib/i18n"
 
 interface ExercisesProps {
@@ -27,7 +26,7 @@ interface ExercisesProps {
   addTemplate: (template: WorkoutTemplate) => void
   updateTemplate: (templateId: number, updatedTemplate: Partial<WorkoutTemplate>) => void
   deleteTemplate: (templateId: number) => void
-  exerciseDatabase?: typeof defaultExerciseDatabase
+  exerciseDatabase: ExerciseLibraryItem[]
   language?: "en" | "th"
 }
 
@@ -49,7 +48,20 @@ type NewTemplateForm = {
   exercises: ExerciseForm[];
 };
 
-export function Exercises({ templates, addTemplate, updateTemplate, deleteTemplate, exerciseDatabase = defaultExerciseDatabase, language = "en" }: ExercisesProps) {
+function mapExerciseFromDB(dbExercise: any) {
+  return {
+    ...dbExercise,
+    id: Number(dbExercise.id),
+    muscleGroups: dbExercise.muscle_groups || [],
+    imageUrl: dbExercise.image_url,
+    estimatedDuration: dbExercise.estimated_duration,
+    isCustom: dbExercise.is_custom,
+    createdAt: dbExercise.created_at,
+    userId: dbExercise.user_id,
+  };
+}
+
+export function Exercises({ templates, addTemplate, updateTemplate, deleteTemplate, exerciseDatabase, language = "en" }: ExercisesProps) {
   const { t } = useTranslation(language)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<WorkoutTemplate | null>(null)
@@ -309,7 +321,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                           <div className="flex items-center space-x-2">
                             {getTypeIcon(exercise.type)}
                             <span className="text-sm">
-                              {(() => { const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId ?? exercise.id)); return exData?.name || exercise.name || "Unknown Exercise" })()}
+                              {(() => { const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId ?? exercise.id)); return exData?.name || exercise.name || t('unknownExercise') })()}
                             </span>
                             <Badge variant="outline">{exercise.type}</Badge>
                             {exercise.reps && exercise.sets && (

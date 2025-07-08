@@ -72,17 +72,17 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
   const [formData, setFormData] = useState({
     name: exercise?.name || "",
     category: exercise?.category || ("Strength" as const),
-    muscleGroups: exercise?.muscleGroups || [],
+    muscleGroups: exercise?.muscleGroups || exercise?.muscle_groups || [],
     difficulty: exercise?.difficulty || ("Beginner" as const),
     equipment: exercise?.equipment || "Bodyweight",
     description: exercise?.description || "",
     instructions: exercise?.instructions || [""],
-    imageUrl: exercise?.imageUrl || "",
-    estimatedDuration: exercise?.estimatedDuration || 3,
+    imageUrl: exercise?.imageUrl || exercise?.image_url || "",
+    estimatedDuration: exercise?.estimatedDuration || exercise?.estimated_duration || 3,
     benefits: exercise?.benefits || [],
     tips: exercise?.tips || [],
     variations: exercise?.variations || [],
-    recommendedSets: exercise?.recommendedSets || {
+    recommendedSets: exercise?.recommendedSets || exercise?.recommended_sets || {
       sets: 3,
       reps: "8-12",
       rest: 60,
@@ -94,6 +94,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
   const [newTip, setNewTip] = useState("")
   const [newVariation, setNewVariation] = useState({ name: "", description: "" })
   const [showTemplateSelector, setShowTemplateSelector] = useState(false)
+  const [isDragActive, setIsDragActive] = useState(false);
 
   const updateFormData = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -173,15 +174,41 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
     )
   }
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
-      // In a real app, you'd upload to a service like Cloudinary or AWS S3
-      // For now, we'll create a local URL
-      const imageUrl = URL.createObjectURL(file)
-      updateFormData("imageUrl", imageUrl)
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.url) {
+          updateFormData('imageUrl', data.url);
+        } else {
+          alert('Image upload failed');
+        }
+      } catch (err) {
+        alert('Image upload failed');
+      }
     }
-  }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragActive(true);
+  };
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragActive(false);
+  };
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragActive(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      await handleImageUpload({ target: { files: [file] } } as any);
+    }
+  };
 
   const handleSave = () => {
     if (
@@ -189,20 +216,22 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
       formData.muscleGroups.length === 0 ||
       formData.instructions.some((inst) => !inst.trim())
     ) {
-      alert("Please fill in all required fields")
-      return
+      alert('Please fill in all required fields');
+      return;
     }
-
+    // ตรวจสอบว่า imageUrl เป็น url จริง (ไม่ใช่ blob:)
+    const imageUrl = formData.imageUrl && !formData.imageUrl.startsWith('blob:')
+      ? formData.imageUrl
+      : "/placeholder.svg?height=300&width=400&text=" + encodeURIComponent(formData.name);
     const exerciseData = {
       ...formData,
       instructions: formData.instructions.filter((inst) => inst.trim()),
-      imageUrl: formData.imageUrl || "/placeholder.svg?height=300&width=400&text=" + encodeURIComponent(formData.name),
+      imageUrl,
       isCustom: true as const,
-      userId: "current-user", // In a real app, this would be the actual user ID
-    }
-
-    onSave(exerciseData)
-  }
+      userId: "current-user",
+    };
+    onSave(exerciseData);
+  };
 
   const handleTemplateSelect = (template: ExerciseTemplate) => {
     setFormData({
@@ -378,16 +407,13 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
                 <CardTitle className="text-lg">{t('Exercise Image')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {formData.imageUrl && (
-                  <div className="relative">
-                    <img
-                      src={formData.imageUrl || "/placeholder.svg"}
-                      alt={formData.name}
-                      className="w-full h-48 object-cover rounded-lg"
-                    />
-                  </div>
-                )}
-                <div className="flex gap-2">
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"}`}
+                  onClick={() => document.getElementById("image-upload")?.click()}
+                >
                   <input
                     type="file"
                     accept="image/*"
@@ -395,18 +421,13 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
                     className="hidden"
                     id="image-upload"
                   />
-                  <Button asChild variant="outline" className="flex-1">
-                    <label htmlFor="image-upload" className="flex items-center cursor-pointer">
-                      <Upload className="w-4 h-4 mr-2" />
-                      {t('Upload Image')}
-                    </label>
-                  </Button>
-                  <Input
-                    placeholder="Or paste image URL"
-                    value={formData.imageUrl}
-                    onChange={(e) => updateFormData("imageUrl", e.target.value)}
-                    className="flex-1"
-                  />
+                  <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                  <div>
+                    {formData.imageUrl
+                      ? <img src={formData.imageUrl} alt={formData.name} className="w-full h-48 object-cover rounded-lg mx-auto" />
+                      : <span>Drag & drop or click to upload image</span>
+                    }
+                  </div>
                 </div>
               </CardContent>
             </Card>

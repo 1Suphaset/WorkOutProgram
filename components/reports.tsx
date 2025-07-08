@@ -8,16 +8,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TrendingUp, Target, Clock, Dumbbell, Download } from "lucide-react"
 import type { Workout } from "@/app/page"
-import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
 import { useTranslation } from "@/lib/i18n"
 
 interface ReportsProps {
   workouts: Workout[]
-  exerciseDatabase?: typeof defaultExerciseDatabase
+  exerciseDatabase: ExerciseLibraryItem[]
   language: "en" | "th"
 }
 
-export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase, language }: ReportsProps) {
+function mapExerciseFromDB(dbExercise: any) {
+  return {
+    ...dbExercise,
+    id: Number(dbExercise.id),
+    muscleGroups: dbExercise.muscle_groups || [],
+    imageUrl: dbExercise.image_url,
+    estimatedDuration: dbExercise.estimated_duration,
+    isCustom: dbExercise.is_custom,
+    createdAt: dbExercise.created_at,
+    userId: dbExercise.user_id,
+  };
+}
+
+export function Reports({ workouts, exerciseDatabase, language }: ReportsProps) {
   const { t } = useTranslation(language)
   const [timeRange, setTimeRange] = useState("30")
   const [reportType, setReportType] = useState("overview")
@@ -35,7 +47,7 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase, 
 
   const stats = useMemo(() => {
     const totalWorkouts = filteredWorkouts.length
-    const totalDuration = filteredWorkouts.reduce((sum, w) => sum + (w.duration || 0), 0)
+    const totalDuration = filteredWorkouts.reduce((sum, w) => sum + (Number(w.duration) || 0), 0)
     const totalExercises = filteredWorkouts.reduce((sum, w) => sum + w.exercises.length, 0)
     const avgDuration = totalWorkouts > 0 ? totalDuration / totalWorkouts : 0
     const avgExercises = totalWorkouts > 0 ? totalExercises / totalWorkouts : 0
@@ -52,7 +64,7 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase, 
     filteredWorkouts.forEach((workout) => {
       workout.exercises.forEach((exercise) => {
         const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
-        const name = exData?.name || "Unknown Exercise";
+        const name = exData?.name || t('unknownExercise');
         exerciseCount[name] = (exerciseCount[name] || 0) + 1
       })
     })
@@ -78,7 +90,7 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase, 
       weeklyData.push({
         week: `Week ${weeks - i}`,
         workouts: weekWorkouts.length,
-        duration: weekWorkouts.reduce((sum, w) => sum + (w.duration || 0), 0),
+        duration: weekWorkouts.reduce((sum, w) => sum + (Number(w.duration) || 0), 0),
       })
     }
 
@@ -154,7 +166,7 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase, 
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalWorkouts}</div>
-            <p className="text-xs text-muted-foreground">{t("inLastXDays", { days: timeRange })}</p>
+            <p className="text-xs text-muted-foreground">{t("inLastXDays")}: {timeRange}</p>
           </CardContent>
         </Card>
 
@@ -165,7 +177,7 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase, 
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{Math.round(stats.totalDuration / 60)}min</div>
-            <p className="text-xs text-muted-foreground">{t("avgPerWorkout", { avg: Math.round(stats.avgDuration / 60) })}</p>
+            <p className="text-xs text-muted-foreground">{t("avgPerWorkout")}: {Math.round(stats.avgDuration / 60)}</p>
           </CardContent>
         </Card>
 
@@ -176,7 +188,7 @@ export function Reports({ workouts, exerciseDatabase = defaultExerciseDatabase, 
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalExercises}</div>
-            <p className="text-xs text-muted-foreground">{t("avgExercisesPerWorkout", { avg: Math.round(stats.avgExercises) })}</p>
+            <p className="text-xs text-muted-foreground">{t("avgExercisesPerWorkout")}: {Math.round(stats.avgExercises)}</p>
           </CardContent>
         </Card>
 

@@ -25,17 +25,16 @@ import {
 import type { Workout } from "@/app/page"
 import { ExerciseCountdownTimer } from "@/components/exercise-countdown-timer"
 import { useTranslation, type Language } from "@/lib/i18n"
-import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
 
 interface WorkoutTimerProps {
   workout: Workout
   onClose: () => void
   onComplete: (duration: number) => void
   language?: Language
-  exerciseDatabase?: typeof defaultExerciseDatabase
+  exerciseDatabase: ExerciseLibraryItem[]
 }
 
-export function WorkoutTimer({ workout, onClose, onComplete, language = "en", exerciseDatabase = defaultExerciseDatabase }: WorkoutTimerProps) {
+export function WorkoutTimer({ workout, onClose, onComplete, language = "en", exerciseDatabase }: WorkoutTimerProps) {
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
   const [currentSet, setCurrentSet] = useState(1)
   const [isRunning, setIsRunning] = useState(false)
@@ -52,7 +51,7 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
 
   const currentExercise = workout.exercises[currentExerciseIndex]
   const exData = exerciseDatabase.find(e => e.id === (currentExercise && 'exerciseId' in currentExercise ? currentExercise.exerciseId : currentExercise?.id))
-  const exerciseName = exData?.name || currentExercise?.name || "Unknown Exercise"
+  const exerciseName = exData?.name || currentExercise?.name || t('unknownExercise')
   const totalExercises = workout.exercises.length
   const totalSets = workout.exercises.reduce((sum, ex) => sum + (ex.sets || 1), 0)
   const completedSetsCount = Object.values(completedSets).reduce((sum, sets) => sum + sets, 0)
@@ -426,7 +425,7 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
             <div className="space-y-2">
               {workout.exercises.slice(currentExerciseIndex + 1, currentExerciseIndex + 4).map((exercise) => {
                 const exData = exerciseDatabase.find(e => e.id === ('exerciseId' in exercise ? exercise.exerciseId : exercise.id))
-                const exerciseName = exData?.name || exercise.name || "Unknown Exercise"
+                const exerciseName = exData?.name || exercise.name || t('unknownExercise')
                 return (
                   <div key={exercise.id} className="flex items-center justify-between p-2 bg-muted rounded">
                     <span className="font-medium truncate">{exerciseName}</span>

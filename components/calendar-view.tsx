@@ -12,7 +12,7 @@ import { WorkoutForm } from "@/components/workout-form"
 import { WorkoutDetails } from "@/components/workout-details"
 import { Plus, Play, Edit, Trash2, Clock, CalendarIcon } from "lucide-react"
 import type { Workout, Template } from "@/app/page"
-import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
+import { useTranslation } from "@/lib/i18n"
 
 interface CalendarViewProps {
   workouts: Workout[]
@@ -23,7 +23,7 @@ interface CalendarViewProps {
   updateWorkout: (workoutId: number, updatedWorkout: Partial<Workout>) => void
   deleteWorkout: (workoutId: number) => void
   setActiveWorkout: (workout: Workout) => void
-  exerciseDatabase?: typeof defaultExerciseDatabase
+  exerciseDatabase: ExerciseLibraryItem[]
 }
 
 export function Calendar({
@@ -35,12 +35,13 @@ export function Calendar({
   updateWorkout,
   deleteWorkout,
   setActiveWorkout,
-  exerciseDatabase = defaultExerciseDatabase,
+  exerciseDatabase,
 }: CalendarViewProps) {
   const [showWorkoutForm, setShowWorkoutForm] = useState(false)
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null)
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null)
   const [calendarView, setCalendarView] = useState<"month" | "week">("month")
+  const { t } = useTranslation()
 
   const selectedDateString = selectedDate.toLocaleDateString("sv-SE")
   const selectedDateWorkouts = workouts.filter((w) =>
@@ -209,11 +210,11 @@ export function Calendar({
                         {workout.exercises.slice(0, 3).map((exercise) => {
                           const exData = exerciseDatabase.find(e => e.id === ("exerciseId" in exercise ? exercise.exerciseId : exercise.id));
                           return (
-                          <div key={exercise.id} className="text-xs md:text-sm text-muted-foreground">
-                              • {exData?.name || exercise.name || "Unknown Exercise"}
-                            {exercise.sets && exercise.reps && ` - ${exercise.sets}x${exercise.reps}`}
-                            {exercise.time && ` - ${exercise.time}s`}
-                          </div>
+                            <div key={exercise.id} className="text-xs md:text-sm text-muted-foreground">
+                              • {exData?.name || exercise.name || t('unknownExercise')}
+                              {exercise.sets && exercise.reps && ` - ${exercise.sets}x${exercise.reps}`}
+                              {exercise.time && ` - ${exercise.time}s`}
+                            </div>
                           );
                         })}
                         {workout.exercises.length > 3 && (

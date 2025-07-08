@@ -1,38 +1,4 @@
-export interface CustomExercise extends ExerciseLibraryItem {
-  isCustom: true
-  createdAt: string
-  userId?: string
-}
-
-// Update the existing interface to include optional isCustom flag
-export interface ExerciseLibraryItem {
-  id: number
-  name: string
-  category: "Strength" | "Cardio" | "Flexibility" | "Sports"
-  muscleGroups: string[]
-  difficulty: "Beginner" | "Intermediate" | "Advanced"
-  equipment: string
-  description: string
-  instructions: string[]
-  imageUrl: string
-  estimatedDuration: number // in minutes
-  benefits?: string[]
-  tips?: string[]
-  variations?: {
-    name: string
-    description: string
-  }[]
-  recommendedSets?: {
-    sets: number
-    reps: string
-    rest?: number // in seconds
-  }
-  isCustom?: boolean
-  createdAt?: string
-  userId?: string
-}
-
-export const exerciseDatabase: ExerciseLibraryItem[] = [
+const exerciseDatabase = [
   // STRENGTH EXERCISES
   {
     id: 1,
@@ -2631,4 +2597,6 @@ export const exerciseDatabase: ExerciseLibraryItem[] = [
     createdAt: new Date().toISOString(),
   },
 ]
+
+module.exports = { exerciseDatabase }
 

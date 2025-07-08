@@ -21,16 +21,29 @@ import { TrendingUp, Target, Clock, Dumbbell, Calendar, Award } from "lucide-rea
 import type { Workout } from "@/app/page"
 import type { WorkoutLog } from "@/components/workout-logger"
 import { useTranslation } from "@/lib/i18n"
-import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
+import { ExerciseLibraryItem } from "@/lib/exercise-database"
 
 interface ProgressDashboardProps {
   workouts: Workout[]
   workoutLogs: WorkoutLog[]
   language: "en" | "th"
-  exerciseDatabase?: typeof defaultExerciseDatabase
+  exerciseDatabase: ExerciseLibraryItem[]
 }
 
-export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDatabase = defaultExerciseDatabase }: ProgressDashboardProps) {
+function mapExerciseFromDB(dbExercise: any) {
+  return {
+    ...dbExercise,
+    id: Number(dbExercise.id),
+    muscleGroups: dbExercise.muscle_groups || [],
+    imageUrl: dbExercise.image_url,
+    estimatedDuration: dbExercise.estimated_duration,
+    isCustom: dbExercise.is_custom,
+    createdAt: dbExercise.created_at,
+    userId: dbExercise.user_id,
+  };
+}
+
+export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDatabase }: ProgressDashboardProps) {
   const { t } = useTranslation(language)
   
   console.log("ProgressDashboard - received workoutLogs:", workoutLogs)
@@ -75,7 +88,7 @@ export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDat
       if (workout.exercises && workout.exercises.length > 0) {
         workout.exercises.forEach((exercise) => {
           const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
-          const name = exData?.name || "Unknown Exercise";
+          const name = exData?.name || t('unknownExercise');
           acc[name] = (acc[name] || 0) + 1
         })
       }
@@ -103,16 +116,17 @@ export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDat
     })
 
     const monthLogs = workoutLogs.filter((log) => {
-      if (!log.completedAt) return false
-      const logDate = new Date(log.completedAt)
+      const completedAt = log.completedAt || (log as any).completed_at;
+      if (!completedAt) return false;
+      const logDate = new Date(completedAt)
       return logDate.getMonth() === date.getMonth() && logDate.getFullYear() === date.getFullYear()
     })
     
     console.log(`Month ${month} logs:`, monthLogs.map(log => ({
-      id: log.id,
+      id: (log as any).id ?? log?.id,
       overall_effort: log.overall_effort,
       overall_effort_type: typeof log.overall_effort,
-      completedAt: log.completedAt
+      completedAt: log.completedAt || (log as any).completed_at
     })))
     
     const avgEffort = monthLogs.length > 0 
@@ -129,7 +143,7 @@ export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDat
       effortValue: avgEffort > 0 ? Math.round(avgEffort * 10) / 10 : 0,
       effortValueType: typeof (avgEffort > 0 ? Math.round(avgEffort * 10) / 10 : 0),
       duration: monthLogs.length > 0 ? monthLogs.reduce((sum, w) => sum + (w.duration || 0), 0) / 60 : 0,
-      durationLogs: monthLogs.map(log => ({ id: log.id, duration: log.duration }))
+      durationLogs: monthLogs.map(log => ({ id: (log as any).id ?? log?.id, duration: log.duration }))
     })
 
     return {
@@ -198,9 +212,9 @@ export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDat
           </CardHeader>
           <CardContent className="pb-2">
             <div className="text-xl md:text-2xl font-bold">
-              {workoutLogs && workoutLogs.length > 0 ? Math.round(workoutLogs.reduce((sum, w) => sum + (w.duration || 0), 0) / 3600) : 0}h
+              {workoutLogs && workoutLogs.length > 0 ? Math.round(workoutLogs.reduce((sum, w) => sum + (Number(w.duration) || 0), 0) / 3600) : 0}h
             </div>
-            <p className="text-xs text-muted-foreground">{t("avg")}: {workoutLogs && workoutLogs.length > 0 ? Math.round(workoutLogs.reduce((sum, w) => sum + (w.duration || 0), 0) / workoutLogs.length / 60) : 0} {t("minPerWorkout")}</p>
+            <p className="text-xs text-muted-foreground">{t("avg")}: {workoutLogs && workoutLogs.length > 0 ? Math.round(workoutLogs.reduce((sum, w) => sum + (Number(w.duration) || 0), 0) / workoutLogs.length / 60) : 0} {t("minPerWorkout")}</p>
           </CardContent>
         </Card>
 
@@ -336,7 +350,6 @@ export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDat
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
             ) : (

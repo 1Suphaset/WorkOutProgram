@@ -14,7 +14,6 @@ import { Plus, Trash2 } from "lucide-react"
 import type { Workout, Template, Exercise } from "@/app/page"
 import { ExerciseLibrary } from "@/components/exercise-library"
 import { useToast } from "@/hooks/use-toast"
-import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
 import { useTranslation } from "@/lib/i18n"
 
 interface WorkoutFormProps {
@@ -23,11 +22,11 @@ interface WorkoutFormProps {
   selectedDate: Date
   onSave: (workout: Omit<Workout, "id" | "date" | "completed" | "createdAt">) => void
   onClose: () => void
-  exerciseDatabase?: typeof defaultExerciseDatabase
+  exerciseDatabase: ExerciseLibraryItem[]
   language: "en" | "th"
 }
 
-export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose, exerciseDatabase = defaultExerciseDatabase, language }: WorkoutFormProps) {
+export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose, exerciseDatabase, language }: WorkoutFormProps) {
   const { t } = useTranslation(language)
   const [workoutName, setWorkoutName] = useState("")
   const [exercises, setExercises] = useState<Exercise[]>([])
@@ -206,7 +205,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                         <div>
                           <Label>{t("exerciseName")}</Label>
                           <div className="py-2 px-3 bg-muted rounded text-base">
-                            {exData?.name || `Unknown Exercise (ID: ${exercise.exerciseId})`}
+                            {exData?.name || exercise.name || t('unknownExercise')}
                           </div>
                         </div>
                         <Tabs defaultValue="sets-reps" className="w-full">

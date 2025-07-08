@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     }
     // ตรวจสอบ email ซ้ำ
     const { rowCount } = await pool.query('SELECT 1 FROM users WHERE email = $1', [email]);
-    if (rowCount > 0) {
+    if (rowCount && rowCount > 0) {
       return NextResponse.json({ error: 'อีเมลนี้ถูกใช้ไปแล้ว' }, { status: 409 });
     }
     // hash password

@@ -7,7 +7,6 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Play, Edit, Clock, Weight, Repeat, Timer } from "lucide-react"
 import type { Workout } from "@/app/page"
-import { exerciseDatabase as defaultExerciseDatabase } from "@/lib/exercise-database"
 import { useTranslation } from "@/lib/i18n"
 
 interface WorkoutDetailsProps {
@@ -15,11 +14,11 @@ interface WorkoutDetailsProps {
   onClose: () => void
   onEdit: () => void
   onStart: () => void
-  exerciseDatabase?: typeof defaultExerciseDatabase
+  exerciseDatabase: ExerciseLibraryItem[]
   language?: "en" | "th"
 }
 
-export function WorkoutDetails({ workout, onClose, onEdit, onStart, exerciseDatabase = defaultExerciseDatabase, language = "en" }: WorkoutDetailsProps) {
+export function WorkoutDetails({ workout, onClose, onEdit, onStart, exerciseDatabase, language = "en" }: WorkoutDetailsProps) {
   const { t } = useTranslation(language)
 
   const formatTime = (seconds: number) => {
@@ -62,7 +61,7 @@ export function WorkoutDetails({ workout, onClose, onEdit, onStart, exerciseData
               <div className="space-y-3">
                 {workout.exercises.map((exercise, index) => {
                   const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
-                  const exerciseName = exData?.name || exercise.name || "Unknown Exercise";
+                  const exerciseName = exData?.name || exercise.name || t('unknownExercise');
                   return (
                   <Card key={exercise.id}>
                     <CardHeader className="pb-3">
