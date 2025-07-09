@@ -103,15 +103,15 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
       createdAt: new Date().toISOString(),
     }
     try { 
-      if (editingTemplate) {
+    if (editingTemplate) {
         console.log("Calling updateTemplate", editingTemplate.id, templateData)
         await updateTemplate(Number(editingTemplate.id), templateData)
         toast({ title: t("success"), description: t("templateUpdated") })
-      } else {
+    } else {
         await addTemplate(templateData as Template as Template)
         toast({ title: t("success"), description: t("templateCreated") })
-      }
-      setShowCreateDialog(false)
+    }
+    setShowCreateDialog(false)
     } catch (e) {
       toast({ title: t("error"), description: t("errorOccurred"), variant: "destructive" })
     }
@@ -247,52 +247,52 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {templates.map((template) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {templates.map((template) => (
             <Card key={String(template.id)} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{template.name}</CardTitle>
-                  <Badge variant="secondary">{template.category}</Badge>
-                </div>
-                <CardDescription>
-                  {template.exercises.length} {template.exercises.length !== 1 ? t('exercises') : t('exercise')}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ScrollArea className="h-32">
-                  <div className="space-y-2">
-                    {template.exercises.filter((exercise: TemplateExerciseRef) => exercise.exerciseId !== 0).map((exercise: TemplateExerciseRef, index: number) => {
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">{template.name}</CardTitle>
+                <Badge variant="secondary">{template.category}</Badge>
+              </div>
+              <CardDescription>
+                {template.exercises.length} {template.exercises.length !== 1 ? t('exercises') : t('exercise')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <ScrollArea className="h-32">
+                <div className="space-y-2">
+                  {template.exercises.filter((exercise: TemplateExerciseRef) => exercise.exerciseId !== 0).map((exercise: TemplateExerciseRef, index: number) => {
                       const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
                       const exerciseName = exData?.name || t('unknownExercise');
-                      return (
-                        <div key={String(exercise.exerciseId) + '-' + index} className="flex items-center justify-between text-sm">
-                          <span>{exerciseName}</span>
-                          <div className="text-muted-foreground">
-                            {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
-                            {exercise.time && `${exercise.time}s`}
-                          </div>
+                    return (
+                      <div key={String(exercise.exerciseId) + '-' + index} className="flex items-center justify-between text-sm">
+                        <span>{exerciseName}</span>
+                        <div className="text-muted-foreground">
+                          {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
+                          {exercise.time && `${exercise.time}s`}
                         </div>
-                      )
-                    })}
-                  </div>
-                </ScrollArea>
-
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" onClick={() => handlePreviewTemplate(template)}>
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleEditTemplate(template)} className="flex-1">
-                    <Edit className="w-4 h-4 mr-1" />
-                    {t('edit')}
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => setConfirmDeleteId(Number(template.id))}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                      </div>
+                    )
+                  })}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              </ScrollArea>
+
+              <div className="flex space-x-2">
+                <Button variant="outline" size="sm" onClick={() => handlePreviewTemplate(template)}>
+                  <Eye className="w-4 h-4" />
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleEditTemplate(template)} className="flex-1">
+                  <Edit className="w-4 h-4 mr-1" />
+                  {t('edit')}
+                </Button>
+                  <Button variant="outline" size="sm" onClick={() => setConfirmDeleteId(Number(template.id))}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
         </div>
       )}
 

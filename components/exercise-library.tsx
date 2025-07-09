@@ -466,9 +466,9 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                   <div className="flex flex-wrap gap-1">
                     {Array.isArray(exercise.muscleGroups) &&
                       exercise.muscleGroups.slice(0, 3).map((muscle) => (
-                        <Badge key={String(muscle)} variant="outline" className="text-xs">
-                          {muscle}
-                        </Badge>
+                      <Badge key={String(muscle)} variant="outline" className="text-xs">
+                        {muscle}
+                      </Badge>
                       ))
                     }
                     {Array.isArray(exercise.muscleGroups) && exercise.muscleGroups.length > 3 && (
@@ -577,9 +577,9 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                       <div className="flex flex-wrap gap-1">
                         {Array.isArray(exercise.muscleGroups) &&
                           exercise.muscleGroups.map((muscle) => (
-                            <Badge key={String(muscle)} variant="outline" className="text-xs">
-                              {muscle}
-                            </Badge>
+                          <Badge key={String(muscle)} variant="outline" className="text-xs">
+                            {muscle}
+                          </Badge>
                           ))
                         }
                       </div>
@@ -775,9 +775,9 @@ function ExerciseDetailModal({
                 <div className="flex flex-wrap gap-2">
                   {Array.isArray(exercise.muscleGroups) &&
                     exercise.muscleGroups.map((muscle) => (
-                      <Badge key={String(muscle)} variant="outline">
-                        {muscle}
-                      </Badge>
+                    <Badge key={String(muscle)} variant="outline">
+                      {muscle}
+                    </Badge>
                     ))
                   }
                 </div>
