@@ -48,6 +48,7 @@ interface ExerciseLibraryProps {
   exerciseDatabase?: ExerciseFromDB[]
   language?: "en" | "th"
   userEmail?: string
+  minimalView?: boolean
 }
 
 function mapExerciseFromDB(dbExercise: any): ExerciseFromDB {
@@ -72,9 +73,9 @@ function mapExerciseFromDB(dbExercise: any): ExerciseFromDB {
   };
 }
 
-export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exerciseDatabase: propExerciseDatabase, language = "en", userEmail }: ExerciseLibraryProps) {
+export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exerciseDatabase: propExerciseDatabase, language = "en", userEmail, minimalView = false }: ExerciseLibraryProps) {
   const { t } = useTranslation(language)
-  const exerciseDatabase = (propExerciseDatabase || []).map(mapExerciseFromDB);
+  const exerciseDatabase = minimalView ? (propExerciseDatabase || []) : (propExerciseDatabase || []).map(mapExerciseFromDB);
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string>("all")
@@ -296,6 +297,66 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
     })
     setAllExercises(prev => prev.filter(ex => ex.id !== id))
     setLoading(false)
+  }
+
+  if (minimalView) {
+    return (
+      <div>
+        {/* Search & Filter */}
+        <div className="flex flex-col md:flex-row gap-2 mb-4">
+          <Input
+            type="text"
+            placeholder={t('exerciseLibrary.searchPlaceholder')}
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="md:w-1/3"
+          />
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="md:w-1/4">
+              <SelectValue placeholder={t('exerciseLibrary.category')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={selectedMuscleGroup} onValueChange={setSelectedMuscleGroup}>
+            <SelectTrigger className="md:w-1/4">
+              <SelectValue placeholder={t('exerciseLibrary.muscleGroup')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Muscles</SelectItem>
+              {muscleGroups.map((mg) => (
+                <SelectItem key={mg} value={mg}>{mg}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {/* List View */}
+        <div className="grid grid-cols-1 gap-4">
+          {filteredExercises.map((exercise) => (
+            <Card key={exercise.id} className="flex flex-row items-center gap-4 p-2">
+              <img src={exercise.image_url || exercise.imageUrl || "/placeholder.svg"} alt={exercise.name} className="w-16 h-16 object-cover rounded" />
+              <div className="flex-1">
+                <div className="font-semibold">{exercise.name}</div>
+                <div className="text-xs text-muted-foreground">{exercise.category} | {exercise.difficulty}</div>
+                <div className="text-xs text-muted-foreground">{exercise.muscleGroups?.join(", ")}</div>
+              </div>
+              {showAddButton && onAddToWorkout && (
+                <Button size="sm" onClick={() => onAddToWorkout(exercise)}>
+                  Add
+                </Button>
+              )}
+            </Card>
+          ))}
+          {filteredExercises.length === 0 && (
+            <div className="text-center text-muted-foreground py-8">No exercises found</div>
+          )}
+        </div>
+      </div>
+    );
   }
 
   return (

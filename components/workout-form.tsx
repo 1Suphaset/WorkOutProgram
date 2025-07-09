@@ -15,6 +15,7 @@ import type { Workout, Template, Exercise } from "@/app/page"
 import { ExerciseLibrary } from "@/components/exercise-library"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/lib/i18n"
+import { Dialog as UIDialog, DialogContent as UIDialogContent } from "@/components/ui/dialog";
 
 interface WorkoutFormProps {
   workout?: Workout | null
@@ -26,13 +27,14 @@ interface WorkoutFormProps {
   language: "en" | "th"
 }
 
-export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose, exerciseDatabase, language }: WorkoutFormProps) {
+export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose, exerciseDatabase = [], language }: WorkoutFormProps) {
   const { t } = useTranslation(language)
   const [workoutName, setWorkoutName] = useState("")
   const [exercises, setExercises] = useState<Exercise[]>([])
   const [notes, setNotes] = useState("")
   const [selectedTemplate, setSelectedTemplate] = useState<number>(0)
   const { toast } = useToast()
+  const [showLibraryDialog, setShowLibraryDialog] = useState(false);
 
   useEffect(() => {
     if (workout) {
@@ -180,7 +182,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Label className="text-lg font-medium">{t("exercises")}</Label>
-              <Button onClick={addExercise} size="sm">
+              <Button onClick={() => setShowLibraryDialog(true)} size="sm">
                 <Plus className="w-4 h-4 mr-2" />
                 {t("addExercise")}
               </Button>
@@ -286,19 +288,6 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                     <p className="text-sm">Select a template or add exercises from the library</p>
                   </div>
                 )}
-                <ExerciseLibrary
-                  onAddToWorkout={(libraryExercise) => {
-                    const newExercise: Exercise = {
-                      id: Date.now() + Math.floor(Math.random() * 10000),
-                      exerciseId: libraryExercise.id,
-                      sets: libraryExercise.recommendedSets?.sets || 3,
-                      reps: Number.parseInt(libraryExercise.recommendedSets?.reps.split("-")[0] || "10"),
-                      notes: libraryExercise.description,
-                    }
-                    setExercises([...exercises, newExercise])
-                  }}
-                  showAddButton={true}
-                />
               </div>
             </ScrollArea>
           </div>
@@ -309,6 +298,26 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
           </div>
         </div>
       </DialogContent>
+      <UIDialog open={showLibraryDialog} onOpenChange={setShowLibraryDialog}>
+        <UIDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <ExerciseLibrary
+            exerciseDatabase={exerciseDatabase}
+            minimalView={true}
+            showAddButton={true}
+            onAddToWorkout={(libraryExercise) => {
+              const newExercise: Exercise = {
+                id: Date.now() + Math.floor(Math.random() * 10000),
+                exerciseId: libraryExercise.id,
+                sets: libraryExercise.recommendedSets?.sets || 3,
+                reps: Number.parseInt(libraryExercise.recommendedSets?.reps.split("-")[0] || "10"),
+                notes: libraryExercise.description,
+              };
+              setExercises([...exercises, newExercise]);
+              setShowLibraryDialog(false);
+            }}
+          />
+        </UIDialogContent>
+      </UIDialog>
     </Dialog>
   )
 }

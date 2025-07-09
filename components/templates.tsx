@@ -225,10 +225,16 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
           <h1 className="text-3xl font-bold">{t('workoutTemplates')}</h1>
           <p className="text-muted-foreground">{t('createAndManageReusableWorkoutRoutines')}</p>
         </div>
-        <Button onClick={handleCreateTemplate}>
-          <Plus className="w-4 h-4 mr-2" />
-          {t('newTemplate')}
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowLibraryDialog(true)} variant="outline">
+            <Copy className="w-4 h-4 mr-2" />
+            Copy from Library
+          </Button>
+          <Button onClick={handleCreateTemplate}>
+            <Plus className="w-4 h-4 mr-2" />
+            {t('newTemplate')}
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -265,9 +271,11 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                   {template.exercises.filter((exercise: TemplateExerciseRef) => exercise.exerciseId !== 0).map((exercise: TemplateExerciseRef, index: number) => {
                       const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
                       const exerciseName = exData?.name || t('unknownExercise');
+                      const imageUrl = exData?.image_url || exData?.imageUrl || "/placeholder.svg";
                     return (
-                      <div key={String(exercise.exerciseId) + '-' + index} className="flex items-center justify-between text-sm">
-                        <span>{exerciseName}</span>
+                      <div key={String(exercise.exerciseId) + '-' + index} className="flex items-center justify-between text-sm gap-2">
+                        <img src={imageUrl} alt={exerciseName} className="w-10 h-10 object-cover rounded" />
+                        <span className="flex-1 ml-2">{exerciseName}</span>
                         <div className="text-muted-foreground">
                           {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
                           {exercise.time && `${exercise.time}s`}
@@ -356,7 +364,8 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-4 gap-3 items-center">
+                          <img src={exData?.image_url || exData?.imageUrl || "/placeholder.svg"} alt={exerciseName} className="w-14 h-14 object-cover rounded" />
                           <div>
                             <Label>Sets</Label>
                             <Input
@@ -416,7 +425,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
               </DialogDescription>
             </DialogHeader>
             <div className="w-full">
-              <ExerciseLibrary onAddToWorkout={addExerciseFromLibrary} showAddButton={true} />
+              <ExerciseLibrary onAddToWorkout={addExerciseFromLibrary} showAddButton={true} exerciseDatabase={exerciseDatabase} minimalView={true} />
             </div>
           </DialogContent>
         </Dialog>
@@ -715,10 +724,6 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
           </DialogContent>
         </Dialog>
       )}
-
-      <Button onClick={() => setShowLibraryDialog(true)} variant="outline" className="ml-2">
-        Copy from Library
-      </Button>
 
       <Dialog open={showLibraryDialog} onOpenChange={setShowLibraryDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">

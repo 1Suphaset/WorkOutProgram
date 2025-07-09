@@ -276,6 +276,13 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
               Set {currentSet} of {currentExercise?.sets || 1}
             </Badge>
           </CardTitle>
+          {exData?.image_url || exData?.imageUrl ? (
+            <img
+              src={exData.image_url || exData.imageUrl}
+              alt={exerciseName}
+              className="w-32 h-32 object-cover rounded mx-auto my-4"
+            />
+          ) : null}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full">

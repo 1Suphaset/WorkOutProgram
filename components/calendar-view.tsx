@@ -259,6 +259,7 @@ export function Calendar({
             handleWorkoutSaved()
           }}
           onClose={() => setShowWorkoutForm(false)}
+          exerciseDatabase={exerciseDatabase}
         />
       )}
 
