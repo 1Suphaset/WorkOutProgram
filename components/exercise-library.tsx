@@ -24,6 +24,7 @@ interface ExerciseFromDB {
   description: string;
   instructions: string[];
   imageUrl: string;
+  image_url?: string;
   estimatedDuration: number;
   isCustom?: boolean;
   createdAt?: string;
@@ -427,7 +428,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
               <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow cursor-pointer group">
                 <div className="relative">
                   <img
-                    src={exercise.imageUrl || "/placeholder.svg"}
+                    src={exercise.image_url || exercise.imageUrl || "/placeholder.svg"}
                     alt={exercise.name}
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
@@ -521,7 +522,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-4">
                     <img
-                      src={exercise.imageUrl || "/placeholder.svg"}
+                      src={exercise.image_url || exercise.imageUrl || "/placeholder.svg"}
                       alt={exercise.name}
                       className="w-20 h-20 object-cover rounded-lg"
                     />
@@ -600,7 +601,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                 <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow">
                   <div className="relative">
                     <img
-                      src={exercise.imageUrl || "/placeholder.svg"}
+                      src={exercise.image_url || exercise.imageUrl || "/placeholder.svg"}
                       alt={exercise.name}
                       className="w-full h-48 object-cover rounded-t-lg"
                     />
@@ -672,7 +673,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
 
       {showCustomForm && (
         <CustomExerciseForm
-          exercise={editingCustomExercise}
+          exercise={editingCustomExercise ? { ...editingCustomExercise, imageUrl: editingCustomExercise.image_url || editingCustomExercise.imageUrl, isCustom: true as const, createdAt: editingCustomExercise.createdAt || "" } : undefined}
           onSave={handleSaveExercise}
           onClose={() => setShowCustomForm(false)}
         />
@@ -737,7 +738,7 @@ function ExerciseDetailModal({
           {/* Exercise Image */}
           <div className="relative">
             <img
-              src={exercise.imageUrl || "/placeholder.svg"}
+              src={exercise.image_url || exercise.imageUrl || "/placeholder.svg"}
               alt={exercise.name}
               className="w-full h-64 object-cover rounded-lg"
             />

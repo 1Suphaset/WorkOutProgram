@@ -183,6 +183,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
         const res = await fetch('/api/upload', { method: 'POST', body: formData });
         const data = await res.json();
         if (data.url) {
+          console.log("Cloudinary URL:", data.url);
           updateFormData('imageUrl', data.url);
         } else {
           alert('Image upload failed');
