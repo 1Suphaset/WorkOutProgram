@@ -21,10 +21,10 @@ export function Sidebar({ activeView, setActiveView, language, onLanguageChange,
 
   const menuItems = [
     { id: "dashboard", label: t("dashboard"), icon: Home },
+    { id: "progress", label: t("progress"), icon: BarChart3 },
     { id: "calendar", label: t("calendar"), icon: Calendar },
     { id: "templates", label: t("templates"), icon: Dumbbell },
     { id: "library", label: t("library"), icon: BookOpen },
-    { id: "progress", label: t("progress"), icon: BarChart3 },
     { id: "settings", label: t("settings"), icon: Settings },
   ]
 
@@ -72,17 +72,10 @@ export function Sidebar({ activeView, setActiveView, language, onLanguageChange,
       <div className="p-4 border-t border-border space-y-3">
         <div className="flex items-center justify-between">
           <Badge variant="secondary" className="text-xs">
-            v3.0.0
+            v3.5.0
           </Badge>
           <LanguageSwitcher language={language} onLanguageChange={onLanguageChange} />
         </div>
-
-        {user && onLogout && (
-          <Button variant="outline" size="sm" onClick={onLogout} className="w-full">
-            <LogOut className="w-4 h-4 mr-2" />
-            {t("logout")}
-          </Button>
-        )}
       </div>
     </div>
   )

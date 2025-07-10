@@ -101,6 +101,10 @@ export const translations = {
     loading: "Loading...",
     error: "Error",
     success: "Success",
+    exerciseAdded: "Exercise added successfully!",
+    exerciseUpdated: "Exercise updated successfully!",
+    exerciseDeleted: "Exercise deleted successfully!",
+    errorOccurred: "An error occurred. Please try again.",
 
     // Mobile/PWA
     installApp: "Install App",
@@ -469,8 +473,12 @@ export const translations = {
     delete: "ลบ",
     close: "ปิด",
     loading: "กำลังโหลด...",
-    error: "ข้อผิดพลาด",
+    error: "เกิดข้อผิดพลาด",
     success: "สำเร็จ",
+    exerciseAdded: "เพิ่มท่าออกกำลังกายสำเร็จ!",
+    exerciseUpdated: "อัปเดตท่าออกกำลังกายสำเร็จ!",
+    exerciseDeleted: "ลบท่าออกกำลังกายสำเร็จ!",
+    errorOccurred: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง.",
 
     // Mobile/PWA
     installApp: "ติดตั้งแอป",

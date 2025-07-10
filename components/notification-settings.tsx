@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Bell, Clock, Mail, Smartphone, MessageSquare, CheckCircle } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
+import { useToast } from "@/hooks/use-toast"
 
 interface NotificationSettingsProps {
   language: "en" | "th"
@@ -17,6 +18,7 @@ interface NotificationSettingsProps {
 
 export function NotificationSettings({ language, userEmail }: NotificationSettingsProps) {
   const { t } = useTranslation(language)
+  const { toast } = useToast()
   const [enabled, setEnabled] = useState(false)
   const [reminderTime, setReminderTime] = useState("18:00")
   const [method, setMethod] = useState("push")
@@ -45,24 +47,31 @@ export function NotificationSettings({ language, userEmail }: NotificationSettin
   const handleSave = async () => {
     if (!userEmail) return
     setLoading(true)
-    if (reminderId) {
-      // update
-      await fetch("/api/reminders", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: reminderId, enabled, time: reminderTime, method, createdAt: new Date().toISOString() }),
-      })
-    } else {
-      // create
-      const res = await fetch("/api/reminders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ enabled, time: reminderTime, method, userEmail, createdAt: new Date().toISOString() }),
-      })
-      const data = await res.json()
-      setReminderId(data.reminder.id)
+    try {
+      if (reminderId) {
+        // update
+        await fetch("/api/reminders", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: reminderId, enabled, time: reminderTime, method, createdAt: new Date().toISOString() }),
+        })
+        toast({ title: t("success"), description: t("reminderUpdated") })
+      } else {
+        // create
+        const res = await fetch("/api/reminders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ enabled, time: reminderTime, method, userEmail, createdAt: new Date().toISOString() }),
+        })
+        const data = await res.json()
+        setReminderId(data.reminder.id)
+        toast({ title: t("success"), description: t("reminderSet") })
+      }
+    } catch (error) {
+      toast({ title: t("error"), description: t("errorOccurred"), variant: "destructive" })
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const getMethodIcon = (methodType: string) => {
@@ -88,7 +97,7 @@ export function NotificationSettings({ language, userEmail }: NotificationSettin
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">

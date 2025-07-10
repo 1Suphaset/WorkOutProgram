@@ -12,7 +12,9 @@ import { WorkoutForm } from "@/components/workout-form"
 import { WorkoutDetails } from "@/components/workout-details"
 import { Plus, Play, Edit, Trash2, Clock, CalendarIcon } from "lucide-react"
 import type { Workout, Template } from "@/app/page"
+import type { ExerciseLibraryItem } from "@/lib/exercise-database"
 import { useTranslation } from "@/lib/i18n"
+import { DailyNotes } from "@/components/daily-notes"
 
 interface CalendarViewProps {
   workouts: Workout[]
@@ -24,6 +26,8 @@ interface CalendarViewProps {
   deleteWorkout: (workoutId: number) => void
   setActiveWorkout: (workout: Workout) => void
   exerciseDatabase: ExerciseLibraryItem[]
+  language: "en" | "th"
+  userEmail?: string
 }
 
 export function Calendar({
@@ -36,12 +40,14 @@ export function Calendar({
   deleteWorkout,
   setActiveWorkout,
   exerciseDatabase,
+  language,
+  userEmail,
 }: CalendarViewProps) {
   const [showWorkoutForm, setShowWorkoutForm] = useState(false)
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null)
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null)
   const [calendarView, setCalendarView] = useState<"month" | "week">("month")
-  const { t } = useTranslation()
+  const { t } = useTranslation(language)
 
   const selectedDateString = selectedDate.toLocaleDateString("sv-SE")
   const selectedDateWorkouts = workouts.filter((w) =>
@@ -112,15 +118,12 @@ export function Calendar({
         onSelect={(date) => date && setSelectedDate(date)}
         className="rounded-md border"
         modifiers={{
-          hasWorkout: (date) => getWorkoutsForDate(date).length > 0,
+          hasWorkout: (date) => getWorkoutsForDate(date).length > 0 && !getWorkoutsForDate(date).some((w) => w.completed),
           completed: (date) => getWorkoutsForDate(date).some((w) => w.completed),
         }}
-        modifiersStyles={{
-          hasWorkout: {
-            backgroundColor: "hsl(var(--primary))",
-            color: "hsl(var(--primary-foreground))",
-          },
-          completed: { backgroundColor: "hsl(var(--success))", color: "white" },
+        modifiersClassNames={{
+          hasWorkout: "bg-yellow-300 text-black",
+          completed: "bg-green-300 text-white",
         }}
       />
     </CardContent>
@@ -135,6 +138,7 @@ export function Calendar({
      <WeekCalendar
   selected={selectedDate}
   onSelect={(date) => setSelectedDate(date)}
+  workouts={workouts}
 />
     </CardContent>
   </Card>
@@ -207,13 +211,13 @@ export function Calendar({
                       </div>
 
                       <div className="space-y-1">
-                        {workout.exercises.slice(0, 3).map((exercise) => {
+                        {(workout.exercises.slice(0, 3) as any[]).map((exercise) => {
                           const exData = exerciseDatabase.find(e => e.id === ("exerciseId" in exercise ? exercise.exerciseId : exercise.id));
                           return (
-                            <div key={exercise.id} className="text-xs md:text-sm text-muted-foreground">
-                              • {exData?.name || exercise.name || t('unknownExercise')}
-                              {exercise.sets && exercise.reps && ` - ${exercise.sets}x${exercise.reps}`}
-                              {exercise.time && ` - ${exercise.time}s`}
+                            <div key={"id" in exercise ? exercise.id : ("exerciseId" in exercise ? exercise.exerciseId : Math.random())} className="text-xs md:text-sm text-muted-foreground">
+                              • {exData?.name || ("name" in exercise ? exercise.name : t('unknownExercise'))}
+                              {"sets" in exercise && "reps" in exercise && exercise.sets && exercise.reps && ` - ${exercise.sets}x${exercise.reps}`}
+                              {"time" in exercise && exercise.time && ` - ${exercise.time}s`}
                             </div>
                           );
                         })}
@@ -238,6 +242,9 @@ export function Calendar({
         </Card>
       </div>
 
+      {/* Daily Notes */}
+      <DailyNotes selectedDate={selectedDate} language={language} userEmail={userEmail} />
+
       {/* Workout Form Modal */}
       {showWorkoutForm && (
         <WorkoutForm
@@ -260,6 +267,7 @@ export function Calendar({
           }}
           onClose={() => setShowWorkoutForm(false)}
           exerciseDatabase={exerciseDatabase}
+          language={language}
         />
       )}
 
@@ -276,6 +284,8 @@ export function Calendar({
             setSelectedWorkout(null)
             handleStartWorkout(selectedWorkout)
           }}
+          exerciseDatabase={exerciseDatabase}
+          language={language}
         />
       )}
     </div>

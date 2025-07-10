@@ -23,6 +23,7 @@ import {
 } from "lucide-react"
 import { progressiveTemplates, calculateProgressionWeeks } from "@/lib/progressive-templates"
 import type { ProgressiveExerciseTemplate, ProgressionLevel } from "@/lib/progressive-templates"
+import { useToast } from "@/hooks/use-toast"
 
 interface ProgressionRecord {
   templateId: string
@@ -47,6 +48,7 @@ export function ProgressiveExerciseTracker({ onStartProgression, userEmail }: Pr
   const [selectedRecord, setSelectedRecord] = useState<ProgressionRecord | null>(null)
   const [showTemplateDetails, setShowTemplateDetails] = useState(false)
   const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
 
   useEffect(() => {
     if (!userEmail) return
@@ -71,29 +73,41 @@ export function ProgressiveExerciseTracker({ onStartProgression, userEmail }: Pr
       createdAt: new Date().toISOString(),
     }
     setLoading(true)
-    const res = await fetch("/api/progressions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...newRecord, userEmail }),
-    })
-    const data = await res.json()
-    setProgressionRecords(prev => [...prev, data.progression])
-    setLoading(false)
-    if (onStartProgression) onStartProgression(template.id)
+    try {
+      const res = await fetch("/api/progressions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...newRecord, userEmail }),
+      })
+      const data = await res.json()
+      setProgressionRecords(prev => [...prev, data.progression])
+      toast({ title: "Progression started", description: "New progression has been started." })
+      if (onStartProgression) onStartProgression(template.id)
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to start progression.", variant: "destructive" })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const updateProgression = async (recordIndex: number, updates: Partial<ProgressionRecord>) => {
     const record = progressionRecords[recordIndex]
     if (!record) return
     setLoading(true)
-    const res = await fetch("/api/progressions", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...record, ...updates }),
-    })
-    const data = await res.json()
-    setProgressionRecords(prev => prev.map((r, idx) => idx === recordIndex ? data.progression : r))
-    setLoading(false)
+    try {
+      const res = await fetch("/api/progressions", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...record, ...updates }),
+      })
+      const data = await res.json()
+      setProgressionRecords(prev => prev.map((r, idx) => idx === recordIndex ? data.progression : r))
+      toast({ title: "Progression updated", description: "Progression has been updated." })
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to update progression.", variant: "destructive" })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const advanceLevel = (recordIndex: number) => {

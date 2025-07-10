@@ -17,6 +17,7 @@ import type { CustomExercise } from "@/lib/exercise-database"
 import { ExerciseTemplateSelector } from "@/components/exercise-template-selector"
 import type { ExerciseTemplate } from "@/lib/exercise-templates"
 import { useTranslation } from "@/lib/i18n"
+import { useToast } from "@/hooks/use-toast"
 
 interface CustomExerciseFormProps {
   exercise?: CustomExercise | null
@@ -69,6 +70,7 @@ const equipmentOptions = [
 
 export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" }: CustomExerciseFormProps) {
   const { t } = useTranslation(language)
+  const { toast } = useToast()
   const [formData, setFormData] = useState({
     name: exercise?.name || "",
     category: exercise?.category || ("Strength" as const),
@@ -185,11 +187,12 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
         if (data.url) {
           console.log("Cloudinary URL:", data.url);
           updateFormData('imageUrl', data.url);
+          toast({ title: t("success"), description: t("exerciseAdded") })
         } else {
-          alert('Image upload failed');
+          toast({ title: t("error"), description: t("errorOccurred"), variant: "destructive" })
         }
       } catch (err) {
-        alert('Image upload failed');
+        toast({ title: t("error"), description: t("errorOccurred"), variant: "destructive" })
       }
     }
   };
@@ -232,6 +235,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
       userId: "current-user",
     };
     onSave(exerciseData);
+    toast({ title: t("success"), description: t("exerciseAdded") })
   };
 
   const handleTemplateSelect = (template: ExerciseTemplate) => {

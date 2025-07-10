@@ -92,3 +92,26 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+
+.bg-yellow-300 {
+  background-color: #fdeb8f;
+  color: #a96500;
+}
+.bg-yellow-300[aria-selected="true"],
+.bg-yellow-300:focus,
+.bg-yellow-300:hover {
+  background-color: #ffa200 !important;
+  color: #ffffff !important;
+}
+
+.bg-green-300 {
+  background-color: #91ffb9;
+  color: #007e08;
+}
+.bg-green-300[aria-selected="true"],
+.bg-green-300:focus,
+.bg-green-300:hover {
+  background-color: #22c55e !important;
+  color: #fff !important;
+}

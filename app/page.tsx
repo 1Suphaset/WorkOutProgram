@@ -8,6 +8,7 @@ import { Templates } from "@/components/templates"
 import { Settings as SettingsComponent } from "@/components/settings"
 import { WorkoutTimer } from "@/components/workout-timer"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/toaster"
 import { ExerciseLibrary } from "@/components/exercise-library"
 import { ProgressDashboard } from "@/components/progress-dashboard"
 import { WorkoutLogger, type WorkoutLog } from "@/components/workout-logger"
@@ -101,12 +102,25 @@ export default function WorkoutPlannerApp() {
     if (token) {
       try {
         const decoded: any = jwtDecode(token)
-        // เช็ควันหมดอายุ (exp)
         if (decoded.exp && Date.now() >= decoded.exp * 1000) {
           localStorage.removeItem("token")
           setUser(null)
         } else {
-          setUser({ name: decoded.name, email: decoded.email })
+          // ดึงข้อมูล user จาก API เพื่อให้ชื่อใหม่อัปเดต
+          fetch("/api/user", {
+            headers: { "Authorization": `Bearer ${token}` }
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.user) {
+                setUser({ name: data.user.name, email: data.user.email })
+              } else {
+                setUser({ name: decoded.name, email: decoded.email })
+              }
+            })
+            .catch(() => {
+              setUser({ name: decoded.name, email: decoded.email })
+            })
         }
       } catch {
         localStorage.removeItem("token")
@@ -316,10 +330,12 @@ export default function WorkoutPlannerApp() {
                   deleteWorkout={deleteWorkout}
                   setActiveWorkout={setActiveWorkout}
                   exerciseDatabase={exerciseDatabase}
+                  language={language}
+                  userEmail={user?.email}
                 />
               </div>
               <div className="2xl:col-span-4 space-y-4 md:space-y-6">
-                <DailyNotes selectedDate={selectedDate} language={language} />
+                {/* <DailyNotes selectedDate={selectedDate} language={language} /> */}
                 <DragDropPlanner
                   selectedDate={selectedDate}
                   language={language}
@@ -346,8 +362,8 @@ export default function WorkoutPlannerApp() {
         return <ProgressDashboard workouts={workouts} workoutLogs={workoutLogs} language={language} exerciseDatabase={exerciseDatabase} />
       case "settings":
         return (
-          <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
-            <SettingsComponent language={language} />
+          <div>
+            <SettingsComponent language={language} user={user} onLogout={handleLogout} />
             <NotificationSettings language={language} />
           </div>
         )
@@ -401,11 +417,18 @@ export default function WorkoutPlannerApp() {
         </div>
 
         <main className="flex-1 overflow-auto pb-16 md:pb-0">
-          {/* Mobile Header */}
-          <div className="md:hidden bg-card border-b border-border p-4">
+          {/* Mobile Header - Fixed */}
+          <div className="md:hidden fixed top-0 left-0 right-0 bg-card border-b border-border p-4 z-50">
             <Logo size={32} />
           </div>
-          <div className="min-h-full">{renderActiveView()}</div>
+          {/* Add padding to account for fixed header */}
+          <div className="md:hidden pt-16">
+            <div className="min-h-full">{renderActiveView()}</div>
+          </div>
+          {/* Desktop content */}
+          <div className="hidden md:block">
+            <div className="min-h-full">{renderActiveView()}</div>
+          </div>
         </main>
 
         {activeWorkout && (
@@ -431,6 +454,7 @@ export default function WorkoutPlannerApp() {
 
         <PWAInstallBanner language={language} />
       </div>
+      <Toaster />
     </ThemeProvider>
   )
 }

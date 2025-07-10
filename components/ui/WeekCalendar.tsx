@@ -12,6 +12,7 @@ interface WeekCalendarProps {
   onSelect?: (date: Date) => void
   weekStartsOn?: 0 | 1
   className?: string
+  workouts?: { date: string; completed?: boolean }[]
 }
 
 export function WeekCalendar({
@@ -19,12 +20,26 @@ export function WeekCalendar({
   onSelect,
   weekStartsOn = 1,
   className,
+  workouts = [],
 }: WeekCalendarProps) {
   const [baseDate, setBaseDate] = React.useState<Date>(selected ?? new Date())
   const startDate = startOfWeek(baseDate, { weekStartsOn })
   const days = [...Array(7)].map((_, i) => addDays(startDate, i))
 
   const isSelected = (day: Date) => selected && isSameDay(day, selected)
+
+  // ฟังก์ชันเช็คว่าวันนี้มี workout หรือ completed
+  const getDayStatus = (day: Date) => {
+    const dayStr = day.toLocaleDateString("sv-SE")
+    const dayWorkouts = workouts.filter(w => {
+      // รองรับทั้ง date string และ Date object
+      const wDate = typeof w.date === "string" ? new Date(w.date) : w.date
+      return isSameDay(day, wDate)
+    })
+    if (dayWorkouts.some(w => w.completed)) return "completed"
+    if (dayWorkouts.length > 0) return "hasWorkout"
+    return "none"
+  }
 
   return (
     <div className={cn("p-4 rounded-md border shadow-sm bg-background", className)}>
@@ -50,9 +65,11 @@ export function WeekCalendar({
       {/* Day Buttons */}
       <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
         {days.map((day) => {
-          const selectedStyle = isSelected(day)
-            ? "bg-primary text-white hover:bg-primary/90"
-            : "bg-muted text-muted-foreground hover:bg-accent"
+          const status = getDayStatus(day)
+          let dayClass = ""
+          if (status === "completed") dayClass = "bg-green-300 text-white"
+          else if (status === "hasWorkout") dayClass = "bg-yellow-300 text-black"
+          else dayClass = "bg-muted text-muted-foreground"
 
           return (
             <button
@@ -60,8 +77,10 @@ export function WeekCalendar({
               onClick={() => onSelect?.(day)}
               className={cn(
                 "flex flex-col items-center justify-center rounded-xl px-4 py-3 text-sm transition-colors font-medium h-[72px]",
-                selectedStyle
+                dayClass,
+                isSelected(day) ? "ring-2 ring-primary aria-selected:opacity-100" : "",
               )}
+              aria-selected={isSelected(day)}
             >
               <span>{format(day, "EEE")}</span>
               <span className="text-base font-bold">{format(day, "d")}</span>

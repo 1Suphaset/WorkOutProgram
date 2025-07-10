@@ -13,6 +13,8 @@ import { CustomExerciseForm } from "@/components/custom-exercise-form"
 import { ProgressiveExerciseTracker } from "@/components/progressive-exercise-tracker"
 import { FitnessAssessment } from "@/components/fitness-assessment"
 import { useTranslation } from "@/lib/i18n"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useToast } from "@/hooks/use-toast"
 
 interface ExerciseFromDB {
   id: number;
@@ -75,6 +77,7 @@ function mapExerciseFromDB(dbExercise: any): ExerciseFromDB {
 
 export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exerciseDatabase: propExerciseDatabase, language = "en", userEmail, minimalView = false }: ExerciseLibraryProps) {
   const { t } = useTranslation(language)
+  const { toast } = useToast()
   const exerciseDatabase = minimalView ? (propExerciseDatabase || []) : (propExerciseDatabase || []).map(mapExerciseFromDB);
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
@@ -109,14 +112,20 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
   const addCustomExercise = async (exercise: ExerciseFromDB) => {
     if (!userEmail) return
     setLoading(true)
-    const res = await fetch("/api/exercises", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...exercise, userEmail, createdAt: new Date().toISOString() }),
-    })
-    const data = await res.json()
-    setCustomExercises(prev => [...prev, data.exercise])
-    setLoading(false)
+    try {
+      const res = await fetch("/api/exercises", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...exercise, userEmail, createdAt: new Date().toISOString() }),
+      })
+      const data = await res.json()
+      setCustomExercises(prev => [...prev, data.exercise])
+      toast({ title: t("success"), description: t("exerciseAdded") })
+    } catch (error) {
+      toast({ title: t("error"), description: t("errorOccurred"), variant: "destructive" })
+    } finally {
+      setLoading(false)
+    }
   }
 
   // แก้ไข custom exercise
@@ -124,26 +133,38 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
     const exercise = customExercises.find(ex => ex.id === id)
     if (!exercise) return
     setLoading(true)
-    const res = await fetch("/api/exercises", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...exercise, ...updates }),
-    })
-    const data = await res.json()
-    setCustomExercises(prev => prev.map(ex => ex.id === id ? data.exercise : ex))
-    setLoading(false)
+    try {
+      const res = await fetch("/api/exercises", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...exercise, ...updates }),
+      })
+      const data = await res.json()
+      setCustomExercises(prev => prev.map(ex => ex.id === id ? data.exercise : ex))
+      toast({ title: t("success"), description: t("exerciseUpdated") })
+    } catch (error) {
+      toast({ title: t("error"), description: t("errorOccurred"), variant: "destructive" })
+    } finally {
+      setLoading(false)
+    }
   }
 
   // ลบ custom exercise
   const deleteCustomExercise = async (id: number) => {
     setLoading(true)
-    await fetch("/api/exercises", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    })
-    setCustomExercises(prev => prev.filter(ex => ex.id !== id))
-    setLoading(false)
+    try {
+      await fetch("/api/exercises", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      })
+      setCustomExercises(prev => prev.filter(ex => ex.id !== id))
+      toast({ title: t("success"), description: t("exerciseDeleted") })
+    } catch (error) {
+      toast({ title: t("error"), description: t("errorOccurred"), variant: "destructive" })
+    } finally {
+      setLoading(false)
+    }
   }
 
   // Get unique values for filters
@@ -484,6 +505,13 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
         </TabsList>
 
         <TabsContent value="grid">
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Skeleton key={i} className="h-64 w-full" />
+              ))}
+            </div>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredExercises.filter((exercise: ExerciseFromDB) => exercise.id !== 0).map((exercise: ExerciseFromDB) => (
               <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow cursor-pointer group">
@@ -574,9 +602,17 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
               </Card>
             ))}
           </div>
+          )}
         </TabsContent>
 
         <TabsContent value="list">
+          {loading ? (
+            <div className="space-y-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Skeleton key={i} className="h-24 w-full" />
+              ))}
+            </div>
+          ) : (
           <div className="space-y-4">
             {filteredExercises.filter((exercise: ExerciseFromDB) => exercise.id !== 0).map((exercise: ExerciseFromDB) => (
               <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow">
@@ -652,47 +688,53 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
               </Card>
             ))}
           </div>
+          )}
         </TabsContent>
 
         <TabsContent value="favorites">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {exerciseDatabase
-              .filter((exercise) => favorites.has(exercise.id))
-              .map((exercise) => (
-                <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow">
-                  <div className="relative">
-                    <img
-                      src={exercise.image_url || exercise.imageUrl || "/placeholder.svg"}
-                      alt={exercise.name}
-                      className="w-full h-48 object-cover rounded-t-lg"
-                    />
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="absolute top-2 right-2 bg-white/80 hover:bg-white"
-                      onClick={() => toggleFavorite(exercise.id)}
-                    >
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    </Button>
-                  </div>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">{exercise.name}</CardTitle>
-                    <Badge variant="outline" className={`${getDifficultyColor(exercise.difficulty)} text-white w-fit`}>
-                      {exercise.difficulty}
-                    </Badge>
-                  </CardHeader>
-                  <CardContent>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setSelectedExercise(exercise)}
-                      className="w-full"
-                    >
-                      {t('exerciseLibrary.viewDetails')}
-                    </Button>
-                  </CardContent>
-                </Card>
+          {loading ? (
+            <div className="space-y-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-24 w-full" />
               ))}
+            </div>
+          ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredExercises.filter((exercise: ExerciseFromDB) => favorites.has(exercise.id)).map((exercise: ExerciseFromDB) => (
+              <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow">
+                <div className="relative">
+                  <img
+                    src={exercise.image_url || exercise.imageUrl || "/placeholder.svg"}
+                    alt={exercise.name}
+                    className="w-full h-48 object-cover rounded-t-lg"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                    onClick={() => toggleFavorite(exercise.id)}
+                  >
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  </Button>
+                </div>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">{exercise.name}</CardTitle>
+                  <Badge variant="outline" className={`${getDifficultyColor(exercise.difficulty)} text-white w-fit`}>
+                    {exercise.difficulty}
+                  </Badge>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setSelectedExercise(exercise)}
+                    className="w-full"
+                  >
+                    {t('exerciseLibrary.viewDetails')}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
             {favorites.size === 0 && (
               <div className="col-span-full text-center py-12">
                 <Star className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
@@ -701,6 +743,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
               </div>
             )}
           </div>
+          )}
         </TabsContent>
 
         <TabsContent value="progressions">

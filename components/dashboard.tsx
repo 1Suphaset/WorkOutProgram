@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress"
 import { Calendar, Dumbbell, Target, TrendingUp, Clock, Flame, Award, Plus } from "lucide-react"
 import type { Workout } from "@/app/page"
 import { useTranslation } from "@/lib/i18n"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface DashboardProps {
   workouts: Workout[]
@@ -60,6 +61,8 @@ export function Dashboard({ workouts, language }: DashboardProps) {
     return dates
   }
 
+  const isLoading = workouts.length === 0
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -85,7 +88,12 @@ export function Dashboard({ workouts, language }: DashboardProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {todayWorkouts.length > 0 ? (
+          {isLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ) : todayWorkouts.length > 0 ? (
             <div className="space-y-3">
               {todayWorkouts.map((workout) => (
                 <div key={workout.id} className="flex items-center justify-between p-3 border rounded-lg">
@@ -114,59 +122,64 @@ export function Dashboard({ workouts, language }: DashboardProps) {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t("totalWorkouts")}</CardTitle>
-            <Dumbbell className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalWorkouts}</div>
-            <p className="text-xs text-muted-foreground">{t("allTimeCompleted")}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t("thisWeek")}</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{completedThisWeek}</div>
-            <div className="space-y-2">
-              <Progress value={(completedThisWeek / weeklyGoal) * 100} className="h-2" />
-              <p className="text-xs text-muted-foreground">
-                {completedThisWeek} {t("of")} {weeklyGoal} {t("weeklyGoal")}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t("thisMonth")}</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{completedThisMonth}</div>
-            <div className="space-y-2">
-              <Progress value={(completedThisMonth / monthlyGoal) * 100} className="h-2" />
-              <p className="text-xs text-muted-foreground">
-                {completedThisMonth} {t("of")} {monthlyGoal} {t("monthlyGoal")}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t("totalTime")}</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{Math.round(totalDuration / 60)}min</div>
-            <p className="text-xs text-muted-foreground">{t("timeSpentExercising")}</p>
-          </CardContent>
-        </Card>
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 w-full" />
+          ))
+        ) : (
+          <>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{t("totalWorkouts")}</CardTitle>
+                <Dumbbell className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalWorkouts}</div>
+                <p className="text-xs text-muted-foreground">{t("allTimeCompleted")}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{t("thisWeek")}</CardTitle>
+                <Target className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{completedThisWeek}</div>
+                <div className="space-y-2">
+                  <Progress value={(completedThisWeek / weeklyGoal) * 100} className="h-2" />
+                  <p className="text-xs text-muted-foreground">
+                    {completedThisWeek} {t("of")} {weeklyGoal} {t("weeklyGoal")}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{t("thisMonth")}</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{completedThisMonth}</div>
+                <div className="space-y-2">
+                  <Progress value={(completedThisMonth / monthlyGoal) * 100} className="h-2" />
+                  <p className="text-xs text-muted-foreground">
+                    {completedThisMonth} {t("of")} {monthlyGoal} {t("monthlyGoal")}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{t("totalTime")}</CardTitle>
+                <Clock className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{Math.round(totalDuration / 60)}min</div>
+                <p className="text-xs text-muted-foreground">{t("timeSpentExercising")}</p>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
 
       {/* Recent Activity */}
@@ -179,7 +192,13 @@ export function Dashboard({ workouts, language }: DashboardProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {recentWorkouts.length > 0 ? (
+            {isLoading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ) : recentWorkouts.length > 0 ? (
               <div className="space-y-3">
                 {recentWorkouts.map((workout) => (
                   <div key={workout.id} className="flex items-center justify-between">
@@ -199,8 +218,7 @@ export function Dashboard({ workouts, language }: DashboardProps) {
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 <Award className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>{t("noCompletedWorkoutsYet")}</p>
-                <p className="text-sm">{t("completeFirstWorkout")}</p>
+                <p>{t("noRecentWorkouts")}</p>
               </div>
             )}
           </CardContent>

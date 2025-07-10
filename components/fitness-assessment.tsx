@@ -19,6 +19,7 @@ import {
 } from "@/lib/fitness-assessments"
 import type { AssessmentQuestion, AssessmentResult, UserAssessment } from "@/lib/fitness-assessments"
 import { progressiveTemplates } from "@/lib/progressive-templates"
+import { useToast } from "@/hooks/use-toast"
 
 interface FitnessAssessmentProps {
   onAssessmentComplete?: (assessment: UserAssessment) => void
@@ -34,6 +35,7 @@ export function FitnessAssessment({ onAssessmentComplete, userEmail }: FitnessAs
   const [showResults, setShowResults] = useState(false)
   const [savedAssessments, setSavedAssessments] = useState<UserAssessment[]>([])
   const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
 
   useEffect(() => {
     if (!userEmail) return
@@ -108,14 +110,20 @@ export function FitnessAssessment({ onAssessmentComplete, userEmail }: FitnessAs
     setShowResults(true)
     if (userEmail) {
       setLoading(true)
-      const res = await fetch("/api/assessments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...assessment, userEmail }),
-      })
-      const data = await res.json()
-      setSavedAssessments(prev => [...prev, data.assessment])
-      setLoading(false)
+      try {
+        const res = await fetch("/api/assessments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...assessment, userEmail }),
+        })
+        const data = await res.json()
+        setSavedAssessments(prev => [...prev, data.assessment])
+        toast({ title: "Success", description: "Assessment saved successfully." })
+      } catch (error) {
+        toast({ title: "Error", description: "Failed to save assessment.", variant: "destructive" })
+      } finally {
+        setLoading(false)
+      }
     }
     if (onAssessmentComplete) {
       onAssessmentComplete(assessment)

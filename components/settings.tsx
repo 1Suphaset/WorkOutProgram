@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -9,14 +8,16 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
-import { SettingsIcon, User, Bell, Download, Upload, Trash2, ExternalLink } from "lucide-react"
+import { SettingsIcon, User, Bell, Download, Upload, Trash2, ExternalLink, LogOut } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
+import { ProfileForm, PasswordForm } from "@/components/user-profile"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useToast } from "@/hooks/use-toast"
 
-export function Settings({ language, userEmail }: { language: "en" | "th", userEmail?: string }) {
+export function Settings({ language, userEmail, user, onLogout }: { language: "en" | "th", userEmail?: string, user?: { name: string; email: string } | null, onLogout?: () => void }) {
   const { t } = useTranslation(language)
+  const { toast } = useToast()
   const [settings, setSettings] = useState({
-    name: "",
-    email: "",
     notifications: true,
     reminderTime: "09:00",
     units: "metric",
@@ -37,41 +38,66 @@ export function Settings({ language, userEmail }: { language: "en" | "th", userE
   const saveSettings = async () => {
     if (!userEmail) return
     setLoading(true)
-    await fetch("/api/settings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...settings, userEmail, createdAt: new Date().toISOString() }),
-    })
-    setLoading(false)
+    try {
+      await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...settings, userEmail, createdAt: new Date().toISOString() }),
+      })
+      toast({
+        title: t("success"),
+        description: t("settingsSaved"),
+      })
+    } catch (error) {
+      toast({
+        title: t("error"),
+        description: t("errorOccurred"),
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const exportData = () => {
-    const workouts = localStorage.getItem("workout-planner-workouts") || "[]"
-    const templates = localStorage.getItem("workout-planner-templates") || "[]"
-    const logs = localStorage.getItem("workout-planner-logs") || "[]"
-    const customExercises = localStorage.getItem("workout-planner-custom-exercises") || "[]"
-    const progressions = localStorage.getItem("workout-planner-progressions") || "[]"
-    const user = localStorage.getItem("workout-planner-user") || "{}"
-    const language = localStorage.getItem("workout-planner-language") || '"en"'
-    const exportData = {
-      workouts: JSON.parse(workouts),
-      templates: JSON.parse(templates),
-      logs: JSON.parse(logs),
-      customExercises: JSON.parse(customExercises),
-      progressions: JSON.parse(progressions),
-      user: JSON.parse(user),
-      language: JSON.parse(language),
-      settings,
-      exportDate: new Date().toISOString(),
+    try {
+      const workouts = localStorage.getItem("workout-planner-workouts") || "[]"
+      const templates = localStorage.getItem("workout-planner-templates") || "[]"
+      const logs = localStorage.getItem("workout-planner-logs") || "[]"
+      const customExercises = localStorage.getItem("workout-planner-custom-exercises") || "[]"
+      const progressions = localStorage.getItem("workout-planner-progressions") || "[]"
+      const user = localStorage.getItem("workout-planner-user") || "{}"
+      const language = localStorage.getItem("workout-planner-language") || '"en"'
+      const exportData = {
+        workouts: JSON.parse(workouts),
+        templates: JSON.parse(templates),
+        logs: JSON.parse(logs),
+        customExercises: JSON.parse(customExercises),
+        progressions: JSON.parse(progressions),
+        user: JSON.parse(user),
+        language: JSON.parse(language),
+        settings,
+        exportDate: new Date().toISOString(),
+      }
+      const dataStr = JSON.stringify(exportData, null, 2)
+      const dataBlob = new Blob([dataStr], { type: "application/json" })
+      const url = URL.createObjectURL(dataBlob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `workout-planner-backup-${new Date().toLocaleDateString("sv-SE")}.json`
+      link.click()
+      URL.revokeObjectURL(url)
+      toast({
+        title: t("success"),
+        description: t("dataExported"),
+      })
+    } catch (error) {
+      toast({
+        title: t("error"),
+        description: t("errorOccurred"),
+        variant: "destructive"
+      })
     }
-    const dataStr = JSON.stringify(exportData, null, 2)
-    const dataBlob = new Blob([dataStr], { type: "application/json" })
-    const url = URL.createObjectURL(dataBlob)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = `workout-planner-backup-${new Date().toLocaleDateString("sv-SE")}.json`
-    link.click()
-    URL.revokeObjectURL(url)
   }
 
   const importData = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,9 +132,16 @@ export function Settings({ language, userEmail }: { language: "en" | "th", userE
         if (importedData.language) {
           localStorage.setItem("workout-planner-language", JSON.stringify(importedData.language))
         }
-        alert("Data imported successfully! Please refresh the page.")
+        toast({
+          title: t("success"),
+          description: t("dataImported"),
+        })
       } catch (error) {
-        alert("Import failed. Please check your backup file.")
+        toast({
+          title: t("error"),
+          description: t("importFailed"),
+          variant: "destructive"
+        })
       }
     }
     reader.readAsText(file)
@@ -125,11 +158,13 @@ export function Settings({ language, userEmail }: { language: "en" | "th", userE
       localStorage.removeItem("workout-planner-user")
       localStorage.removeItem("workout-planner-language")
       setSettings({
-        name: "",
-        email: "",
         notifications: true,
         reminderTime: "09:00",
         units: "metric",
+      })
+      toast({
+        title: t("success"),
+        description: t("dataCleared"),
       })
       alert("All data cleared. Please refresh the page.")
     }
@@ -139,50 +174,35 @@ export function Settings({ language, userEmail }: { language: "en" | "th", userE
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">{t("settings")}</h1>
-          <p className="text-muted-foreground">{t("managePreferencesAndData")}</p>
+          <h1 className="text-2xl md:text-3xl font-bold">{t("settings")}</h1>
+          <p className="text-muted-foreground text-sm md:text-base">{t("managePreferencesAndData")}</p>
         </div>
-        <SettingsIcon className="w-8 h-8 text-muted-foreground" />
+        <SettingsIcon className="w-7 h-7 md:w-8 md:h-8 text-muted-foreground" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Profile Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <User className="w-5 h-5 mr-2" />
-              {t("profile")}
-            </CardTitle>
-            <CardDescription>{t("updatePersonalInfo")}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="name">{t("name")}</Label>
-              <Input
-                id="name"
-                value={settings.name}
-                onChange={(e) => setSettings((prev) => ({ ...prev, name: e.target.value }))}
-                placeholder={t("yourName")}
-              />
-            </div>
-            <div>
-              <Label htmlFor="email">{t("email")}</Label>
-              <Input
-                id="email"
-                type="email"
-                value={settings.email}
-                onChange={(e) => setSettings((prev) => ({ ...prev, email: e.target.value }))}
-                placeholder={t("yourEmail")}
-              />
-            </div>
-            <Button onClick={saveSettings} className="w-full">
-              {t("saveProfile")}
-            </Button>
-          </CardContent>
-        </Card>
+      {/* User Profile Section */}
+      <div className="w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          <div>
+            {loading ? <Skeleton className="h-96 w-full" /> : <ProfileForm language={language} user={user ?? null} />}
+          </div>
+          <div>
+            {loading ? <Skeleton className="h-96 w-full" /> : <PasswordForm language={language} user={user ?? null} />}
+            {onLogout && !loading && (
+              <div className="flex justify-end mt-6">
+                <Button onClick={onLogout} variant="destructive" className="w-full md:w-auto">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  {t("logout")}
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Notification Settings */}
-        <Card>
+        <Card className="w-full">
           <CardHeader>
             <CardTitle className="flex items-center">
               <Bell className="w-5 h-5 mr-2" />
@@ -191,34 +211,46 @@ export function Settings({ language, userEmail }: { language: "en" | "th", userE
             <CardDescription>{t("configureNotificationPreferences")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label>{t("workoutReminders")}</Label>
-                <p className="text-sm text-muted-foreground">{t("getNotifiedAboutScheduledWorkouts")}</p>
-              </div>
-              <Switch
-                checked={settings.notifications}
-                onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, notifications: checked }))}
-              />
-            </div>
-            <div>
-              <Label htmlFor="reminder-time">{t("reminderTime")}</Label>
-              <Input
-                id="reminder-time"
-                type="time"
-                value={settings.reminderTime}
-                onChange={(e) => setSettings((prev) => ({ ...prev, reminderTime: e.target.value }))}
-                disabled={!settings.notifications}
-              />
-            </div>
-            <Button onClick={saveSettings} className="w-full">
-              {t("saveNotificationSettings")}
-            </Button>
+            <>
+              {loading ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>{t("workoutReminders")}</Label>
+                      <p className="text-sm text-muted-foreground">{t("getNotifiedAboutScheduledWorkouts")}</p>
+                    </div>
+                    <Switch
+                      checked={settings.notifications}
+                      onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, notifications: checked }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="reminder-time">{t("reminderTime")}</Label>
+                    <Input
+                      id="reminder-time"
+                      type="time"
+                      value={settings.reminderTime}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, reminderTime: e.target.value }))}
+                      disabled={!settings.notifications}
+                    />
+                  </div>
+                  <Button onClick={saveSettings} className="w-full">
+                    {t("saveNotificationSettings")}
+                  </Button>
+                </>
+              )}
+            </>
           </CardContent>
         </Card>
 
         {/* Google Calendar Integration */}
-        <Card>
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>Google Calendar Integration</CardTitle>
             <CardDescription>Sync your workouts with Google Calendar</CardDescription>
@@ -239,7 +271,7 @@ export function Settings({ language, userEmail }: { language: "en" | "th", userE
         </Card>
 
         {/* Data Management */}
-        <Card>
+        <Card className="w-full md:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center">
               <Download className="w-5 h-5 mr-2" />
