@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { Logo } from "@/components/ui/logo"
 import { Calendar, Dumbbell, Home, Settings, BookOpen, BarChart3, Timer, User, LogOut } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 
@@ -30,13 +31,8 @@ export function Sidebar({ activeView, setActiveView, language, onLanguageChange,
   return (
     <div className="w-64 bg-card border-r border-border h-full flex flex-col">
       <div className="p-6 border-b border-border">
-        <div className="flex items-center space-x-2">
-          <Timer className="w-8 h-8 text-primary" />
-          <div>
-            <h1 className="text-xl font-bold">WorkoutPlanner</h1>
-            <p className="text-sm text-muted-foreground">Track your fitness</p>
-          </div>
-        </div>
+        <Logo size={32} />
+        <p className="text-sm text-muted-foreground mt-2">Track your fitness</p>
       </div>
 
       {/* User Info */}

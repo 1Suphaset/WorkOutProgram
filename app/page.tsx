@@ -16,6 +16,7 @@ import { PWAInstallBanner } from "@/components/pwa-install-banner"
 import { DailyNotes } from "@/components/daily-notes"
 import { DragDropPlanner } from "@/components/drag-drop-planner"
 import { NotificationSettings } from "@/components/notification-settings"
+import { Logo } from "@/components/ui/logo"
 import { Home, CalendarIcon, Dumbbell, BarChart3,BookOpen, SettingsIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { jwtDecode } from "jwt-decode"
@@ -400,6 +401,10 @@ export default function WorkoutPlannerApp() {
         </div>
 
         <main className="flex-1 overflow-auto pb-16 md:pb-0">
+          {/* Mobile Header */}
+          <div className="md:hidden bg-card border-b border-border p-4">
+            <Logo size={32} />
+          </div>
           <div className="min-h-full">{renderActiveView()}</div>
         </main>
 

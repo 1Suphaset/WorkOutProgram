@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { Logo } from "@/components/ui/logo"
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 
@@ -80,12 +81,12 @@ export function LoginForm({ onLogin, language }: LoginFormProps) {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-            <User className="w-8 h-8 text-primary-foreground" />
+          <div className="flex justify-center mb-4">
+            <Logo size={48} />
           </div>
           <CardTitle className="text-2xl">{isLogin ? t("login") : t("register")}</CardTitle>
           <CardDescription>
-            {isLogin ? "Welcome back to WorkoutPlanner" : "Create your WorkoutPlanner account"}
+            {isLogin ? "Welcome back to Life HP" : "Create your Life HP account"}
           </CardDescription>
         </CardHeader>
         <CardContent>
