@@ -19,9 +19,9 @@ import { useToast } from "@/hooks/use-toast"
 interface ExerciseFromDB {
   id: number;
   name: string;
-  category: string;
+  category: "Strength" | "Cardio" | "Flexibility" | "Sports" | string;
   muscleGroups: string[];
-  difficulty: string;
+  difficulty: "Beginner" | "Intermediate" | "Advanced" | string;
   equipment: string;
   description: string;
   instructions: string[];
@@ -97,6 +97,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
   const [showCustomForm, setShowCustomForm] = useState(false)
   const [editingCustomExercise, setEditingCustomExercise] = useState<ExerciseFromDB | null>(null)
   const [loading, setLoading] = useState(false)
+  const [actionLoading, setActionLoading] = useState<{ [id: number]: boolean }>({})
 
   // ดึง custom exercises จาก API
   useEffect(() => {
@@ -111,7 +112,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
   // เพิ่ม custom exercise
   const addCustomExercise = async (exercise: ExerciseFromDB) => {
     if (!userEmail) return
-    setLoading(true)
+    setActionLoading((prev) => ({ ...prev, add: true }))
     try {
       const res = await fetch("/api/exercises", {
         method: "POST",
@@ -124,7 +125,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
     } catch (error) {
       toast({ title: t("error"), description: t("errorOccurred"), variant: "destructive" })
     } finally {
-      setLoading(false)
+      setActionLoading((prev) => ({ ...prev, add: false }))
     }
   }
 
@@ -132,7 +133,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
   const updateCustomExercise = async (id: number, updates: Partial<ExerciseFromDB>) => {
     const exercise = customExercises.find(ex => ex.id === id)
     if (!exercise) return
-    setLoading(true)
+    setActionLoading((prev) => ({ ...prev, [id]: true }))
     try {
       const res = await fetch("/api/exercises", {
         method: "PUT",
@@ -145,13 +146,13 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
     } catch (error) {
       toast({ title: t("error"), description: t("errorOccurred"), variant: "destructive" })
     } finally {
-      setLoading(false)
+      setActionLoading((prev) => ({ ...prev, [id]: false }))
     }
   }
 
   // ลบ custom exercise
   const deleteCustomExercise = async (id: number) => {
-    setLoading(true)
+    setActionLoading((prev) => ({ ...prev, [id]: true }))
     try {
       await fetch("/api/exercises", {
         method: "DELETE",
@@ -163,7 +164,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
     } catch (error) {
       toast({ title: t("error"), description: t("errorOccurred"), variant: "destructive" })
     } finally {
-      setLoading(false)
+      setActionLoading((prev) => ({ ...prev, [id]: false }))
     }
   }
 
@@ -180,10 +181,10 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
   const equipment: string[] = Array.from(new Set(exerciseDatabase.map((ex: ExerciseFromDB) => ex.equipment)));
 
   // รวม customExercises กับ exerciseDatabase ใน allExercises
-  const [allExercises, setAllExercises] = useState<ExerciseFromDB[]>([...(propExerciseDatabase || []), ...customExercises])
-
-  useEffect(() => {
-    setAllExercises([...(propExerciseDatabase || []).map(mapExerciseFromDB), ...customExercises.map(mapExerciseFromDB)])
+  const allExercises = useMemo(() => {
+    const mappedPropExercises = (propExerciseDatabase || []).map(mapExerciseFromDB)
+    const mappedCustomExercises = customExercises.map(mapExerciseFromDB)
+    return [...mappedPropExercises, ...mappedCustomExercises]
   }, [propExerciseDatabase, customExercises])
 
   // Filter exercises based on search and filters
@@ -268,7 +269,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
         updateExercise(editingCustomExercise.id, exerciseData)
       }
     } else {
-      addExercise(exerciseData as ExerciseFromDB)
+      addCustomExercise(exerciseData as ExerciseFromDB)
     }
     setShowCustomForm(false)
   }
@@ -289,7 +290,8 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
       body: JSON.stringify({ ...exercise, userEmail, createdAt: new Date().toISOString() }),
     })
     const data = await res.json()
-    setAllExercises(prev => [...prev, data.exercise])
+    // Refresh custom exercises instead of manually updating
+    fetchCustomExercises()
     setLoading(false)
   }
 
@@ -304,7 +306,8 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
       body: JSON.stringify({ ...exercise, ...updates }),
     })
     const data = await res.json()
-    setAllExercises(prev => prev.map(ex => ex.id === id ? data.exercise : ex))
+    // Refresh custom exercises instead of manually updating
+    fetchCustomExercises()
     setLoading(false)
   }
 
@@ -316,8 +319,21 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
     })
-    setAllExercises(prev => prev.filter(ex => ex.id !== id))
+    // Refresh custom exercises instead of manually updating
+    fetchCustomExercises()
     setLoading(false)
+  }
+
+  // Helper function to fetch custom exercises
+  const fetchCustomExercises = async () => {
+    if (!userEmail) return
+    try {
+      const res = await fetch(`/api/exercises?user=${encodeURIComponent(userEmail)}`)
+      const data = await res.json()
+      setCustomExercises((data.exercises || []).filter((ex: any) => ex.is_custom).map(mapExerciseFromDB))
+    } catch (error) {
+      console.error('Error fetching custom exercises:', error)
+    }
   }
 
   if (minimalView) {
@@ -588,11 +604,31 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                             size="sm"
                             variant="outline"
                             onClick={() => handleEditExercise(exercise)}
+                            disabled={!!actionLoading[exercise.id]}
                           >
-                            <Edit className="w-4 h-4" />
+                            {actionLoading[exercise.id] ? (
+                              <svg className="animate-spin h-4 w-4 mr-2 text-muted-foreground" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                              </svg>
+                            ) : (
+                              <Edit className="w-4 h-4" />
+                            )}
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => handleDeleteExercise(exercise.id)}>
-                            <Trash2 className="w-4 h-4" />
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteExercise(exercise.id)}
+                            disabled={!!actionLoading[exercise.id]}
+                          >
+                            {actionLoading[exercise.id] ? (
+                              <svg className="animate-spin h-4 w-4 mr-2 text-muted-foreground" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                              </svg>
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
                           </Button>
                         </div>
                       )}
@@ -777,9 +813,17 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
 
       {showCustomForm && (
         <CustomExerciseForm
-          exercise={editingCustomExercise ? { ...editingCustomExercise, imageUrl: editingCustomExercise.image_url || editingCustomExercise.imageUrl, isCustom: true as const, createdAt: editingCustomExercise.createdAt || "" } : undefined}
+          exercise={editingCustomExercise ? { 
+            ...editingCustomExercise, 
+            imageUrl: editingCustomExercise.image_url || editingCustomExercise.imageUrl, 
+            isCustom: true as const, 
+            createdAt: editingCustomExercise.createdAt || "",
+            category: editingCustomExercise.category as "Strength" | "Cardio" | "Flexibility" | "Sports",
+            difficulty: editingCustomExercise.difficulty as "Beginner" | "Intermediate" | "Advanced"
+          } : undefined}
           onSave={handleSaveExercise}
           onClose={() => setShowCustomForm(false)}
+          language={language}
         />
       )}
     </div>

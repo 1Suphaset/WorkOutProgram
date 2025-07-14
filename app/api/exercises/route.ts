@@ -19,32 +19,37 @@ export async function GET(req: NextRequest) {
 
 // POST: เพิ่ม exercise ใหม่ (custom)
 export async function POST(req: NextRequest) {
-  const data = await req.json()
-  let userId = null
-  if (data.userEmail) {
-    const userRes = await pool.query('SELECT id FROM users WHERE email=$1', [data.userEmail])
-    if (userRes.rows[0]) userId = userRes.rows[0].id
+  try {
+    const data = await req.json()
+    let userId = null
+    if (data.userEmail) {
+      const userRes = await pool.query('SELECT id FROM users WHERE email=$1', [data.userEmail])
+      if (userRes.rows[0]) userId = userRes.rows[0].id
+    }
+    const res = await pool.query(
+      `INSERT INTO exercises (user_id, name, category, muscle_groups, difficulty, equipment, description, instructions, image_url, estimated_duration, is_custom, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+       RETURNING *`,
+      [
+        userId,
+        data.name,
+        data.category,
+        JSON.stringify(data.muscleGroups),
+        data.difficulty,
+        data.equipment,
+        data.description,
+        JSON.stringify(data.instructions),
+        data.imageUrl,
+        data.estimatedDuration,
+        true,
+        data.createdAt,
+      ]
+    )
+    return NextResponse.json({ exercise: res.rows[0] })
+  } catch (error) {
+    console.error('Error creating exercise:', error)
+    return NextResponse.json({ error: 'Failed to create exercise' }, { status: 500 })
   }
-  const res = await pool.query(
-    `INSERT INTO exercises (user_id, name, category, muscle_groups, difficulty, equipment, description, instructions, image_url, estimated_duration, is_custom, created_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-     RETURNING *`,
-    [
-      userId,
-      data.name,
-      data.category,
-      JSON.stringify(data.muscleGroups),
-      data.difficulty,
-      data.equipment,
-      data.description,
-      JSON.stringify(data.instructions),
-      data.imageUrl,
-      data.estimatedDuration,
-      true,
-      data.createdAt,
-    ]
-  )
-  return NextResponse.json({ exercise: res.rows[0] })
 }
 
 // PUT: แก้ไข exercise (custom เท่านั้น, ต้องส่ง id)

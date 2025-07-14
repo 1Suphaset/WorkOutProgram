@@ -23,6 +23,7 @@ import {
   Zap,
 } from "lucide-react"
 import type { Workout } from "@/app/page"
+import type { ExerciseLibraryItem } from "@/lib/exercise-database"
 import { ExerciseCountdownTimer } from "@/components/exercise-countdown-timer"
 import { useTranslation, type Language } from "@/lib/i18n"
 
@@ -50,8 +51,8 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
   const { t } = useTranslation(language)
 
   const currentExercise = workout.exercises[currentExerciseIndex]
-  const exData = exerciseDatabase.find(e => e.id === (currentExercise && 'exerciseId' in currentExercise ? currentExercise.exerciseId : currentExercise?.id))
-  const exerciseName = exData?.name || currentExercise?.name || t('unknownExercise')
+  const exData = exerciseDatabase.find(e => e.id === (currentExercise && 'exerciseId' in currentExercise ? currentExercise.exerciseId : 0))
+  const exerciseName = exData?.name || t('unknownExercise')
   const totalExercises = workout.exercises.length
   const totalSets = workout.exercises.reduce((sum, ex) => sum + (ex.sets || 1), 0)
   const completedSetsCount = Object.values(completedSets).reduce((sum, sets) => sum + sets, 0)
@@ -276,9 +277,9 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
               Set {currentSet} of {currentExercise?.sets || 1}
             </Badge>
           </CardTitle>
-          {exData?.image_url || exData?.imageUrl ? (
+          {exData?.imageUrl ? (
             <img
-              src={exData.image_url || exData.imageUrl}
+              src={exData.imageUrl}
               alt={exerciseName}
               className="w-32 h-32 object-cover rounded mx-auto my-4"
             />
@@ -360,7 +361,7 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
                 type="number"
                 placeholder={currentExercise?.reps?.toString() || "0"}
                 value={actualReps[currentExercise?.id]?.[currentSet] || ""}
-                onChange={(e) => updateActualReps(currentExercise?.id || "", currentSet, Number.parseInt(e.target.value) || 0)}
+                onChange={(e) => updateActualReps(String(currentExercise?.id || ""), currentSet, Number.parseInt(e.target.value) || 0)}
               />
             </div>
             <div>
@@ -370,7 +371,7 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
                 type="number"
                 placeholder={currentExercise?.weight?.toString() || "0"}
                 value={actualWeight[currentExercise?.id]?.[currentSet] || ""}
-                onChange={(e) => updateActualWeight(currentExercise?.id || "", currentSet, Number.parseInt(e.target.value) || 0)}
+                onChange={(e) => updateActualWeight(String(currentExercise?.id || ""), currentSet, Number.parseInt(e.target.value) || 0)}
               />
             </div>
           </div>
@@ -381,7 +382,7 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
               id="exercise-notes"
               placeholder="How did this exercise feel? Any form notes?"
               value={exerciseNotes[currentExercise?.id] || ""}
-              onChange={(e) => updateExerciseNotes(currentExercise?.id || "", e.target.value)}
+              onChange={(e) => updateExerciseNotes(String(currentExercise?.id || ""), e.target.value)}
               rows={2}
             />
           </div>
@@ -431,8 +432,8 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
           <CardContent>
             <div className="space-y-2">
               {workout.exercises.slice(currentExerciseIndex + 1, currentExerciseIndex + 4).map((exercise) => {
-                const exData = exerciseDatabase.find(e => e.id === ('exerciseId' in exercise ? exercise.exerciseId : exercise.id))
-                const exerciseName = exData?.name || exercise.name || t('unknownExercise')
+                const exData = exerciseDatabase.find(e => e.id === ('exerciseId' in exercise ? exercise.exerciseId : 0))
+                const exerciseName = exData?.name || t('unknownExercise')
                 return (
                   <div key={exercise.id} className="flex items-center justify-between p-2 bg-muted rounded">
                     <span className="font-medium truncate">{exerciseName}</span>

@@ -123,7 +123,7 @@ export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDat
     })
     
     console.log(`Month ${month} logs:`, monthLogs.map(log => ({
-      id: (log as any).id ?? log?.id,
+      id: (log as any).id ?? 0,
       overall_effort: log.overall_effort,
       overall_effort_type: typeof log.overall_effort,
       completedAt: log.completedAt || (log as any).completed_at
@@ -131,7 +131,7 @@ export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDat
     
     const avgEffort = monthLogs.length > 0 
                       ? monthLogs.reduce((sum, log) => {
-                          console.log(`Adding effort for log ${log.id}: ${log.overall_effort}, type: ${typeof log.overall_effort}`)
+                          console.log(`Adding effort for log ${(log as any).id}: ${log.overall_effort}, type: ${typeof log.overall_effort}`)
                           return sum + (Number(log.overall_effort) || 0)
                         }, 0) / monthLogs.length
       : 0
@@ -143,7 +143,7 @@ export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDat
       effortValue: avgEffort > 0 ? Math.round(avgEffort * 10) / 10 : 0,
       effortValueType: typeof (avgEffort > 0 ? Math.round(avgEffort * 10) / 10 : 0),
       duration: monthLogs.length > 0 ? monthLogs.reduce((sum, w) => sum + (w.duration || 0), 0) / 60 : 0,
-      durationLogs: monthLogs.map(log => ({ id: (log as any).id ?? log?.id, duration: log.duration }))
+      durationLogs: monthLogs.map(log => ({ id: (log as any).id ?? 0, duration: log.duration }))
     })
 
     return {
@@ -341,7 +341,7 @@ export function ProgressDashboard({ workouts, workoutLogs, language, exerciseDat
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                     outerRadius={60}
                     fill="#8884d8"
                     dataKey="value"

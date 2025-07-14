@@ -12,6 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Trash2 } from "lucide-react"
 import type { Workout, Template, Exercise } from "@/app/page"
+import type { ExerciseLibraryItem } from "@/lib/exercise-database"
 import { ExerciseLibrary } from "@/components/exercise-library"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/lib/i18n"
@@ -66,13 +67,13 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
       const convertedExercises = (template.exercises || []).map((ex, idx) => {
         const exerciseId = typeof ex.exerciseId === 'number'
           ? ex.exerciseId
-          : (typeof ex.id === 'number' ? ex.id : undefined);
+          : undefined;
         if (typeof exerciseId !== 'number') {
           console.warn('Template exercise missing valid exerciseId or id:', ex, 'at index', idx);
         }
         const result = {
           id: Date.now() + Math.floor(Math.random() * 10000),
-          exerciseId,
+          exerciseId: exerciseId || 0,
           sets: ex.sets ?? 3,
           reps: ex.reps ?? 10,
           time: ex.time ?? undefined,
@@ -150,7 +151,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
               <Select
                 value={selectedTemplate ? selectedTemplate.toString() : ""}
                 onValueChange={(value) => {
-                  setSelectedTemplate(value)
+                  setSelectedTemplate(Number(value))
                   loadTemplate(value)
                 }}
               >
@@ -207,7 +208,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                         <div>
                           <Label>{t("exerciseName")}</Label>
                           <div className="py-2 px-3 bg-muted rounded text-base">
-                            {exData?.name || exercise.name || t('unknownExercise')}
+                            {exData?.name || t('unknownExercise')}
                           </div>
                         </div>
                         <Tabs defaultValue="sets-reps" className="w-full">

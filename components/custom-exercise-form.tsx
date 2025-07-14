@@ -74,17 +74,17 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
   const [formData, setFormData] = useState({
     name: exercise?.name || "",
     category: exercise?.category || ("Strength" as const),
-    muscleGroups: exercise?.muscleGroups || exercise?.muscle_groups || [],
+    muscleGroups: exercise?.muscleGroups || [],
     difficulty: exercise?.difficulty || ("Beginner" as const),
     equipment: exercise?.equipment || "Bodyweight",
     description: exercise?.description || "",
     instructions: exercise?.instructions || [""],
-    imageUrl: exercise?.imageUrl || exercise?.image_url || "",
-    estimatedDuration: exercise?.estimatedDuration || exercise?.estimated_duration || 3,
+    imageUrl: exercise?.imageUrl || "",
+    estimatedDuration: exercise?.estimatedDuration || 3,
     benefits: exercise?.benefits || [],
     tips: exercise?.tips || [],
     variations: exercise?.variations || [],
-    recommendedSets: exercise?.recommendedSets || exercise?.recommended_sets || {
+    recommendedSets: exercise?.recommendedSets || {
       sets: 3,
       reps: "8-12",
       rest: 60,
@@ -97,6 +97,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
   const [newVariation, setNewVariation] = useState({ name: "", description: "" })
   const [showTemplateSelector, setShowTemplateSelector] = useState(false)
   const [isDragActive, setIsDragActive] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const updateFormData = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -111,7 +112,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
   const removeMuscleGroup = (muscleGroup: string) => {
     updateFormData(
       "muscleGroups",
-      formData.muscleGroups.filter((mg) => mg !== muscleGroup),
+      formData.muscleGroups.filter((mg: string) => mg !== muscleGroup),
     )
   }
 
@@ -214,28 +215,35 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (
       !formData.name.trim() ||
       formData.muscleGroups.length === 0 ||
       formData.instructions.some((inst) => !inst.trim())
     ) {
-      alert('Please fill in all required fields');
+      toast({ title: t("error"), description: "Please fill in all required fields", variant: "destructive" });
       return;
     }
-    // ตรวจสอบว่า imageUrl เป็น url จริง (ไม่ใช่ blob:)
-    const imageUrl = formData.imageUrl && !formData.imageUrl.startsWith('blob:')
-      ? formData.imageUrl
-      : "/placeholder.svg?height=300&width=400&text=" + encodeURIComponent(formData.name);
-    const exerciseData = {
-      ...formData,
-      instructions: formData.instructions.filter((inst) => inst.trim()),
-      imageUrl,
-      isCustom: true as const,
-      userId: "current-user",
-    };
-    onSave(exerciseData);
-    toast({ title: t("success"), description: t("exerciseAdded") })
+    setIsSaving(true);
+    try {
+      // ตรวจสอบว่า imageUrl เป็น url จริง (ไม่ใช่ blob:)
+      const imageUrl = formData.imageUrl && !formData.imageUrl.startsWith('blob:')
+        ? formData.imageUrl
+        : "/placeholder.svg?height=300&width=400&text=" + encodeURIComponent(formData.name);
+      const exerciseData = {
+        ...formData,
+        instructions: formData.instructions.filter((inst) => inst.trim()),
+        imageUrl,
+        isCustom: true as const,
+        userId: "current-user",
+      };
+      await onSave(exerciseData);
+      toast({ title: t("success"), description: t("exerciseAdded") });
+    } catch (error) {
+      toast({ title: t("error"), description: t("errorOccurred"), variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleTemplateSelect = (template: ExerciseTemplate) => {
@@ -247,7 +255,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
       equipment: template.equipment,
       description: template.description,
       instructions: template.instructions,
-      imageUrl: template.imageUrl || "/placeholder.svg?height=300&width=400&text=" + encodeURIComponent(template.name),
+      imageUrl: "/placeholder.svg?height=300&width=400&text=" + encodeURIComponent(template.name),
       estimatedDuration: template.estimatedDuration,
       benefits: template.benefits || [],
       tips: template.tips || [],
@@ -367,7 +375,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex flex-wrap gap-2">
-                  {formData.muscleGroups.map((muscle) => (
+                  {formData.muscleGroups.map((muscle: string) => (
                     <Badge key={muscle} variant="secondary" className="flex items-center gap-1">
                       {muscle}
                       <X
@@ -637,10 +645,22 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
         </ScrollArea>
 
         <div className="flex justify-end space-x-2 pt-4 border-t">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={isSaving}>
             {t('Cancel')}
           </Button>
-          <Button onClick={handleSave}>{exercise ? t('Update Exercise') : t('Create Exercise')}</Button>
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? (
+              <>
+                <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                </svg>
+                {t('saving')}
+              </>
+            ) : (
+              exercise ? t('Update Exercise') : t('Create Exercise')
+            )}
+          </Button>
         </div>
       </DialogContent>
       {showTemplateSelector && (

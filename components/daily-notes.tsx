@@ -64,7 +64,7 @@ export function DailyNotes({ selectedDate, language, userEmail }: DailyNotesProp
           createdAt: exist?.createdAt || now,
           updatedAt: now,
         }
-        let res, data
+        let res: Response, data: any
         if (exist) {
           res = await fetch("/api/daily-notes", {
             method: "PUT",

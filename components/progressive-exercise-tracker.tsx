@@ -303,7 +303,7 @@ export function ProgressiveExerciseTracker({ onStartProgression, userEmail }: Pr
               <p className="text-muted-foreground mb-4">
                 Start a progressive exercise program to track your improvement
               </p>
-              <Button onClick={() => document.querySelector('[data-value="templates"]')?.click()}>
+              <Button onClick={() => (document.querySelector('[data-value="templates"]') as HTMLElement)?.click()}>
                 Browse Templates
               </Button>
             </div>

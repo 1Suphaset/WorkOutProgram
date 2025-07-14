@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Play, Edit, Clock, Weight, Repeat, Timer } from "lucide-react"
 import type { Workout } from "@/app/page"
+import type { ExerciseLibraryItem } from "@/lib/exercise-database"
 import { useTranslation } from "@/lib/i18n"
 
 interface WorkoutDetailsProps {
@@ -61,7 +62,7 @@ export function WorkoutDetails({ workout, onClose, onEdit, onStart, exerciseData
               <div className="space-y-3">
                 {workout.exercises.map((exercise, index) => {
                   const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
-                  const exerciseName = exData?.name || exercise.name || t('unknownExercise');
+                  const exerciseName = exData?.name || t('unknownExercise');
                   return (
                   <Card key={exercise.id}>
                     <CardHeader className="pb-3">

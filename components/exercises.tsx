@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Plus, Edit, Trash2, Dumbbell, Heart, Zap, Trophy } from "lucide-react"
 import type { WorkoutTemplate, Exercise } from "@/app/page"
+import type { ExerciseLibraryItem } from "@/lib/exercise-database"
 import { useTranslation } from "@/lib/i18n"
 
 interface ExercisesProps {

@@ -117,7 +117,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
     }
   }
 
-  const addExerciseFromLibrary = (libraryExercise: ExerciseLibraryItem) => {
+  const addExerciseFromLibrary = (libraryExercise: any) => {
     const newExercise: TemplateExerciseRef = {
       exerciseId: libraryExercise.id,
       sets: libraryExercise.recommendedSets?.sets || 3,
@@ -271,7 +271,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                   {template.exercises.filter((exercise: TemplateExerciseRef) => exercise.exerciseId !== 0).map((exercise: TemplateExerciseRef, index: number) => {
                       const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
                       const exerciseName = exData?.name || t('unknownExercise');
-                      const imageUrl = exData?.image_url || exData?.imageUrl || "/placeholder.svg";
+                      const imageUrl = exData?.imageUrl || "/placeholder.svg";
                     return (
                       <div key={String(exercise.exerciseId) + '-' + index} className="flex items-center justify-between text-sm gap-2">
                         <img src={imageUrl} alt={exerciseName} className="w-10 h-10 object-cover rounded" />
@@ -365,7 +365,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                       </CardHeader>
                       <CardContent>
                         <div className="grid grid-cols-4 gap-3 items-center">
-                          <img src={exData?.image_url || exData?.imageUrl || "/placeholder.svg"} alt={exerciseName} className="w-14 h-14 object-cover rounded" />
+                          <img src={exData?.imageUrl || "/placeholder.svg"} alt={exerciseName} className="w-14 h-14 object-cover rounded" />
                           <div>
                             <Label>Sets</Label>
                             <Input

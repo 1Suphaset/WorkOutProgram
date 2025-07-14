@@ -43,7 +43,7 @@ export async function PUT(request: NextRequest) {
     const allowedFields = [
       'name', 'phone', 'date_of_birth', 'height', 'weight', 'fitness_level', 'goals'
     ]
-    const setClauses = []
+    const setClauses: string[] = []
     const values = []
     let idx = 1
     allowedFields.forEach(field => {

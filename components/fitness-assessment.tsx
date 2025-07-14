@@ -99,11 +99,12 @@ export function FitnessAssessment({ onAssessmentComplete, userEmail }: FitnessAs
     const overallLevel = getOverallFitnessLevel(results)
     const recommendedProgressions = getRecommendedProgressions(results)
     const assessment: UserAssessment = {
+      id: '',
+      userId: userEmail || '',
       completedAt: new Date().toISOString(),
       results,
       overallFitnessLevel: overallLevel,
       recommendedProgressions,
-      createdAt: new Date().toISOString(),
     }
     setAssessmentResults(results)
     setIsAssessmentComplete(true)

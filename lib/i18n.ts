@@ -105,6 +105,11 @@ export const translations = {
     exerciseUpdated: "Exercise updated successfully!",
     exerciseDeleted: "Exercise deleted successfully!",
     errorOccurred: "An error occurred. Please try again.",
+    workoutNameRequired: "Workout name is required.",
+    atLeastOneExerciseRequired: "At least one exercise is required.",
+    templateUpdated: "Template updated successfully!",
+    templateCreated: "Template created successfully!",
+    saving: "Saving...",
 
     // Mobile/PWA
     installApp: "Install App",
@@ -260,7 +265,7 @@ export const translations = {
       reps: "Reps",
       rest: "Rest",
       seconds: "seconds",
-      description: "Description",
+
       benefits: "Benefits",
       stepByStepInstructions: "Step-by-Step Instructions",
       tipsSafety: "Tips & Safety",
@@ -342,7 +347,6 @@ export const translations = {
       category: { en: "Category", th: "หมวดหมู่" },
       difficulty: { en: "Difficulty", th: "ระดับความยาก" },
       equipment: { en: "Equipment", th: "อุปกรณ์" },
-      description: { en: "Description", th: "คำอธิบาย" },
       estimatedDuration: { en: "Estimated Duration (minutes)", th: "ระยะเวลาประมาณ (นาที)" },
       targetMuscleGroups: { en: "Target Muscle Groups", th: "กลุ่มกล้ามเนื้อเป้าหมาย" },
       add: { en: "Add", th: "เพิ่ม" },
@@ -478,6 +482,11 @@ export const translations = {
     exerciseAdded: "เพิ่มท่าออกกำลังกายสำเร็จ!",
     exerciseUpdated: "อัปเดตท่าออกกำลังกายสำเร็จ!",
     exerciseDeleted: "ลบท่าออกกำลังกายสำเร็จ!",
+    workoutNameRequired: "กรุณาระบุชื่อการออกกำลังกาย",
+    atLeastOneExerciseRequired: "ต้องมีท่าออกกำลังกายอย่างน้อย 1 ท่า",
+    templateUpdated: "อัปเดตเทมเพลตสำเร็จ!",
+    templateCreated: "สร้างเทมเพลตสำเร็จ!",
+    saving: "กำลังบันทึก...",
     errorOccurred: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง.",
 
     // Mobile/PWA
@@ -630,7 +639,7 @@ export const translations = {
       reps: "ครั้ง",
       rest: "พัก",
       seconds: "วินาที",
-      description: "คำอธิบาย",
+
       benefits: "ประโยชน์",
       stepByStepInstructions: "คำแนะนำทีละขั้นตอน",
       tipsSafety: "เคล็ดลับและความปลอดภัย",
@@ -700,7 +709,6 @@ export const translations = {
       category: { en: "Category", th: "หมวดหมู่" },
       difficulty: { en: "Difficulty", th: "ระดับความยาก" },
       equipment: { en: "Equipment", th: "อุปกรณ์" },
-      description: { en: "Description", th: "คำอธิบาย" },
       estimatedDuration: { en: "Estimated Duration (minutes)", th: "ระยะเวลาประมาณ (นาที)" },
       targetMuscleGroups: { en: "Target Muscle Groups", th: "กลุ่มกล้ามเนื้อเป้าหมาย" },
       add: { en: "Add", th: "เพิ่ม" },
