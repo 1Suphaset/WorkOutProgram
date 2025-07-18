@@ -12,6 +12,7 @@ export interface WorkoutTemplate {
     th: string
   }
   exercises: {
+    exerciseId?: number; // เพิ่ม field นี้เพื่อรองรับ exerciseId
     name: string
     nameTranslations: {
       th: string
