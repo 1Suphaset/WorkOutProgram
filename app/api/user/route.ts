@@ -10,8 +10,8 @@ export async function GET(request: NextRequest) {
     if (!token) {
       return NextResponse.json({ error: 'Token required' }, { status: 401 })
     }
-    const decoded: any = jwtDecode(token)
-    const userEmail = decoded.email
+    const decoded = jwtDecode(token) as unknown // Replace 'any' with 'unknown'
+    const userEmail = (decoded as { email: string }).email
     const { rows } = await pool.query(
       'SELECT id, name, email, phone, date_of_birth, height, weight, fitness_level, goals, created_at FROM users WHERE email = $1',
       [userEmail]
@@ -36,8 +36,8 @@ export async function PUT(request: NextRequest) {
     if (!token) {
       return NextResponse.json({ error: 'Token required' }, { status: 401 })
     }
-    const decoded: any = jwtDecode(token)
-    const userEmail = decoded.email
+    const decoded = jwtDecode(token) as unknown
+    const userEmail = (decoded as { email: string }).email
     const updateData = await request.json()
     // อัปเดตเฉพาะ field ที่อนุญาต
     const allowedFields = [
@@ -78,8 +78,8 @@ export async function PATCH(request: NextRequest) {
     if (!token) {
       return NextResponse.json({ error: 'Token required' }, { status: 401 })
     }
-    const decoded: any = jwtDecode(token)
-    const userEmail = decoded.email
+    const decoded = jwtDecode(token) as unknown
+    const userEmail = (decoded as { email: string }).email
     const { currentPassword, newPassword } = await request.json()
     if (!currentPassword || !newPassword) {
       return NextResponse.json({ error: 'Current password and new password required' }, { status: 400 })

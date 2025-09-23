@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(arrayBuffer);
 
     // Upload buffer to Cloudinary
-    const result = await new Promise<any>((resolve, reject) => {
+    const result = await new Promise<unknown>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
         { folder: 'workout-images' },
         (error, result) => {
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       ).end(buffer);
     });
 
-    return NextResponse.json({ url: result.secure_url });
+    return NextResponse.json({ url: (result as any).secure_url });
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json({

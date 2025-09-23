@@ -28,6 +28,22 @@ export async function POST(req: NextRequest) {
   if (!userRes.rows[0]) return NextResponse.json({ error: 'User not found' }, { status: 400 })
   const userId = userRes.rows[0].id
 
+  // Validation: ตรวจสอบ exerciseId ทุกตัวต้องมีใน exercises table
+  if (Array.isArray(data.exercises)) {
+    const exerciseIds = data.exercises.map((ex: any) => ex.exerciseId).filter((id: any) => !!id)
+    if (exerciseIds.length > 0) {
+      const { rows } = await pool.query(
+        'SELECT id FROM exercises WHERE id = ANY($1::bigint[])',
+        [exerciseIds]
+      )
+      const foundIds = rows.map(r => String(r.id))
+      const missingIds = exerciseIds.filter((id: any) => !foundIds.includes(String(id)))
+      if (missingIds.length > 0) {
+        return NextResponse.json({ error: `exerciseId(s) not found: ${missingIds.join(', ')}` }, { status: 400 })
+      }
+    }
+  }
+
   const res = await pool.query(
     `INSERT INTO workouts (user_id, date, name, exercises, notes, completed, duration, created_at)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -50,6 +66,21 @@ export async function POST(req: NextRequest) {
 // PUT: แก้ไข workout (ต้องส่ง id)
 export async function PUT(req: NextRequest) {
   const data = await req.json()
+  // Validation: ตรวจสอบ exerciseId ทุกตัวต้องมีใน exercises table
+  if (Array.isArray(data.exercises)) {
+    const exerciseIds = data.exercises.map((ex: any) => ex.exerciseId).filter((id: any) => !!id)
+    if (exerciseIds.length > 0) {
+      const { rows } = await pool.query(
+        'SELECT id FROM exercises WHERE id = ANY($1::bigint[])',
+        [exerciseIds]
+      )
+      const foundIds = rows.map(r => String(r.id))
+      const missingIds = exerciseIds.filter((id: any) => !foundIds.includes(String(id)))
+      if (missingIds.length > 0) {
+        return NextResponse.json({ error: `exerciseId(s) not found: ${missingIds.join(', ')}` }, { status: 400 })
+      }
+    }
+  }
   const res = await pool.query(
     `UPDATE workouts SET
       date=$2, name=$3, exercises=$4, notes=$5, completed=$6, duration=$7, created_at=$8

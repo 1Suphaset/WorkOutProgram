@@ -1,33 +1,50 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
-import { WeekCalendar as WeekCalendar } from "@/components/ui/WeekCalendar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { WorkoutForm } from "@/components/workout-form"
-import { WorkoutDetails } from "@/components/workout-details"
-import { Plus, Play, Edit, Trash2, Clock, CalendarIcon } from "lucide-react"
-import type { Workout, Template } from "@/app/page"
-import type { ExerciseLibraryItem } from "@/lib/exercise-database"
-import { useTranslation } from "@/lib/i18n"
-import { DailyNotes } from "@/components/daily-notes"
+import { useState } from "react";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { WeekCalendar as WeekCalendar } from "@/components/ui/WeekCalendar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { WorkoutForm } from "@/components/workout-form";
+import { WorkoutDetails } from "@/components/workout-details";
+import { Plus, Play, Edit, Trash2, Clock, CalendarIcon } from "lucide-react";
+import type { WorkoutTemplate } from "@/lib/workout-templates";
+import { useTranslation } from "@/lib/i18n";
+import type { Exercise } from "@/lib/utils";
+import { DailyNotes } from "@/components/daily-notes";
+
+interface Workout {
+  id: number;
+  name: string;
+  date: string;
+  exercises: Exercise[];
+  completed: boolean;
+  createdAt: string;
+  duration?: number;
+  notes?: string;
+}
 
 interface CalendarViewProps {
-  workouts: Workout[]
-  templates: Template[]
-  selectedDate: Date
-  setSelectedDate: (date: Date) => void
-  addWorkout: (workout: Workout) => void
-  updateWorkout: (workoutId: number, updatedWorkout: Partial<Workout>) => void
-  deleteWorkout: (workoutId: number) => void
-  setActiveWorkout: (workout: Workout) => void
-  exerciseDatabase: ExerciseLibraryItem[]
-  language: "en" | "th"
-  userEmail?: string
+  workouts: Workout[];
+  templates: WorkoutTemplate[];
+  selectedDate: Date;
+  setSelectedDate: (date: Date) => void;
+  addWorkout: (workout: Workout) => void;
+  updateWorkout: (workoutId: number, updatedWorkout: Partial<Workout>) => void;
+  deleteWorkout: (workoutId: number) => void;
+  setActiveWorkout: (workout: Workout) => void;
+  exerciseDatabase: Exercise[];
+  language: "en" | "th";
+  userEmail?: string;
 }
 
 export function Calendar({
@@ -43,50 +60,57 @@ export function Calendar({
   language,
   userEmail,
 }: CalendarViewProps) {
-  const [showWorkoutForm, setShowWorkoutForm] = useState(false)
-  const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null)
-  const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null)
-  const [calendarView, setCalendarView] = useState<"month" | "week">("month")
-  const { t } = useTranslation(language)
+  const [showWorkoutForm, setShowWorkoutForm] = useState(false);
+  const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
+  const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
+  const [calendarView, setCalendarView] = useState<"month" | "week">("month");
+  const { t } = useTranslation(language);
 
-  const selectedDateString = selectedDate.toLocaleDateString("sv-SE")
-  const selectedDateWorkouts = workouts.filter((w) =>
-    new Date(w.date).toLocaleDateString("sv-SE") === selectedDateString
-  )
+  const selectedDateString = selectedDate.toLocaleDateString("sv-SE");
+  const selectedDateWorkouts = workouts.filter(
+    (w) => new Date(w.date).toLocaleDateString("sv-SE") === selectedDateString
+  );
 
   const handleCreateWorkout = () => {
-    setEditingWorkout(null)
-    setShowWorkoutForm(true)
-  }
+    setEditingWorkout(null);
+    setShowWorkoutForm(true);
+  };
 
   const handleEditWorkout = (workout: Workout) => {
-    setEditingWorkout(workout)
-    setShowWorkoutForm(true)
-  }
+    setEditingWorkout(workout);
+    setShowWorkoutForm(true);
+  };
 
   const handleWorkoutSaved = () => {
-    setShowWorkoutForm(false)
-    setEditingWorkout(null)
-  }
+    setShowWorkoutForm(false);
+    setEditingWorkout(null);
+  };
 
   const handleStartWorkout = (workout: Workout) => {
-    setActiveWorkout(workout)
-  }
+    setActiveWorkout(workout);
+  };
 
   const getWorkoutsForDate = (date: Date) => {
-    const dateString = date.toLocaleDateString("sv-SE")
-    return workouts.filter((w) => new Date(w.date).toLocaleDateString("sv-SE") === dateString)
-  }
+    const dateString = date.toLocaleDateString("sv-SE");
+    return workouts.filter(
+      (w) => new Date(w.date).toLocaleDateString("sv-SE") === dateString
+    );
+  };
 
   return (
     <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">Workout Calendar</h1>
-          <p className="text-muted-foreground text-sm md:text-base">Plan and track your workouts</p>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Plan and track your workouts
+          </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
-          <Tabs value={calendarView} onValueChange={(v) => setCalendarView(v as "month" | "week")}>
+          <Tabs
+            value={calendarView}
+            onValueChange={(v) => setCalendarView(v as "month" | "week")}
+          >
             <TabsList className="w-full sm:w-auto">
               <TabsTrigger value="month" className="flex-1 sm:flex-none">
                 Month
@@ -106,47 +130,51 @@ export function Calendar({
       <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-4 md:gap-6">
         {/* Calendar */}
         {calendarView === "month" ? (
-  <Card>
-    <CardHeader>
-      <CardTitle>Month View</CardTitle>
-      <CardDescription>Select a date to view or plan workouts</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <CalendarComponent
-        mode="single"
-        selected={selectedDate}
-        onSelect={(date) => date && setSelectedDate(date)}
-        className="rounded-md border"
-        modifiers={{
-          hasWorkout: (date) => getWorkoutsForDate(date).length > 0 && !getWorkoutsForDate(date).some((w) => w.completed),
-          completed: (date) => getWorkoutsForDate(date).some((w) => w.completed),
-        }}
-        modifiersClassNames={{
-          hasWorkout: "bg-yellow-300 text-black",
-          completed: "bg-green-300 text-white",
-        }}
-      />
-    </CardContent>
-  </Card>
-) : (
-  <Card>
-    <CardHeader>
-      <CardTitle>Week View</CardTitle>
-      <CardDescription>View your workouts for the week</CardDescription>
-    </CardHeader>
-    <CardContent>
-     <WeekCalendar
-  selected={selectedDate}
-  onSelect={(date) => setSelectedDate(date)}
-  workouts={workouts}
-/>
-    </CardContent>
-  </Card>
-)}
-
+          <Card>
+            <CardHeader>
+              <CardTitle>Month View</CardTitle>
+              <CardDescription>
+                Select a date to view or plan workouts
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CalendarComponent
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => date && setSelectedDate(date)}
+                className="rounded-md border"
+                modifiers={{
+                  hasWorkout: (date) =>
+                    getWorkoutsForDate(date).length > 0 &&
+                    !getWorkoutsForDate(date).some((w) => w.completed),
+                  completed: (date) =>
+                    getWorkoutsForDate(date).some((w) => w.completed),
+                }}
+                modifiersClassNames={{
+                  hasWorkout: "bg-yellow-300 text-black",
+                  completed: "bg-green-300 text-white",
+                }}
+              />
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Week View</CardTitle>
+              <CardDescription>View your workouts for the week</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <WeekCalendar
+                selected={selectedDate}
+                onSelect={(date) => setSelectedDate(date)}
+                workouts={workouts}
+              />
+            </CardContent>
+          </Card>
+        )}
 
         {/* Selected Date Workouts */}
-        <Card >
+        <Card>
           <CardHeader>
             <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-2">
               <div className="flex items-center">
@@ -162,7 +190,8 @@ export function Calendar({
               </div>
             </CardTitle>
             <CardDescription>
-              {selectedDateWorkouts.length} workout{selectedDateWorkouts.length !== 1 ? "s" : ""} scheduled
+              {selectedDateWorkouts.length} workout
+              {selectedDateWorkouts.length !== 1 ? "s" : ""} scheduled
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -170,14 +199,28 @@ export function Calendar({
               {selectedDateWorkouts.length > 0 ? (
                 <div className="space-y-4">
                   {selectedDateWorkouts.map((workout) => (
-                    <div key={workout.id} className="border rounded-lg p-3 md:p-4 space-y-3">
+                    <div
+                      key={workout.id}
+                      className="border rounded-lg p-3 md:p-4 space-y-3"
+                    >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex items-center space-x-3">
                           <div
-                            className={`w-3 h-3 rounded-full ${workout.completed ? "bg-green-500" : "bg-yellow-500"}`}
+                            className={`w-3 h-3 rounded-full ${
+                              workout.completed
+                                ? "bg-green-500"
+                                : "bg-yellow-500"
+                            }`}
                           />
-                          <h3 className="font-medium text-sm md:text-base">{workout.name}</h3>
-                          <Badge variant={workout.completed ? "default" : "secondary"} className="text-xs">
+                          <h3 className="font-medium text-sm md:text-base">
+                            {workout.name}
+                          </h3>
+                          <Badge
+                            variant={
+                              workout.completed ? "default" : "secondary"
+                            }
+                            className="text-xs"
+                          >
                             {workout.completed ? "Completed" : "Scheduled"}
                           </Badge>
                         </div>
@@ -190,13 +233,25 @@ export function Calendar({
                           >
                             View
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleStartWorkout(workout)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleStartWorkout(workout)}
+                          >
                             <Play className="w-3 h-3 md:w-4 md:h-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleEditWorkout(workout)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditWorkout(workout)}
+                          >
                             <Edit className="w-3 h-3 md:w-4 md:h-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={() => deleteWorkout(workout.id)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteWorkout(workout.id)}
+                          >
                             <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
                           </Button>
                         </div>
@@ -207,20 +262,35 @@ export function Calendar({
                           <Clock className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                           {workout.exercises.length} exercises
                         </div>
-                        {workout.duration && <div>Duration: {Math.round(workout.duration / 60)} min</div>}
                       </div>
 
                       <div className="space-y-1">
-                        {(workout.exercises.slice(0, 3) as any[]).map((exercise) => {
-                          const exData = exerciseDatabase.find(e => e.id === ("exerciseId" in exercise ? exercise.exerciseId : exercise.id));
-                          return (
-                            <div key={"id" in exercise ? exercise.id : ("exerciseId" in exercise ? exercise.exerciseId : Math.random())} className="text-xs md:text-sm text-muted-foreground">
-                              • {exData?.name || ("name" in exercise ? exercise.name : t('unknownExercise'))}
-                              {"sets" in exercise && "reps" in exercise && exercise.sets && exercise.reps && ` - ${exercise.sets}x${exercise.reps}`}
-                              {"time" in exercise && exercise.time && ` - ${exercise.time}s`}
-                            </div>
-                          );
-                        })}
+                        {(workout.exercises.slice(0, 3) as Exercise[]).map(
+                          (exercise) => {
+                            const exData = exerciseDatabase.find(
+                              (e) => e.id === exercise.id
+                            );
+                            console.log("exddd", exData);
+
+                            return (
+                              <div
+                                key={exercise.id}
+                                className="text-xs md:text-sm text-muted-foreground"
+                              >
+                                • {typeof (exercise as any).name === "string" ? (exercise as any).name : "ไม่พบชื่อ"}
+                                {typeof (exercise as any).sets === "number" &&
+                                typeof (exercise as any).reps === "number"
+                                  ? ` - ${(exercise as any).sets}x${
+                                      (exercise as any).reps
+                                    }`
+                                  : null}
+                                {typeof (exercise as any).time === "number"
+                                  ? ` - ${(exercise as any).time}s`
+                                  : null}
+                              </div>
+                            );
+                          }
+                        )}
                         {workout.exercises.length > 3 && (
                           <div className="text-xs md:text-sm text-muted-foreground">
                             +{workout.exercises.length - 3} more exercises
@@ -233,8 +303,12 @@ export function Calendar({
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <CalendarIcon className="w-8 h-8 md:w-12 md:h-12 mx-auto mb-4 opacity-50" />
-                  <p className="text-sm md:text-base">No workouts scheduled for this date</p>
-                  <p className="text-xs md:text-sm">Click "New Workout" to get started</p>
+                  <p className="text-sm md:text-base">
+                    No workouts scheduled for this date
+                  </p>
+                  <p className="text-xs md:text-sm">
+                    Click "New Workout" to get started
+                  </p>
                 </div>
               )}
             </ScrollArea>
@@ -243,7 +317,11 @@ export function Calendar({
       </div>
 
       {/* Daily Notes */}
-      <DailyNotes selectedDate={selectedDate} language={language} userEmail={userEmail} />
+      <DailyNotes
+        selectedDate={selectedDate}
+        language={language}
+        userEmail={userEmail}
+      />
 
       {/* Workout Form Modal */}
       {showWorkoutForm && (
@@ -253,7 +331,7 @@ export function Calendar({
           selectedDate={selectedDate}
           onSave={(workout) => {
             if (editingWorkout) {
-              updateWorkout(editingWorkout.id, workout)
+              updateWorkout(editingWorkout.id, workout);
             } else {
               addWorkout({
                 ...workout,
@@ -261,9 +339,9 @@ export function Calendar({
                 date: selectedDate.toLocaleDateString("sv-SE"),
                 completed: false,
                 createdAt: new Date().toISOString(),
-              })
+              });
             }
-            handleWorkoutSaved()
+            handleWorkoutSaved();
           }}
           onClose={() => setShowWorkoutForm(false)}
           exerciseDatabase={exerciseDatabase}
@@ -277,20 +355,20 @@ export function Calendar({
           workout={selectedWorkout}
           onClose={() => setSelectedWorkout(null)}
           onEdit={() => {
-            setSelectedWorkout(null)
-            handleEditWorkout(selectedWorkout)
+            setSelectedWorkout(null);
+            handleEditWorkout(selectedWorkout);
           }}
           onStart={() => {
-            setSelectedWorkout(null)
-            handleStartWorkout(selectedWorkout)
+            setSelectedWorkout(null);
+            handleStartWorkout(selectedWorkout);
           }}
           exerciseDatabase={exerciseDatabase}
           language={language}
         />
       )}
     </div>
-  )
+  );
 }
 
 // Alias export so consumers can import { CalendarView }
-export { Calendar as CalendarView }
+export { Calendar as CalendarView };

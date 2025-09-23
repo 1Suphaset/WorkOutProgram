@@ -4,8 +4,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import type { Exercise } from "@/lib/utils"
 import { Calendar, Dumbbell, Target, TrendingUp, Clock, Flame, Award, Plus } from "lucide-react"
-import type { Workout } from "@/app/page"
+
+interface Workout {
+  id: number;
+  name: string;
+  date: string;
+  notes?: string;
+  completed?: boolean;
+  duration?: number;
+  exercises: Exercise[];
+  createdAt?: string;
+}
 import { useTranslation } from "@/lib/i18n"
 import { Skeleton } from "@/components/ui/skeleton"
 

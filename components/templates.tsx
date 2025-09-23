@@ -9,13 +9,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Plus, Edit, Trash2, Copy, Dumbbell } from "lucide-react"
-import type { Template, Exercise } from "@/app/page"
+import type { Exercise } from "@/lib/utils"
+import type { WorkoutTemplate as Template } from "@/lib/workout-templates"
 import { ExerciseLibrary } from "@/components/exercise-library"
-import type { ExerciseLibraryItem } from "@/lib/exercise-database"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Eye, Clock, Weight, Repeat, Timer, CheckCircle } from "lucide-react"
-import type { TemplateExerciseRef } from "@/app/page"
 import { workoutTemplates } from "@/lib/workout-templates"
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
@@ -25,11 +24,10 @@ interface TemplatesProps {
   addTemplate: (template: Template) => void
   updateTemplate: (templateId: number, updatedTemplate: Partial<Template>) => void
   deleteTemplate: (templateId: number) => void
-  exerciseDatabase: ExerciseLibraryItem[]
+  exerciseDatabase: Exercise[]
   language?: "en" | "th"
   isLoading?: boolean
 }
-
 function mapExerciseFromDB(dbExercise: any) {
   return {
     ...dbExercise,
@@ -49,10 +47,10 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null)
   const [templateName, setTemplateName] = useState("")
-  const [templateCategory, setTemplateCategory] = useState("")
-  const [exercises, setExercises] = useState<TemplateExerciseRef[]>([])
+  const [templateType, setTemplateType] = useState("")
+  const [exercises, setExercises] = useState<Template['exercises']>([])
   const [showExerciseLibrary, setShowExerciseLibrary] = useState(false)
-  const [exerciseToEdit, setExerciseToEdit] = useState<TemplateExerciseRef | null>(null)
+  const [exerciseToEdit, setExerciseToEdit] = useState<Template['exercises'][number] | null>(null)
   const [editIndex, setEditIndex] = useState<number | null>(null)
 
   const [showPreview, setShowPreview] = useState(false)
@@ -67,7 +65,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
   const handleCreateTemplate = () => {
     setEditingTemplate(null)
     setTemplateName("")
-    setTemplateCategory("")
+    setTemplateType("")
     setExercises([])
     setShowCreateDialog(true)
   }
@@ -75,7 +73,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
   const handleEditTemplate = (template: Template) => {
     setEditingTemplate(template)
     setTemplateName(template.name)
-    setTemplateCategory(template.category)
+    setTemplateType(template.type)
     setExercises([...template.exercises])
     setShowCreateDialog(true)
   }
@@ -89,26 +87,17 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
       toast({ title: t("error"), description: t("atLeastOneExerciseRequired"), variant: "destructive" })
       return
     }
-    const templateData = {
+    const templateData: Partial<Template> = {
       name: templateName,
-      category: templateCategory,
-      exercises: exercises.map(ex => ({
-        exerciseId: ex.exerciseId ?? -1,
-        sets: ex.sets ?? 3,
-        reps: ex.reps ?? 10,
-        time: ex.time ?? undefined,
-        weight: ex.weight ?? undefined,
-        notes: ex.notes ?? "",
-      })),
-      createdAt: new Date().toISOString(),
+      type: templateType as Template['type'],
+      exercises: exercises,
     }
     try { 
     if (editingTemplate) {
-        console.log("Calling updateTemplate", editingTemplate.id, templateData)
         await updateTemplate(Number(editingTemplate.id), templateData)
         toast({ title: t("success"), description: t("templateUpdated") })
     } else {
-        await addTemplate(templateData as Template as Template)
+        await addTemplate(templateData as Template)
         toast({ title: t("success"), description: t("templateCreated") })
     }
     setShowCreateDialog(false)
@@ -118,16 +107,31 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
   }
 
   const addExerciseFromLibrary = (libraryExercise: any) => {
-    const newExercise: TemplateExerciseRef = {
-      exerciseId: libraryExercise.id,
-      sets: libraryExercise.recommendedSets?.sets || 3,
-      reps: libraryExercise.recommendedSets?.reps ? parseInt(libraryExercise.recommendedSets.reps.split("-")[0]) : undefined,
+    const exData = exerciseDatabase.find(e => e.id === libraryExercise.id)
+    if (!exData) {
+      toast({
+        title: "ไม่พบท่าออกกำลังกาย",
+        description: "ท่านี้ไม่มีในคลังข้อมูล กรุณาเลือกใหม่",
+        variant: "destructive",
+      })
+      return
+    }
+    const newExercise: Template['exercises'][number] = {
+      exerciseId: exData.id,
+      name: exData.name,
+      nameTranslations: { th: exData.name },
+      sets: exData.recommendedSets?.sets || 3,
+      reps: exData.recommendedSets?.reps || 10,
+      duration: exData.estimatedDuration || 60,
+      rest: 60,
+      instructions: exData.instructions?.[0] || '',
+      instructionsTranslations: { th: exData.instructions?.[0] || '' },
     }
     setExercises([...exercises, newExercise])
     setShowExerciseLibrary(false)
   }
 
-  const handleEditExercise = (exercise: TemplateExerciseRef, index: number) => {
+  const handleEditExercise = (exercise: Template['exercises'][number], index: number) => {
     setExerciseToEdit(exercise)
     setEditIndex(index)
   }
@@ -144,12 +148,14 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
     setExercises(exs => exs.filter((_, i) => i !== index))
   }
 
-  const handlePreviewTemplate = (template: Template) => {
-    setPreviewTemplate(template)
-    setPreviewExerciseIndex(0)
-    setPreviewSetIndex(0)
-    setShowPreview(true)
-  }
+ const handlePreviewTemplate = (template: Template) => {
+  console.log("handlePreviewTemplate called with:", template);
+  console.log("exData inside function:", exData);
+  setPreviewTemplate(template);
+  setPreviewExerciseIndex(0);
+  setPreviewSetIndex(0);
+  setShowPreview(true);
+};
 
   const nextPreviewExercise = () => {
     if (previewTemplate && previewExerciseIndex < previewTemplate.exercises.length - 1) {
@@ -180,34 +186,20 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
     return `${mins}:${secs.toString().padStart(2, "0")}`
   }
 
-  const exData = previewTemplate ? exerciseDatabase.find(e => String(e.id) === String(previewTemplate.exercises[previewExerciseIndex]?.exerciseId)) : undefined;
+  const exData = previewTemplate ? exerciseDatabase.find(e => String(e.id) === String(previewTemplate.exercises[previewExerciseIndex]?.name)) : undefined;
 
-  const allExerciseIds = templates.flatMap(tpl => tpl.exercises.map(ex => ex.exerciseId));
-  const missingIds = allExerciseIds.filter(id => !exerciseDatabase.some(e => String(e.id) === String(id)));
+  // Remove allExerciseIds/missingIds logic if not needed, or update to use exercise names or another unique identifier
 
-  const newExercises = missingIds.map(id => ({
-    id,
-    name: id, // หรือจะใส่ "Unknown Exercise"
-    category: "Strength", // หรือ default อื่น ๆ
-    muscleGroups: [],
-    difficulty: "Beginner",
-    equipment: "",
-    description: "",
-    instructions: [],
-    imageUrl: "",
-    estimatedDuration: 1,
-    isCustom: true,
-    createdAt: new Date().toISOString(),
-  }));
+  // Remove newExercises logic if not needed
 
-  const mergedDatabase = [...exerciseDatabase, ...newExercises];
+  const mergedDatabase = [...exerciseDatabase];
 
   const loadTemplate = (templateId: number | string) => {
     const template = templates.find((t) => String(t.id) === String(templateId))
     if (template) {
       setExercises(
         template.exercises.map((ex) => {
-          const exData = exerciseDatabase.find(e => String(e.id) === String(ex.exerciseId))
+          const exData = exerciseDatabase.find(e => String(e.id) === String(ex.name))
           return {
             ...ex,
             id: Date.now() + Math.floor(Math.random() * 10000),
@@ -217,7 +209,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
       )
     }
   }
-
+console.log("Rendering exData:", exData);
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -259,7 +251,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">{template.name}</CardTitle>
-                <Badge variant="secondary">{template.category}</Badge>
+                <Badge variant="secondary">{template.type}</Badge>
               </div>
               <CardDescription>
                 {template.exercises.length} {template.exercises.length !== 1 ? t('exercises') : t('exercise')}
@@ -268,17 +260,17 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
             <CardContent className="space-y-4">
               <ScrollArea className="h-32">
                 <div className="space-y-2">
-                  {template.exercises.filter((exercise: TemplateExerciseRef) => exercise.exerciseId !== 0).map((exercise: TemplateExerciseRef, index: number) => {
+                  {template.exercises.filter((exercise: Template['exercises'][number]) => exercise.name !== 'Unknown Exercise').map((exercise: Template['exercises'][number], index: number) => {
                       const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
                       const exerciseName = exData?.name || t('unknownExercise');
-                      const imageUrl = exData?.imageUrl || "/placeholder.svg";
+                      const imageUrl = exData?.image_url || "/placeholder.svg";
                     return (
-                      <div key={String(exercise.exerciseId) + '-' + index} className="flex items-center justify-between text-sm gap-2">
+                      <div key={exercise.exerciseId ?? index} className="flex items-center justify-between text-sm gap-2">
                         <img src={imageUrl} alt={exerciseName} className="w-10 h-10 object-cover rounded" />
                         <span className="flex-1 ml-2">{exerciseName}</span>
                         <div className="text-muted-foreground">
                           {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
-                          {exercise.time && `${exercise.time}s`}
+                          {exercise.duration && `${exercise.duration}s`}
                         </div>
                       </div>
                     )
@@ -328,8 +320,8 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                 <Label htmlFor="template-category">Category</Label>
                 <Input
                   id="template-category"
-                  value={templateCategory}
-                  onChange={(e) => setTemplateCategory(e.target.value)}
+                  value={templateType}
+                  onChange={(e) => setTemplateType(e.target.value)}
                   placeholder="e.g., Strength, Cardio"
                 />
               </div>
@@ -347,9 +339,11 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
               <div className="space-y-4">
                 {exercises.map((exercise, index) => {
                   const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
+                console.log("exddd",exData)
                   const exerciseName = exData?.name || t('unknownExercise');
+                  const exerciseImg = exData?.image_url || "/placeholder.svg";
                   return (
-                    <Card key={String(exercise.exerciseId) + '-' + index}>
+                    <Card key={exercise.exerciseId ?? index}>
                       <CardHeader className="pb-3">
                         <CardTitle className="text-sm flex items-center justify-between">
                           {exerciseName}
@@ -365,7 +359,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                       </CardHeader>
                       <CardContent>
                         <div className="grid grid-cols-4 gap-3 items-center">
-                          <img src={exData?.imageUrl || "/placeholder.svg"} alt={exerciseName} className="w-14 h-14 object-cover rounded" />
+                          <img src={exerciseImg} alt={exerciseName} className="w-14 h-14 object-cover rounded" />
                           <div>
                             <Label>Sets</Label>
                             <Input
@@ -385,11 +379,11 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                             />
                           </div>
                           <div>
-                            <Label>Notes</Label>
+                            <Label>Instructions</Label>
                             <Input
-                              value={exercise.notes || ""}
-                              onChange={e => setExercises(exs => exs.map((ex, i) => i === index ? { ...ex, notes: e.target.value } : ex))}
-                              placeholder="Notes"
+                              value={exercise.instructions || ""}
+                              onChange={e => setExercises(exs => exs.map((ex, i) => i === index ? { ...ex, instructions: e.target.value } : ex))}
+                              placeholder="Instructions"
                             />
                           </div>
                         </div>
@@ -437,7 +431,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
             <DialogHeader>
               <DialogTitle className="flex flex-col sm:flex-row justify-between gap-2 sm:items-center">
                 <span>Preview: {previewTemplate.name}</span>
-                <Badge variant="secondary">{previewTemplate.category}</Badge>
+                <Badge variant="secondary">{previewTemplate.type}</Badge>
               </DialogTitle>
               <DialogDescription>See how this template will look during workout execution</DialogDescription>
             </DialogHeader>
@@ -467,7 +461,13 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                 <Card className="border-2 border-primary">
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
-                      <span>{exData?.name || "ไม่พบชื่อท่าในฐานข้อมูล"}</span>
+                      <span>
+    {
+      previewTemplate?.exercises?.[previewExerciseIndex]?.nameTranslations?.th ||
+      previewTemplate?.exercises?.[previewExerciseIndex]?.name ||
+      "ไม่พบชื่อท่าในฐานข้อมูล"
+    }
+  </span>
                       <div className="flex items-center space-x-2">
                         {previewTemplate.exercises[previewExerciseIndex]?.sets && (
                           <Badge variant="secondary">
@@ -497,34 +497,23 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                           </div>
                         </div>
                       )}
-                      {previewTemplate.exercises[previewExerciseIndex]?.weight && (
-                        <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
-                          <Weight className="w-5 h-5 text-primary" />
-                          <div>
-                            <p className="text-sm text-muted-foreground">Weight</p>
-                            <p className="font-semibold">
-                              {previewTemplate.exercises[previewExerciseIndex].weight} lbs
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      {previewTemplate.exercises[previewExerciseIndex]?.time && (
+                      {previewTemplate.exercises[previewExerciseIndex]?.duration && (
                         <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
                           <Timer className="w-5 h-5 text-primary" />
                           <div>
                             <p className="text-sm text-muted-foreground">Time</p>
                             <p className="font-semibold">
-                              {formatTime(previewTemplate.exercises[previewExerciseIndex].time)}
+                              {formatTime(previewTemplate.exercises[previewExerciseIndex].duration)}
                             </p>
                           </div>
                         </div>
                       )}
                     </div>
 
-                    {previewTemplate.exercises[previewExerciseIndex]?.notes && (
+                    {previewTemplate.exercises[previewExerciseIndex]?.instructions && (
                       <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <p className="text-sm font-medium text-blue-900 mb-1">Exercise Notes:</p>
-                        <p className="text-sm text-blue-800">{previewTemplate.exercises[previewExerciseIndex].notes}</p>
+                        <p className="text-sm font-medium text-blue-900 mb-1">Exercise Instructions:</p>
+                        <p className="text-sm text-blue-800">{previewTemplate.exercises[previewExerciseIndex].instructions}</p>
                       </div>
                     )}
 
@@ -587,13 +576,13 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                           const exerciseName = exData?.name || "Unknown Exercise";
                           return (
                             <div
-                              key={String(exercise.exerciseId) + '-' + index}
+                              key={exercise.exerciseId ?? index}
                               className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
                             >
                               <span className="font-medium">{exerciseName}</span>
                               <div className="text-sm text-muted-foreground">
                                 {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
-                                {exercise.time && formatTime(exercise.time)}
+                                {exercise.duration && formatTime(exercise.duration)}
                               </div>
                             </div>
                           )
@@ -659,15 +648,13 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                           const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
                           const exerciseName = exData?.name || "Unknown Exercise";
                           return (
-                            <div key={String(exercise.exerciseId) + '-' + index}>
+                            <div key={exercise.exerciseId ?? index}>
                               <div className="flex items-center justify-between p-3 rounded-lg border">
                                 <div>
                                   <h4 className="font-medium">
                                     {index + 1}. {exerciseName}
                                   </h4>
-                                  {exercise.notes && (
-                                    <p className="text-sm text-muted-foreground mt-1">{exercise.notes}</p>
-                                  )}
+                                  {exercise.instructions && <p className="text-sm text-muted-foreground mt-2 italic">{exercise.instructions}</p>}
                                 </div>
                                 <div className="flex items-center space-x-4 text-sm">
                                   {exercise.sets && (
@@ -682,16 +669,10 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                                       <span>{exercise.reps} reps</span>
                                     </div>
                                   )}
-                                  {exercise.weight && (
-                                    <div className="flex items-center">
-                                      <Weight className="w-4 h-4 mr-1 text-muted-foreground" />
-                                      <span>{exercise.weight} lbs</span>
-                                    </div>
-                                  )}
-                                  {exercise.time && (
+                                  {exercise.duration && (
                                     <div className="flex items-center">
                                       <Timer className="w-4 h-4 mr-1 text-muted-foreground" />
-                                      <span>{formatTime(exercise.time)}</span>
+                                      <span>{formatTime(exercise.duration)}</span>
                                     </div>
                                   )}
                                 </div>
@@ -741,26 +722,42 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                 <CardContent>
                   <Button onClick={async () => {
                     const exercises = tpl.exercises.map(ex => {
-                      const found = exerciseDatabase.find(e => e.name === ex.name)
+                      // map ด้วย id เป็นหลัก
+                      const found = exerciseDatabase.find(e => String(e.id) === String(ex.exerciseId))
                       return found ? {
                         exerciseId: found.id,
+                        name: found.name,
+                        nameTranslations: { th: found.name },
                         sets: ex.sets,
                         reps: typeof ex.reps === "number" ? ex.reps : (typeof ex.reps === "string" ? parseInt(ex.reps) : undefined),
-                        time: ex.duration,
-                        notes: ex.instructions,
+                        duration: ex.duration,
+                        rest: 60,
+                        instructions: ex.instructions,
+                        instructionsTranslations: { th: ex.instructions?.[0] || '' },
                       } : {
-                        exerciseId: -1,
+                        name: ex.name,
+                        nameTranslations: { th: ex.name },
                         sets: ex.sets,
                         reps: typeof ex.reps === "number" ? ex.reps : (typeof ex.reps === "string" ? parseInt(ex.reps) : undefined),
-                        time: ex.duration,
-                        notes: (ex.instructions || "") + " (ชื่อท่าไม่พบในฐานข้อมูล)",
+                        duration: ex.duration,
+                        rest: 60,
+                        instructions: (ex.instructions || "") + " (ชื่อท่าไม่พบในฐานข้อมูล)",
+                        instructionsTranslations: { th: (ex.instructions?.[0] || '') + " (ชื่อท่าไม่พบในฐานข้อมูล)" },
                       }
                     })
                     await addTemplate({
                       id: Date.now(),
                       name: tpl.name,
-                      category: tpl.type,
-                      createdAt: new Date().toISOString(),
+                      nameTranslations: tpl.nameTranslations || { th: tpl.name },
+                      type: tpl.type || "Strength",
+                      duration: tpl.duration || 30,
+                      difficulty: tpl.difficulty || "Beginner",
+                      description: tpl.description || "",
+                      descriptionTranslations: tpl.descriptionTranslations || { th: tpl.description || "" },
+                      equipment: tpl.equipment || [],
+                      targetMuscles: tpl.targetMuscles || [],
+                      calories: tpl.calories || 0,
+                      tags: tpl.tags || [],
                       exercises,
                     })
                     setShowLibraryDialog(false)

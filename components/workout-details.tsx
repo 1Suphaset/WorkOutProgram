@@ -4,10 +4,20 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import type { Exercise } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Play, Edit, Clock, Weight, Repeat, Timer } from "lucide-react"
-import type { Workout } from "@/app/page"
-import type { ExerciseLibraryItem } from "@/lib/exercise-database"
+
+interface Workout {
+  id: number;
+  name: string;
+  date: string;
+  notes?: string;
+  completed?: boolean;
+  duration?: number;
+  exercises: Exercise[];
+  createdAt?: string;
+}
 import { useTranslation } from "@/lib/i18n"
 
 interface WorkoutDetailsProps {
@@ -15,7 +25,7 @@ interface WorkoutDetailsProps {
   onClose: () => void
   onEdit: () => void
   onStart: () => void
-  exerciseDatabase: ExerciseLibraryItem[]
+  exerciseDatabase: any[] // Changed from ExerciseLibraryItem[]
   language?: "en" | "th"
 }
 
@@ -61,7 +71,7 @@ export function WorkoutDetails({ workout, onClose, onEdit, onStart, exerciseData
             <ScrollArea className="h-[400px]">
               <div className="space-y-3">
                 {workout.exercises.map((exercise, index) => {
-                  const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
+                  const exData = exerciseDatabase.find(e => e.id === ((exercise as any).exerciseId ?? exercise.id));
                   const exerciseName = exData?.name || t('unknownExercise');
                   return (
                   <Card key={exercise.id}>
@@ -74,32 +84,32 @@ export function WorkoutDetails({ workout, onClose, onEdit, onStart, exerciseData
                     </CardHeader>
                     <CardContent>
                       <div className="flex flex-wrap gap-4 text-sm">
-                        {exercise.sets && (
+                        {(exercise as any).sets && (
                           <div className="flex items-center">
                             <Repeat className="w-4 h-4 mr-1 text-muted-foreground" />
-                            <span>{exercise.sets} sets</span>
+                            <span>{(exercise as any).sets} sets</span>
                           </div>
                         )}
-                        {exercise.reps && (
+                        {(exercise as any).reps && (
                           <div className="flex items-center">
                             <span className="text-muted-foreground mr-1">×</span>
-                            <span>{exercise.reps} reps</span>
+                            <span>{(exercise as any).reps} reps</span>
                           </div>
                         )}
-                        {exercise.weight && (
+                        {(exercise as any).weight && (
                           <div className="flex items-center">
                             <Weight className="w-4 h-4 mr-1 text-muted-foreground" />
-                            <span>{exercise.weight} lbs</span>
+                            <span>{(exercise as any).weight} lbs</span>
                           </div>
                         )}
-                        {exercise.time && (
+                        {(exercise as any).time && (
                           <div className="flex items-center">
                             <Timer className="w-4 h-4 mr-1 text-muted-foreground" />
-                            <span>{formatTime(exercise.time)}</span>
+                            <span>{formatTime((exercise as any).time)}</span>
                           </div>
                         )}
                       </div>
-                      {exercise.notes && <p className="text-sm text-muted-foreground mt-2 italic">{exercise.notes}</p>}
+                      {(exercise as any).notes && <p className="text-sm text-muted-foreground mt-2 italic">{(exercise as any).notes}</p>}
                     </CardContent>
                   </Card>
                   )

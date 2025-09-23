@@ -2,18 +2,28 @@
 
 import { useState, useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import type { ExerciseLibraryItem } from "@/lib/exercise-database"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TrendingUp, Target, Clock, Dumbbell, Download } from "lucide-react"
-import type { Workout } from "@/app/page"
 import { useTranslation } from "@/lib/i18n"
+import type { Exercise } from "@/lib/utils"
+
+interface Workout {
+  id: number;
+  name: string;
+  date: string;
+  notes?: string;
+  completed?: boolean;
+  duration?: number;
+  exercises: Exercise[];
+  createdAt?: string;
+}
 
 interface ReportsProps {
   workouts: Workout[]
-  exerciseDatabase: ExerciseLibraryItem[]
+  exerciseDatabase: any[] // Changed from ExerciseLibraryItem[]
   language: "en" | "th"
 }
 
@@ -64,7 +74,7 @@ export function Reports({ workouts, exerciseDatabase, language }: ReportsProps) 
     const exerciseCount: Record<string, number> = {}
     filteredWorkouts.forEach((workout) => {
       workout.exercises.forEach((exercise) => {
-        const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
+        const exData = exerciseDatabase.find(e => e.id === ((exercise as any).exerciseId ?? exercise.id));
         const name = exData?.name || t('unknownExercise');
         exerciseCount[name] = (exerciseCount[name] || 0) + 1
       })

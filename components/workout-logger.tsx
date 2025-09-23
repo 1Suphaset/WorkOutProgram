@@ -10,9 +10,19 @@ import { Slider } from "@/components/ui/slider"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, Clock, Weight, Repeat } from "lucide-react"
-import type { Workout } from "@/app/page"
+import type { Exercise } from "@/lib/utils"
 import { useTranslation } from "@/lib/i18n"
-import { ExerciseLibraryItem } from "@/lib/exercise-database"
+
+interface Workout {
+  id: number;
+  name: string;
+  date: string;
+  notes?: string;
+  completed?: boolean;
+  duration?: number;
+  exercises: Exercise[];
+  createdAt?: string;
+}
 
 interface WorkoutLoggerProps {
   workout: Workout
@@ -20,7 +30,7 @@ interface WorkoutLoggerProps {
   onClose: () => void
   onComplete: (logData: WorkoutLog) => void
   language: "en" | "th"
-  exerciseDatabase: ExerciseLibraryItem[]
+  exerciseDatabase: Exercise[]
 }
 
 export interface WorkoutLog {
@@ -46,9 +56,9 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>(
     workout.exercises.map((ex) => ({
       exerciseId: Number(ex.id),
-      actualReps: ex.reps,
-      actualWeight: ex.weight,
-      actualTime: ex.time,
+      actualReps: (ex as any).reps,
+      actualWeight: (ex as any).weight,
+      actualTime: (ex as any).time,
       effort: 5,
       notes: "",
     })),
@@ -103,7 +113,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
             {workout.exercises.map((exercise, index) => {
               const log = exerciseLogs.find((l) => l.exerciseId === exercise.id)
               if (!log) return null
-              const exData = exerciseDatabase.find(e => e.id === (exercise.exerciseId ?? exercise.id));
+              const exData = exerciseDatabase.find(e => e.id === ((exercise as any).exerciseId ?? exercise.id));
               const exerciseName = exData?.name || t('unknownExercise');
 
               return (
@@ -114,15 +124,15 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
                         {index + 1}. {exerciseName}
                       </span>
                       <Badge variant="outline">
-                        {exercise.sets && `${exercise.sets} ${t("sets")}`}
-                        {exercise.reps && ` × ${exercise.reps} ${t("reps")}`}
-                        {exercise.time && `${exercise.time}${t("seconds")}`}
+                        {(exercise as any).sets && `${(exercise as any).sets} ${t("sets")}`}
+                        {(exercise as any).reps && ` × ${(exercise as any).reps} ${t("reps")}`}
+                        {(exercise as any).time && `${(exercise as any).time}${t("seconds")}`}
                       </Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {exercise.reps && (
+                      {(exercise as any).reps && (
                         <div>
                           <Label className="flex items-center">
                             <Repeat className="w-4 h-4 mr-1" />
@@ -136,12 +146,12 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
                                 actualReps: Number.parseInt(e.target.value) || undefined,
                               })
                             }
-                            placeholder={exercise.reps?.toString()}
+                            placeholder={(exercise as any).reps?.toString()}
                           />
                         </div>
                       )}
 
-                      {exercise.weight && (
+                      {(exercise as any).weight && (
                         <div>
                           <Label className="flex items-center">
                             <Weight className="w-4 h-4 mr-1" />
@@ -155,12 +165,12 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
                                 actualWeight: Number.parseInt(e.target.value) || undefined,
                               })
                             }
-                            placeholder={exercise.weight?.toString()}
+                            placeholder={(exercise as any).weight?.toString()}
                           />
                         </div>
                       )}
 
-                      {exercise.time && (
+                      {(exercise as any).time && (
                         <div>
                           <Label className="flex items-center">
                             <Clock className="w-4 h-4 mr-1" />
@@ -174,7 +184,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
                                 actualTime: Number.parseInt(e.target.value) || undefined,
                               })
                             }
-                            placeholder={exercise.time?.toString()}
+                            placeholder={(exercise as any).time?.toString()}
                           />
                         </div>
                       )}

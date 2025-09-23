@@ -22,17 +22,28 @@ import {
   Weight,
   Zap,
 } from "lucide-react"
-import type { Workout } from "@/app/page"
-import type { ExerciseLibraryItem } from "@/lib/exercise-database"
-import { ExerciseCountdownTimer } from "@/components/exercise-countdown-timer"
-import { useTranslation, type Language } from "@/lib/i18n"
+import type { Exercise } from "@/lib/utils"
+import { useTranslation } from "@/lib/i18n"
+import type { Language } from "@/lib/i18n"
+import { ExerciseCountdownTimer } from "./exercise-countdown-timer"
+
+interface Workout {
+  id: number;
+  name: string;
+  date: string;
+  notes?: string;
+  completed?: boolean;
+  duration?: number;
+  exercises: Exercise[];
+  createdAt?: string;
+}
 
 interface WorkoutTimerProps {
-  workout: Workout
-  onClose: () => void
-  onComplete: (duration: number) => void
-  language?: Language
-  exerciseDatabase: ExerciseLibraryItem[]
+  workout: Workout;
+  onClose: () => void;
+  onComplete: (duration: number) => void;
+  language?: string;
+  exerciseDatabase: Exercise[];
 }
 
 export function WorkoutTimer({ workout, onClose, onComplete, language = "en", exerciseDatabase }: WorkoutTimerProps) {
@@ -48,13 +59,13 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
   const [actualWeight, setActualWeight] = useState<Record<string, Record<number, number>>>({})
   const [showExerciseTimer, setShowExerciseTimer] = useState(false)
 
-  const { t } = useTranslation(language)
+  const { t } = useTranslation(language as Language)
 
   const currentExercise = workout.exercises[currentExerciseIndex]
   const exData = exerciseDatabase.find(e => e.id === (currentExercise && 'exerciseId' in currentExercise ? currentExercise.exerciseId : 0))
   const exerciseName = exData?.name || t('unknownExercise')
   const totalExercises = workout.exercises.length
-  const totalSets = workout.exercises.reduce((sum, ex) => sum + (ex.sets || 1), 0)
+  const totalSets = workout.exercises.reduce((sum, ex) => sum + ((ex as any).sets || 1), 0)
   const completedSetsCount = Object.values(completedSets).reduce((sum, sets) => sum + sets, 0)
 
   // Timer effect for main workout timer
@@ -106,7 +117,7 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
     setShowExerciseTimer(false) // Hide timer when set is completed
 
     // Check if exercise is complete
-    const totalSetsForExercise = currentExercise.sets || 1
+    const totalSetsForExercise = (currentExercise as any).sets || 1
     if (newCompletedSets[exerciseId] >= totalSetsForExercise) {
       // Move to next exercise
       if (currentExerciseIndex < totalExercises - 1) {
@@ -200,7 +211,7 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
         </Badge>
       </DialogTitle>
       <DialogDescription className="text-base">
-        Exercise {currentExerciseIndex + 1} of {totalExercises} • Set {currentSet} of {currentExercise?.sets || 1}
+        Exercise {currentExerciseIndex + 1} of {totalExercises} • Set {currentSet} of {(currentExercise as any)?.sets || 1}
       </DialogDescription>
     </DialogHeader>
 
@@ -258,11 +269,11 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
         </Card>
       )}
 
-      {currentExercise?.time && showExerciseTimer && (
+      {(currentExercise as any)?.time && showExerciseTimer && (
         <ExerciseCountdownTimer
-          duration={currentExercise.time}
+          duration={(currentExercise as any).time}
           exerciseName={`${exerciseName} - Set ${currentSet}`}
-          language={language}
+          language={language as Language}
           onComplete={handleExerciseTimerComplete}
           onStart={() => !isRunning && startTimer()}
           className="border-2 border-primary shadow-xl w-full"
@@ -274,7 +285,7 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
           <CardTitle className="flex items-center justify-between">
             <span>{exerciseName}</span>
             <Badge variant="outline" className="text-base px-3 py-1">
-              Set {currentSet} of {currentExercise?.sets || 1}
+              Set {currentSet} of {(currentExercise as any)?.sets || 1}
             </Badge>
           </CardTitle>
           {exData?.imageUrl ? (
@@ -287,60 +298,60 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full">
-            {currentExercise?.sets && (
+            {(currentExercise as any)?.sets && (
               <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
                 <Repeat className="w-5 h-5 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Target Sets</p>
-                  <p className="font-semibold">{currentExercise.sets}</p>
+                  <p className="font-semibold">{(currentExercise as any).sets}</p>
                 </div>
               </div>
             )}
-            {currentExercise?.reps && (
+            {(currentExercise as any)?.reps && (
               <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
                 <span className="text-primary font-bold">&times;</span>
                 <div>
                   <p className="text-sm text-muted-foreground">Target Reps</p>
-                  <p className="font-semibold">{currentExercise.reps}</p>
+                  <p className="font-semibold">{(currentExercise as any).reps}</p>
                 </div>
               </div>
             )}
-            {currentExercise?.weight && (
+            {(currentExercise as any)?.weight && (
               <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
                 <Weight className="w-5 h-5 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Target Weight</p>
-                  <p className="font-semibold">{currentExercise.weight} lbs</p>
+                  <p className="font-semibold">{(currentExercise as any).weight} lbs</p>
                 </div>
               </div>
             )}
-            {currentExercise?.time && (
+            {(currentExercise as any)?.time && (
               <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
                 <Timer className="w-5 h-5 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Duration</p>
-                  <p className="font-semibold">{formatTime(currentExercise.time)}</p>
+                  <p className="font-semibold">{formatTime((currentExercise as any).time)}</p>
                 </div>
               </div>
             )}
-            {currentExercise?.sets && currentExercise?.reps && (
+            {(currentExercise as any)?.sets && (currentExercise as any)?.reps && (
               <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
                 <Repeat className="w-5 h-5 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Target</p>
-                  <p className="font-semibold">{currentExercise.sets}×{currentExercise.reps}</p>
+                  <p className="font-semibold">{(currentExercise as any).sets}x{(currentExercise as any).reps}</p>
                 </div>
               </div>
             )}
           </div>
 
-          {currentExercise?.time && !showExerciseTimer && (
+          {(currentExercise as any)?.time && !showExerciseTimer && (
             <Card className="border-2 border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 w-full">
               <CardContent className="p-6 text-center">
                 <Zap className="w-12 h-12 text-blue-600 mx-auto mb-3" />
                 <h3 className="text-xl font-bold text-blue-800 mb-2">Timed Exercise</h3>
                 <p className="text-blue-700 mb-4">
-                  This exercise runs for <strong>{formatTime(currentExercise.time)}</strong>
+                  This exercise runs for <strong>{formatTime((currentExercise as any).time)}</strong>
                 </p>
                 <Button
                   onClick={() => setShowExerciseTimer(true)}
@@ -359,7 +370,7 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
               <Input
                 id="actual-reps"
                 type="number"
-                placeholder={currentExercise?.reps?.toString() || "0"}
+                placeholder={(currentExercise as any).reps?.toString() || "0"}
                 value={actualReps[currentExercise?.id]?.[currentSet] || ""}
                 onChange={(e) => updateActualReps(String(currentExercise?.id || ""), currentSet, Number.parseInt(e.target.value) || 0)}
               />
@@ -369,7 +380,7 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
               <Input
                 id="actual-weight"
                 type="number"
-                placeholder={currentExercise?.weight?.toString() || "0"}
+                placeholder={(currentExercise as any).weight?.toString() || "0"}
                 value={actualWeight[currentExercise?.id]?.[currentSet] || ""}
                 onChange={(e) => updateActualWeight(String(currentExercise?.id || ""), currentSet, Number.parseInt(e.target.value) || 0)}
               />
@@ -438,8 +449,8 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
                   <div key={exercise.id} className="flex items-center justify-between p-2 bg-muted rounded">
                     <span className="font-medium truncate">{exerciseName}</span>
                     <div className="text-sm text-muted-foreground">
-                      {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
-                      {exercise.time && formatTime(exercise.time)}
+                      {(exercise as any).sets && (exercise as any).reps && `${(exercise as any).sets}x${(exercise as any).reps}`}
+                      {(exercise as any).time && formatTime((exercise as any).time)}
                     </div>
                   </div>
                 );

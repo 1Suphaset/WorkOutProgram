@@ -10,18 +10,19 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { Dumbbell, Search, Plus, GripVertical, Calendar } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
+import type { Exercise } from "@/lib/utils"
 
 interface DragDropPlannerProps {
   selectedDate: Date
   language: "en" | "th"
-  onAddExercise: (exercise: any) => void
-  exerciseDatabase: any[]
+  onAddExercise: (exercise: Exercise) => void
+  exerciseDatabase: Exercise[]
 }
 
 export function DragDropPlanner({ selectedDate, language, onAddExercise, exerciseDatabase }: DragDropPlannerProps) {
   const { t } = useTranslation(language)
   const [searchTerm, setSearchTerm] = useState("")
-  const [draggedExercise, setDraggedExercise] = useState<any>(null)
+  const [draggedExercise, setDraggedExercise] = useState<Exercise | null>(null)
   const [dropZoneActive, setDropZoneActive] = useState(false)
 
   const filteredExercises = exerciseDatabase.filter(
@@ -30,7 +31,7 @@ export function DragDropPlanner({ selectedDate, language, onAddExercise, exercis
       exercise.category.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
-  const handleDragStart = (exercise: any) => {
+  const handleDragStart = (exercise: Exercise) => {
     setDraggedExercise(exercise)
   }
 
@@ -93,33 +94,36 @@ export function DragDropPlanner({ selectedDate, language, onAddExercise, exercis
 
           <ScrollArea className="h-64 md:h-96">
             <div className="space-y-2">
-              {filteredExercises.map((exercise) => (
+              {filteredExercises.map((exercise) => {
+                const ex = exercise as Exercise;
+                return (
                 <div
-                  key={exercise.id}
+                    key={ex.id}
                   draggable
-                  onDragStart={() => handleDragStart(exercise)}
+                    onDragStart={() => handleDragStart(ex)}
                   onDragEnd={handleDragEnd}
                   className="flex items-center justify-between p-2 md:p-3 border rounded-lg cursor-move hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-center space-x-2 md:space-x-3 flex-1 min-w-0">
                     <GripVertical className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium text-xs md:text-sm truncate">{exercise.name}</p>
+                        <p className="font-medium text-xs md:text-sm truncate">{ex.name}</p>
                       <div className="flex flex-wrap items-center gap-1 md:gap-2 mt-1">
-                        <Badge variant="secondary" className={`text-xs ${getCategoryColor(exercise.category)}`}>
-                          {exercise.category}
+                          <Badge variant="secondary" className={`text-xs ${getCategoryColor(ex.category)}`}>
+                            {ex.category}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
-                          {exercise.duration}s{exercise.reps && ` • ${exercise.reps} reps`}
+                            {(ex as any).duration}s{(ex as any).reps && ` • ${(ex as any).reps} reps`}
                         </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => onAddExercise(exercise)} className="flex-shrink-0">
+                    <Button variant="ghost" size="sm" onClick={() => onAddExercise(ex)} className="flex-shrink-0">
                     <Plus className="w-3 h-3 md:w-4 md:h-4" />
                   </Button>
                 </div>
-              ))}
+                )
+              })}
             </div>
           </ScrollArea>
         </CardContent>

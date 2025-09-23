@@ -18,16 +18,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Plus, Edit, Trash2, Dumbbell, Heart, Zap, Trophy } from "lucide-react"
-import type { WorkoutTemplate, Exercise } from "@/app/page"
-import type { ExerciseLibraryItem } from "@/lib/exercise-database"
+import type { WorkoutTemplate } from "@/lib/workout-templates"
+// Remove: import type { ExerciseLibraryItem } from "@/lib/exercise-database"
 import { useTranslation } from "@/lib/i18n"
+import type { Exercise } from "@/lib/utils"
+import { useToast } from "@/hooks/use-toast"
 
 interface ExercisesProps {
   templates: WorkoutTemplate[]
   addTemplate: (template: WorkoutTemplate) => void
   updateTemplate: (templateId: number, updatedTemplate: Partial<WorkoutTemplate>) => void
   deleteTemplate: (templateId: number) => void
-  exerciseDatabase: ExerciseLibraryItem[]
+  exerciseDatabase: any[] // Changed to any[] as ExerciseLibraryItem is removed
   language?: "en" | "th"
 }
 
@@ -80,6 +82,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
     calories: 50,
     description: "",
   })
+  const { toast } = useToast()
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -96,21 +99,36 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
     }
   }
 
+  // เวลาสร้างหรือแก้ไข template ให้เติมข้อมูลจาก exerciseDatabase
   const handleCreateTemplate = () => {
     if (!newTemplate.name.trim() || !newTemplate.category.trim()) return
     const template: WorkoutTemplate = {
       id: Date.now() + Math.floor(Math.random() * 10000),
       name: newTemplate.name,
-      category: newTemplate.category,
-      exercises: newTemplate.exercises.map((ex, idx) => ({
-        id: idx + 1,
-        exerciseId: idx + 1,
+      nameTranslations: { th: newTemplate.name },
+      type: newTemplate.category as WorkoutTemplate['type'],
+      duration: 30,
+      difficulty: "Beginner",
+      description: "",
+      descriptionTranslations: { th: "" },
+      equipment: [],
+      targetMuscles: [],
+      calories: 0,
+      tags: [],
+      exercises: newTemplate.exercises.map((ex: any, idx) => {
+        const exData = exerciseDatabase.find(e => e.id === (ex.exerciseId ?? ex.id));
+        return {
+          exerciseId: ex.exerciseId ?? exData?.id, // serialize exerciseId เสมอ
+          name: exData?.name || ex.name,
+          nameTranslations: { th: exData?.name || ex.name },
         sets: ex.sets,
         reps: ex.reps,
-        time: ex.duration,
-        weight: undefined,
-        notes: ex.description,
-      } as Exercise)),
+          duration: ex.duration,
+          rest: 60,
+          instructions: ex.description || "",
+          instructionsTranslations: { th: ex.description || "" },
+        }
+      }),
     }
     addTemplate(template)
     setIsCreateDialogOpen(false)
@@ -121,16 +139,21 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
     if (!editingTemplate || !newTemplate.name.trim() || !newTemplate.category.trim()) return
     updateTemplate(Number(editingTemplate.id), {
       name: newTemplate.name,
-      category: newTemplate.category,
-      exercises: newTemplate.exercises.map((ex, idx) => ({
-        id: idx + 1,
-        exerciseId: idx + 1,
+      type: newTemplate.category as WorkoutTemplate['type'],
+      exercises: newTemplate.exercises.map((ex, idx) => {
+        const exData = exerciseDatabase.find(e => e.id === (ex.exerciseId ?? ex.id));
+        return {
+          exerciseId: ex.exerciseId ?? exData?.id, // serialize exerciseId เสมอ
+          name: exData?.name || ex.name,
+          nameTranslations: { th: exData?.name || ex.name },
         sets: ex.sets,
         reps: ex.reps,
-        time: ex.duration,
-        weight: undefined,
-        notes: ex.description,
-      } as Exercise)),
+          duration: ex.duration,
+          rest: 60,
+          instructions: ex.description || "",
+          instructionsTranslations: { th: ex.description || "" },
+        }
+      }),
     })
     setEditingTemplate(null)
     setNewTemplate({ name: "", category: "", exercises: [] })
@@ -138,9 +161,25 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
 
   const addExerciseToTemplate = () => {
     if (!newExercise.name.trim()) return
+    // หา exercise จริงใน database ด้วยชื่อ (หรือ logic ที่เหมาะสม)
+    const exData = exerciseDatabase.find(e => e.name === newExercise.name)
+    if (!exData) {
+      toast({
+        title: "ไม่พบท่าออกกำลังกาย",
+        description: "ท่านี้ไม่มีในคลังข้อมูล กรุณาเลือกใหม่",
+        variant: "destructive",
+      })
+      return
+    }
     setNewTemplate((prev) => ({
       ...prev,
-      exercises: [...prev.exercises, { ...newExercise }],
+      exercises: [
+        ...prev.exercises,
+        {
+          ...newExercise,
+          exerciseId: exData.id, // เก็บ exerciseId เสมอถ้าเลือกจาก Library
+        },
+      ],
     }))
     setNewExercise({
       name: "",
@@ -164,15 +203,15 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
     setEditingTemplate(template)
     setNewTemplate({
       name: template.name,
-      category: template.category,
-      exercises: template.exercises.map((ex) => ({
+      category: template.type,
+      exercises: template.exercises.map((ex: any) => ({
         name: "",
         type: "strength",
-        duration: ex.time || 0,
+        duration: ex.duration || 0,
         reps: ex.reps,
         sets: ex.sets,
         calories: 0,
-        description: ex.notes || "",
+        description: ex.instructions || "",
       })),
     })
     setIsCreateDialogOpen(true)
@@ -362,7 +401,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">{template.name}</CardTitle>
-                <Badge variant="secondary">{template.category}</Badge>
+                <Badge variant="secondary">{template.type}</Badge>
               </div>
               <CardDescription>
                 {template.exercises.length} {template.exercises.length !== 1 ? t('exercises.exercises') : t('exercises.exercise')}
@@ -371,14 +410,14 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
             <CardContent className="space-y-4">
               <ScrollArea className="h-32">
                 <div className="space-y-2">
-                  {template.exercises.map((exercise) => (
+                  {template.exercises.map((exercise: any) => (
                     <div key={exercise.id} className="flex items-center justify-between text-sm">
                       <div className="flex items-center space-x-2">
                         <span>
                           {(() => { const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId ?? exercise.id)); return exData?.name || "Unknown Exercise" })()}
                         </span>
                       </div>
-                      <div className="text-muted-foreground">{exercise.time ? Math.round(exercise.time / 60) + "min" : ""}</div>
+                      <div className="text-muted-foreground">{exercise.duration ? Math.round(exercise.duration / 60) + "min" : ""}</div>
                     </div>
                   ))}
                 </div>

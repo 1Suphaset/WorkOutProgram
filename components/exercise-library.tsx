@@ -15,63 +15,27 @@ import { FitnessAssessment } from "@/components/fitness-assessment"
 import { useTranslation } from "@/lib/i18n"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
-
-interface ExerciseFromDB {
-  id: number;
-  name: string;
-  category: "Strength" | "Cardio" | "Flexibility" | "Sports" | string;
-  muscleGroups: string[];
-  difficulty: "Beginner" | "Intermediate" | "Advanced" | string;
-  equipment: string;
-  description: string;
-  instructions: string[];
-  imageUrl: string;
-  image_url?: string;
-  estimatedDuration: number;
-  isCustom?: boolean;
-  createdAt?: string;
-  userId?: string;
-  recommendedSets?: {
-    sets: number;
-    reps: string;
-    rest?: number;
-  };
-  benefits?: string[];
-  tips?: string[];
-  variations?: {
-    name: string;
-    description: string;
-  }[];
-}
+import type { Exercise } from "@/lib/utils"
 
 interface ExerciseLibraryProps {
-  onAddToWorkout?: (exercise: ExerciseFromDB) => void
+  onAddToWorkout?: (exercise: Exercise) => void
   showAddButton?: boolean
-  exerciseDatabase?: ExerciseFromDB[]
+  exerciseDatabase?: Exercise[]
   language?: "en" | "th"
   userEmail?: string
   minimalView?: boolean
 }
 
-function mapExerciseFromDB(dbExercise: any): ExerciseFromDB {
+function mapExerciseFromDB(dbExercise: unknown): Exercise {
+  const ex = dbExercise as any;
   return {
-    id: Number(dbExercise.id),
-    name: dbExercise.name,
-    category: dbExercise.category,
-    muscleGroups: dbExercise.muscle_groups || [],
-    difficulty: dbExercise.difficulty,
-    equipment: dbExercise.equipment,
-    description: dbExercise.description,
-    instructions: dbExercise.instructions,
-    imageUrl: dbExercise.image_url,
-    estimatedDuration: dbExercise.estimated_duration,
-    isCustom: dbExercise.is_custom,
-    createdAt: dbExercise.created_at,
-    userId: dbExercise.user_id,
-    recommendedSets: dbExercise.recommended_sets,
-    benefits: dbExercise.benefits,
-    tips: dbExercise.tips,
-    variations: dbExercise.variations,
+    ...ex,
+    muscleGroups: ex.muscle_groups || ex.muscleGroups,
+    imageUrl: ex.image_url || ex.imageUrl,
+    estimatedDuration: ex.estimated_duration || ex.estimatedDuration,
+    isCustom: ex.is_custom || ex.isCustom,
+    createdAt: ex.created_at || ex.createdAt,
+    userId: ex.user_id || ex.userId,
   };
 }
 
@@ -84,7 +48,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string>("all")
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("all")
   const [selectedEquipment, setSelectedEquipment] = useState<string>("all")
-  const [selectedExercise, setSelectedExercise] = useState<ExerciseFromDB | null>(null)
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null)
   const [favorites, setFavorites] = useState<Set<number>>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("exerciseFavorites");
@@ -93,9 +57,9 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
     return new Set();
   });
 
-  const [customExercises, setCustomExercises] = useState<ExerciseFromDB[]>([])
+  const [customExercises, setCustomExercises] = useState<Exercise[]>([])
   const [showCustomForm, setShowCustomForm] = useState(false)
-  const [editingCustomExercise, setEditingCustomExercise] = useState<ExerciseFromDB | null>(null)
+  const [editingCustomExercise, setEditingCustomExercise] = useState<Exercise | null>(null)
   const [loading, setLoading] = useState(false)
   const [actionLoading, setActionLoading] = useState<{ [id: number]: boolean }>({})
 
@@ -105,12 +69,12 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
     setLoading(true)
     fetch(`/api/exercises?user=${encodeURIComponent(userEmail)}`)
       .then(res => res.json())
-      .then(data => setCustomExercises((data.exercises || []).filter((ex: any) => ex.is_custom).map(mapExerciseFromDB)))
+      .then(data => setCustomExercises((data.exercises || []).filter((ex: unknown) => (ex as Exercise).isCustom).map(mapExerciseFromDB)))
       .finally(() => setLoading(false))
   }, [userEmail])
 
   // เพิ่ม custom exercise
-  const addCustomExercise = async (exercise: ExerciseFromDB) => {
+  const addCustomExercise = async (exercise: Exercise) => {
     if (!userEmail) return
     setActionLoading((prev) => ({ ...prev, add: true }))
     try {
@@ -130,7 +94,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
   }
 
   // แก้ไข custom exercise
-  const updateCustomExercise = async (id: number, updates: Partial<ExerciseFromDB>) => {
+  const updateCustomExercise = async (id: number, updates: Partial<Exercise>) => {
     const exercise = customExercises.find(ex => ex.id === id)
     if (!exercise) return
     setActionLoading((prev) => ({ ...prev, [id]: true }))
@@ -169,16 +133,16 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
   }
 
   // Get unique values for filters
-  const categories: string[] = Array.from(new Set(exerciseDatabase.map((ex: ExerciseFromDB) => ex.category)));
+  const categories: string[] = Array.from(new Set(exerciseDatabase.map((ex: Exercise) => ex.category)));
   const muscleGroups: string[] = Array.from(new Set(
-    exerciseDatabase.flatMap((ex: ExerciseFromDB) =>
+    exerciseDatabase.flatMap((ex: Exercise) =>
       Array.isArray(ex.muscleGroups)
         ? ex.muscleGroups.map(mg => mg && mg.trim()).filter(Boolean)
         : []
     )
   )).sort((a, b) => a.localeCompare(b));
-  const difficulties: string[] = Array.from(new Set(exerciseDatabase.map((ex: ExerciseFromDB) => ex.difficulty)));
-  const equipment: string[] = Array.from(new Set(exerciseDatabase.map((ex: ExerciseFromDB) => ex.equipment)));
+  const difficulties: string[] = Array.from(new Set(exerciseDatabase.map((ex: Exercise) => ex.difficulty).filter((d): d is string => !!d)));
+  const equipment: string[] = Array.from(new Set(exerciseDatabase.map((ex: Exercise) => ex.equipment).filter((e): e is string => !!e)));
 
   // รวม customExercises กับ exerciseDatabase ใน allExercises
   const allExercises = useMemo(() => {
@@ -189,10 +153,10 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
 
   // Filter exercises based on search and filters
   const filteredExercises = useMemo(() => {
-    return allExercises.filter((exercise: ExerciseFromDB) => {
+    return allExercises.filter((exercise: Exercise) => {
       const matchesSearch =
         exercise.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        exercise.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        exercise.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (Array.isArray(exercise.muscleGroups) && exercise.muscleGroups.some((mg: string) => mg.toLowerCase().includes(searchTerm.toLowerCase())))
 
       const matchesCategory = selectedCategory === "all" || exercise.category === selectedCategory
@@ -258,18 +222,18 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
     setShowCustomForm(true)
   }
 
-  const handleEditExercise = (exercise: ExerciseFromDB) => {
-    setEditingCustomExercise(exercise as ExerciseFromDB)
+  const handleEditExercise = (exercise: Exercise) => {
+    setEditingCustomExercise(exercise as Exercise)
     setShowCustomForm(true)
   }
 
-  const handleSaveExercise = (exerciseData: Omit<ExerciseFromDB, "id" | "createdAt">) => {
+  const handleSaveExercise = (exerciseData: Omit<Exercise, "id" | "createdAt">) => {
     if (editingCustomExercise) {
       if (allExercises.some(ex => ex.id === editingCustomExercise.id)) {
         updateExercise(editingCustomExercise.id, exerciseData)
       }
     } else {
-      addCustomExercise(exerciseData as ExerciseFromDB)
+      addCustomExercise(exerciseData as Exercise)
     }
     setShowCustomForm(false)
   }
@@ -281,7 +245,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
   }
 
   // เพิ่ม exercise ใหม่ (POST)
-  const addExercise = async (exercise: ExerciseFromDB) => {
+  const addExercise = async (exercise: Exercise) => {
     if (!userEmail) return
     setLoading(true)
     const res = await fetch("/api/exercises", {
@@ -296,7 +260,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
   }
 
   // แก้ไข exercise (PUT)
-  const updateExercise = async (id: number, updates: Partial<ExerciseFromDB>) => {
+  const updateExercise = async (id: number, updates: Partial<Exercise>) => {
     const exercise = allExercises.find(ex => ex.id === id)
     if (!exercise) return
     setLoading(true)
@@ -330,7 +294,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
     try {
       const res = await fetch(`/api/exercises?user=${encodeURIComponent(userEmail)}`)
       const data = await res.json()
-      setCustomExercises((data.exercises || []).filter((ex: any) => ex.is_custom).map(mapExerciseFromDB))
+      setCustomExercises((data.exercises || []).filter((ex: unknown) => (ex as Exercise).isCustom).map(mapExerciseFromDB))
     } catch (error) {
       console.error('Error fetching custom exercises:', error)
     }
@@ -375,7 +339,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
         <div className="grid grid-cols-1 gap-4">
           {filteredExercises.map((exercise) => (
             <Card key={exercise.id} className="flex flex-row items-center gap-4 p-2">
-              <img src={exercise.image_url || exercise.imageUrl || "/placeholder.svg"} alt={exercise.name} className="w-16 h-16 object-cover rounded" />
+              <img src={exercise.imageUrl || exercise.imageUrl || "/placeholder.svg"} alt={exercise.name} className="w-16 h-16 object-cover rounded" />
               <div className="flex-1">
                 <div className="font-semibold">{exercise.name}</div>
                 <div className="text-xs text-muted-foreground">{exercise.category} | {exercise.difficulty}</div>
@@ -529,11 +493,11 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
             </div>
           ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredExercises.filter((exercise: ExerciseFromDB) => exercise.id !== 0).map((exercise: ExerciseFromDB) => (
+            {filteredExercises.filter((exercise: Exercise) => exercise.id !== 0).map((exercise: Exercise) => (
               <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow cursor-pointer group">
                 <div className="relative">
                   <img
-                    src={exercise.image_url || exercise.imageUrl || "/placeholder.svg"}
+                    src={exercise.imageUrl || exercise.imageUrl || "/placeholder.svg"}
                     alt={exercise.name}
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
@@ -562,7 +526,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                     {getCategoryIcon(exercise.category)}
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Badge variant="outline" className={`${getDifficultyColor(exercise.difficulty)} text-white`}>
+                    <Badge variant="outline" className={`${getDifficultyColor(exercise.difficulty ?? "")} text-white`}>
                       {exercise.difficulty}
                     </Badge>
                     <Badge variant="secondary">{exercise.equipment}</Badge>
@@ -650,12 +614,12 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
             </div>
           ) : (
           <div className="space-y-4">
-            {filteredExercises.filter((exercise: ExerciseFromDB) => exercise.id !== 0).map((exercise: ExerciseFromDB) => (
+            {filteredExercises.filter((exercise: Exercise) => exercise.id !== 0).map((exercise: Exercise) => (
               <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-4">
                     <img
-                      src={exercise.image_url || exercise.imageUrl || "/placeholder.svg"}
+                      src={exercise.imageUrl || exercise.imageUrl || "/placeholder.svg"}
                       alt={exercise.name}
                       className="w-20 h-20 object-cover rounded-lg"
                     />
@@ -698,7 +662,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Badge variant="outline" className={`${getDifficultyColor(exercise.difficulty)} text-white`}>
+                        <Badge variant="outline" className={`${getDifficultyColor(exercise.difficulty ?? "")} text-white`}>
                           {exercise.difficulty}
                         </Badge>
                         <Badge variant="secondary">{exercise.category}</Badge>
@@ -736,11 +700,11 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
             </div>
           ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredExercises.filter((exercise: ExerciseFromDB) => favorites.has(exercise.id)).map((exercise: ExerciseFromDB) => (
+            {filteredExercises.filter((exercise: Exercise) => favorites.has(exercise.id)).map((exercise: Exercise) => (
               <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow">
                 <div className="relative">
                   <img
-                    src={exercise.image_url || exercise.imageUrl || "/placeholder.svg"}
+                    src={exercise.imageUrl || exercise.imageUrl || "/placeholder.svg"}
                     alt={exercise.name}
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
@@ -755,7 +719,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                 </div>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg">{exercise.name}</CardTitle>
-                  <Badge variant="outline" className={`${getDifficultyColor(exercise.difficulty)} text-white w-fit`}>
+                  <Badge variant="outline" className={`${getDifficultyColor(exercise.difficulty ?? "")} text-white w-fit`}>
                     {exercise.difficulty}
                   </Badge>
                 </CardHeader>
@@ -815,7 +779,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
         <CustomExerciseForm
           exercise={editingCustomExercise ? { 
             ...editingCustomExercise, 
-            imageUrl: editingCustomExercise.image_url || editingCustomExercise.imageUrl, 
+            imageUrl: editingCustomExercise.imageUrl || editingCustomExercise.imageUrl, 
             isCustom: true as const, 
             createdAt: editingCustomExercise.createdAt || "",
             category: editingCustomExercise.category as "Strength" | "Cardio" | "Flexibility" | "Sports",
@@ -831,9 +795,9 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
 }
 
 interface ExerciseDetailModalProps {
-  exercise: ExerciseFromDB
+  exercise: Exercise
   onClose: () => void
-  onAddToWorkout?: (exercise: ExerciseFromDB) => void
+  onAddToWorkout?: (exercise: Exercise) => void
   showAddButton?: boolean
   isFavorite: boolean
   onToggleFavorite: () => void
@@ -886,7 +850,7 @@ function ExerciseDetailModal({
           {/* Exercise Image */}
           <div className="relative">
             <img
-              src={exercise.image_url || exercise.imageUrl || "/placeholder.svg"}
+              src={exercise.imageUrl || exercise.imageUrl || "/placeholder.svg"}
               alt={exercise.name}
               className="w-full h-64 object-cover rounded-lg"
             />
@@ -904,7 +868,7 @@ function ExerciseDetailModal({
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium">{t('exerciseLibrary.difficulty')}:</span>
-                    <Badge className={`${getDifficultyColor(exercise.difficulty)} text-white`}>
+                    <Badge className={`${getDifficultyColor(exercise.difficulty ?? "")} text-white`}>
                       {exercise.difficulty}
                     </Badge>
                   </div>
@@ -969,7 +933,7 @@ function ExerciseDetailModal({
           <div className="space-y-4">
             <h3 className="font-semibold">{t('exerciseLibrary.stepByStepInstructions')}</h3>
             <div className="space-y-3">
-              {exercise.instructions.map((instruction, index) => (
+              {exercise.instructions?.map((instruction, index) => (
                 <div key={String(index)} className="flex items-start space-x-3">
                   <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">
                     {index + 1}

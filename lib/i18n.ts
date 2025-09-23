@@ -319,7 +319,6 @@ export const translations = {
       reps: { en: "Reps", th: "ครั้ง" },
       rest: { en: "Rest", th: "พัก" },
       seconds: { en: "seconds", th: "วินาที" },
-      description: { en: "Description", th: "คำอธิบาย" },
       benefits: { en: "Benefits", th: "ประโยชน์" },
       templateInstructions: { en: "Template Instructions", th: "คำแนะนำแม่แบบ" },
       formTips: { en: "Form Tips", th: "เคล็ดลับท่า" },
@@ -693,7 +692,6 @@ export const translations = {
       reps: { en: "Reps", th: "ครั้ง" },
       rest: { en: "Rest", th: "พัก" },
       seconds: { en: "seconds", th: "วินาที" },
-      description: { en: "Description", th: "คำอธิบาย" },
       benefits: { en: "Benefits", th: "ประโยชน์" },
       templateInstructions: { en: "Template Instructions", th: "คำแนะนำแม่แบบ" },
       formTips: { en: "Form Tips", th: "เคล็ดลับท่า" },
@@ -746,17 +744,25 @@ export type Language = "en" | "th"
 export const useTranslation = (language: Language = "en") => {
   const t = (key: string): string => {
     const keys = key.split(".");
-    let value: any = translations[language];
+    let value: Record<string, unknown> | unknown = translations[language];
     for (const k of keys) {
-      value = value?.[k];
-      if (value === undefined) break;
+      if (typeof value === 'object' && value !== null && k in value) {
+        value = (value as Record<string, unknown>)[k];
+      } else {
+        value = undefined;
+        break;
+      }
     }
     if (typeof value === "string") return value;
     // fallback to English
     value = translations["en"];
     for (const k of keys) {
-      value = value?.[k];
-      if (value === undefined) break;
+      if (typeof value === 'object' && value !== null && k in value) {
+        value = (value as Record<string, unknown>)[k];
+      } else {
+        value = undefined;
+        break;
+      }
     }
     if (typeof value === "string") return value;
     return key;

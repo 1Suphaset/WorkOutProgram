@@ -13,15 +13,15 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Plus, X, Upload } from "lucide-react"
-import type { CustomExercise } from "@/lib/exercise-database"
-import { ExerciseTemplateSelector } from "@/components/exercise-template-selector"
 import type { ExerciseTemplate } from "@/lib/exercise-templates"
+import { ExerciseTemplateSelector } from "@/components/exercise-template-selector"
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
+import type { Exercise } from "@/lib/utils"
 
 interface CustomExerciseFormProps {
-  exercise?: CustomExercise | null
-  onSave: (exercise: Omit<CustomExercise, "id" | "createdAt">) => void
+  exercise?: Exercise | null
+  onSave: (exercise: Omit<Exercise, "id" | "createdAt">) => void
   onClose: () => void
   language?: "en" | "th"
 }
@@ -235,7 +235,12 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
         instructions: formData.instructions.filter((inst) => inst.trim()),
         imageUrl,
         isCustom: true as const,
-        userId: "current-user",
+        userId: undefined, // or set to a number if available
+        variations: Array.isArray(formData.variations)
+          ? formData.variations.map((v: any) =>
+              typeof v === 'string' ? { name: v, description: '' } : v
+            )
+          : [],
       };
       await onSave(exerciseData);
       toast({ title: t("success"), description: t("exerciseAdded") });

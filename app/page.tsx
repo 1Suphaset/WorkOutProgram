@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/sidebar"
 import { Dashboard } from "@/components/dashboard"
 import { CalendarView } from "@/components/calendar-view"
 import { Templates } from "@/components/templates"
+import type { WorkoutTemplate } from "@/lib/workout-templates"
 import { Settings as SettingsComponent } from "@/components/settings"
 import { WorkoutTimer } from "@/components/workout-timer"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -21,71 +22,38 @@ import { Logo } from "@/components/ui/logo"
 import { Home, CalendarIcon, Dumbbell, BarChart3,BookOpen, SettingsIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { jwtDecode } from "jwt-decode"
-import type { ExerciseLibraryItem } from "@/lib/exercise-database"
 
-export type Exercise = {
-  id: number
-  exerciseId: number
-  sets?: number
-  reps?: number
-  time?: number // in seconds
-  weight?: number
-  notes?: string
-}
-
-export type Workout = {
-  id: number
-  date: string
-  name: string
-  exercises: Exercise[]
-  notes?: string
-  completed: boolean
-  duration?: number // total workout duration in seconds
-  createdAt: string
-}
-
-export type TemplateExerciseRef = {
-  exerciseId: number;
-  sets?: number;
-  reps?: number;
-  time?: number;
-  weight?: number;
-  notes?: string;
-};
-
-export type Template = {
+interface Exercise {
   id: number;
   name: string;
-  exercises: TemplateExerciseRef[];
   category: string;
+  sets?: number;
+  reps?: number;
+  duration?: number;
+  notes?: string;
+  weight?: number;
+  time?: number;
+  exerciseId?: number;
+}
+interface Workout {
+  id: number;
+  name: string;
+  date: string;
+  exercises: Exercise[];
+  completed: boolean;
   createdAt: string;
-};
-
-export type WorkoutTemplate = {
-  id: number
-  name: string
-  category: string
-  exercises: Exercise[]
+  duration?: number;
+  notes?: string;
 }
 
-function mapExerciseFromDB(dbExercise: any) {
-  return {
-    ...dbExercise,
-    id: Number(dbExercise.id),
-    muscleGroups: dbExercise.muscle_groups || [],
-    imageUrl: dbExercise.image_url,
-    estimatedDuration: dbExercise.estimated_duration,
-    isCustom: dbExercise.is_custom,
-    createdAt: dbExercise.created_at,
-    userId: dbExercise.user_id,
-    // ...แปลง field อื่น ๆ ตามต้องการ
-  };
+function mapExerciseFromDB(dbExercise: unknown): Exercise {
+  return dbExercise as Exercise;
 }
 
 export default function WorkoutPlannerApp() {
   const [activeView, setActiveView] = useState<string>("dashboard")
   const [workouts, setWorkouts] = useState<Workout[]>([])
-  const [templates, setTemplates] = useState<Template[]>([])
+  const [templates, setTemplates] = useState<WorkoutTemplate[]>([])
   const [workoutLogs, setWorkoutLogs] = useState<WorkoutLog[]>([])
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null)
@@ -94,14 +62,14 @@ export default function WorkoutPlannerApp() {
   const [language, setLanguage] = useState<"en" | "th">("en")
   const [user, setUser] = useState<{ name: string; email: string } | null>(null)
   const [loading, setLoading] = useState(false)
-  const [exerciseDatabase, setExerciseDatabase] = useState<ExerciseLibraryItem[]>([])
+  const [exerciseDatabase, setExerciseDatabase] = useState<Exercise[]>([])
 
   // Auto-login: เช็ค token อัตโนมัติ
   useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
     if (token) {
       try {
-        const decoded: any = jwtDecode(token)
+        const decoded = jwtDecode(token) as { exp?: number; name?: string; email?: string };
         if (decoded.exp && Date.now() >= decoded.exp * 1000) {
           localStorage.removeItem("token")
           setUser(null)
@@ -115,11 +83,11 @@ export default function WorkoutPlannerApp() {
               if (data.user) {
                 setUser({ name: data.user.name, email: data.user.email })
               } else {
-                setUser({ name: decoded.name, email: decoded.email })
+                setUser({ name: decoded.name ?? "", email: decoded.email ?? "" })
               }
             })
             .catch(() => {
-              setUser({ name: decoded.name, email: decoded.email })
+              setUser({ name: decoded.name ?? "", email: decoded.email ?? "" })
             })
         }
       } catch {
@@ -133,17 +101,36 @@ export default function WorkoutPlannerApp() {
   const fetchData = () => {
     if (!user) return;
     setLoading(true);
-    console.log("[GET] userEmail:", user.email);
     Promise.all([
       fetch(`/api/workouts?user=${encodeURIComponent(user.email)}`).then(res => res.json()),
       fetch(`/api/templates?user=${encodeURIComponent(user.email)}`).then(res => res.json()),
       fetch(`/api/workout-logs?user=${encodeURIComponent(user.email)}`).then(res => res.json()),
       fetch(`/api/exercises?user=${encodeURIComponent(user.email)}`).then(res => res.json()),
     ]).then(([w, t, l, e]) => {
-      console.log("[GET] workouts from API:", w.workouts);
-      console.log("[GET] workout logs from API:", l.workoutLogs);
       setWorkouts(w.workouts || [])
-      setTemplates(t.templates || [])
+      setTemplates((t.templates || []).map((tpl: any) => ({
+        ...tpl,
+        nameTranslations: tpl.nameTranslations || { th: tpl.name },
+        type: tpl.type || tpl.category || "Strength",
+        duration: tpl.duration || 30,
+        difficulty: tpl.difficulty || "Beginner",
+        description: tpl.description || "",
+        descriptionTranslations: tpl.descriptionTranslations || { th: tpl.description || "" },
+        equipment: tpl.equipment || [],
+        targetMuscles: tpl.targetMuscles || [],
+        calories: tpl.calories || 0,
+        tags: tpl.tags || [],
+        exercises: (tpl.exercises || []).map((ex: any) => ({
+          ...ex,
+          nameTranslations: ex.nameTranslations || { th: ex.name },
+          sets: ex.sets,
+          reps: ex.reps,
+          duration: ex.duration,
+          rest: ex.rest,
+          instructions: ex.instructions || "",
+          instructionsTranslations: ex.instructionsTranslations || { th: ex.instructions || "" },
+        })),
+      })));
       setWorkoutLogs(l.workoutLogs || [])
       setExerciseDatabase((e.exercises || []).map(mapExerciseFromDB))
     }).finally(() => setLoading(false))
@@ -204,29 +191,73 @@ export default function WorkoutPlannerApp() {
   }
 
   // เพิ่ม template
-  const addTemplate = async (template: Template) => {
+  const addTemplate = async (template: WorkoutTemplate) => {
     if (!user) return;
+    // Ensure all required fields for WorkoutTemplate are present
+    const fullTemplate: WorkoutTemplate = {
+      ...template,
+      nameTranslations: template.nameTranslations || { th: template.name },
+      type: template.type || "Strength",
+      duration: template.duration || 30,
+      difficulty: template.difficulty || "Beginner",
+      description: template.description || "",
+      descriptionTranslations: template.descriptionTranslations || { th: template.description || "" },
+      equipment: template.equipment || [],
+      targetMuscles: template.targetMuscles || [],
+      calories: template.calories || 0,
+      tags: template.tags || [],
+      exercises: (template.exercises || []).map((ex: any) => ({
+        ...ex,
+        nameTranslations: ex.nameTranslations || { th: ex.name },
+        sets: ex.sets,
+        reps: ex.reps,
+        duration: ex.duration,
+        rest: ex.rest,
+        instructions: ex.instructions || "",
+        instructionsTranslations: ex.instructionsTranslations || { th: ex.instructions || "" },
+      })),
+    };
     const res = await fetch("/api/templates", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...template, userEmail: user.email }),
+      body: JSON.stringify({ ...fullTemplate, userEmail: user.email }),
     })
     const data = await res.json()
     setTemplates(prev => [data.template, ...prev])
   }
 
   // แก้ไข template
-  const updateTemplate = async (templateId: number, updatedTemplate: Partial<Template>) => {
-    console.log("updateTemplate called", templateId, updatedTemplate)
+  const updateTemplate = async (templateId: number, updatedTemplate: Partial<WorkoutTemplate>) => {
     const template = templates.find(t => Number(t.id) === Number(templateId))
-    if (!template) {
-      console.log("Template not found for id", templateId, templates.map(t => t.id))
-      return
-    }
+    if (!template) return;
+    const fullTemplate: WorkoutTemplate = {
+      ...template,
+      ...updatedTemplate,
+      nameTranslations: updatedTemplate.nameTranslations || template.nameTranslations || { th: template.name },
+      type: updatedTemplate.type || template.type || "Strength",
+      duration: updatedTemplate.duration || template.duration || 30,
+      difficulty: updatedTemplate.difficulty || template.difficulty || "Beginner",
+      description: updatedTemplate.description || template.description || "",
+      descriptionTranslations: updatedTemplate.descriptionTranslations || template.descriptionTranslations || { th: template.description || "" },
+      equipment: updatedTemplate.equipment || template.equipment || [],
+      targetMuscles: updatedTemplate.targetMuscles || template.targetMuscles || [],
+      calories: updatedTemplate.calories || template.calories || 0,
+      tags: updatedTemplate.tags || template.tags || [],
+      exercises: (updatedTemplate.exercises || template.exercises || []).map((ex: any) => ({
+        ...ex,
+        nameTranslations: ex.nameTranslations || { th: ex.name },
+        sets: ex.sets,
+        reps: ex.reps,
+        duration: ex.duration,
+        rest: ex.rest,
+        instructions: ex.instructions || "",
+        instructionsTranslations: ex.instructionsTranslations || { th: ex.instructions || "" },
+      })),
+    };
     const res = await fetch("/api/templates", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...template, ...updatedTemplate }),
+      body: JSON.stringify(fullTemplate),
     })
     const data = await res.json()
     setTemplates(prev => prev.map(t => Number(t.id) === Number(templateId) ? data.template : t))
@@ -282,23 +313,16 @@ export default function WorkoutPlannerApp() {
     setUser(null)
   }
 
-  const handleAddExerciseFromDragDrop = (exercise: any) => {
-    // Create a new workout with the dragged exercise
+  const handleAddExerciseFromDragDrop = (exercise: unknown) => {
+    const ex = exercise as Exercise;
     const newWorkout: Workout = {
       id: Date.now() + Math.floor(Math.random() * 10000),
-      date: selectedDate.toLocaleDateString("sv-SE") ,
-      name: `${exercise.name} Workout`,
-      exercises: [
-        {
-          id: Date.now() + Math.floor(Math.random() * 10000),
-          exerciseId: exercise.id,
-          // สามารถเพิ่ม sets/reps/notes ตามต้องการ
-        }
-      ],
-      notes: "",
+      date: selectedDate.toLocaleDateString("sv-SE"),
+      name: `${ex.name} Workout`,
+      exercises: [ex],
       completed: false,
       createdAt: new Date().toISOString(),
-    }
+    };
     addWorkout(newWorkout)
   }
 
