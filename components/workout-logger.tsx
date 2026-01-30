@@ -55,7 +55,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
   const { t } = useTranslation(language)
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>(
     workout.exercises.map((ex) => ({
-      exerciseId: Number(ex.id),
+      exerciseId: Number((ex as any).exerciseId),
       actualReps: (ex as any).reps,
       actualWeight: (ex as any).weight,
       actualTime: (ex as any).time,
