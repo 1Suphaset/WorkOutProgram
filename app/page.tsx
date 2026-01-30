@@ -122,6 +122,7 @@ export default function WorkoutPlannerApp() {
         tags: tpl.tags || [],
         exercises: (tpl.exercises || []).map((ex: any) => ({
           ...ex,
+          id: Number(ex.id),
           nameTranslations: ex.nameTranslations || { th: ex.name },
           sets: ex.sets,
           reps: ex.reps,
@@ -208,6 +209,7 @@ export default function WorkoutPlannerApp() {
       tags: template.tags || [],
       exercises: (template.exercises || []).map((ex: any) => ({
         ...ex,
+        id: Number(ex.id),
         nameTranslations: ex.nameTranslations || { th: ex.name },
         sets: ex.sets,
         reps: ex.reps,
@@ -245,6 +247,7 @@ export default function WorkoutPlannerApp() {
       tags: updatedTemplate.tags || template.tags || [],
       exercises: (updatedTemplate.exercises || template.exercises || []).map((ex: any) => ({
         ...ex,
+        id: Number(ex.id),
         nameTranslations: ex.nameTranslations || { th: ex.name },
         sets: ex.sets,
         reps: ex.reps,

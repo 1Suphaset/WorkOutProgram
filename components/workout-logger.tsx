@@ -55,7 +55,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
   const { t } = useTranslation(language)
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>(
     workout.exercises.map((ex) => ({
-      exerciseId: Number((ex as any).exerciseId),
+      exerciseId: Number((ex as any).id),
       actualReps: (ex as any).reps,
       actualWeight: (ex as any).weight,
       actualTime: (ex as any).time,
@@ -113,7 +113,9 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
             {workout.exercises.map((exercise, index) => {
               const log = exerciseLogs.find((l) => l.exerciseId === exercise.id)
               if (!log) return null
-              const exData = exerciseDatabase.find(e => e.id === ((exercise as any).exerciseId ?? exercise.id));
+              const rawId = (exercise as any).exerciseId ?? exercise.id
+              const exerciseId = Number(rawId)
+              const exData = exerciseDatabase.find(e => e.id === exerciseId)
               const exerciseName = exData?.name || t('unknownExercise');
 
               return (
