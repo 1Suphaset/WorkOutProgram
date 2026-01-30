@@ -126,7 +126,7 @@ export function ProgressDashboard({
         if (workout.exercises && workout.exercises.length > 0) {
           workout.exercises.forEach((exercise) => {
             const exData = exerciseDatabase.find(
-              (e) => e.id === Number((exercise as any).exerciseId)
+              (e) => e.id === Number((exercise as any).id)
             );
             const name = exData?.name || t("unknownExercise");
             acc[name] = (acc[name] || 0) + 1;
