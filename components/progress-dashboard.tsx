@@ -50,20 +50,7 @@ interface ProgressDashboardProps {
   workouts: Workout[];
   workoutLogs: WorkoutLog[];
   language: "en" | "th";
-  exerciseDatabase: any[]; // Changed from ExerciseLibraryItem[]
-}
-
-function mapExerciseFromDB(dbExercise: any) {
-  return {
-    ...dbExercise,
-    id: Number(dbExercise.id),
-    muscleGroups: dbExercise.muscle_groups || [],
-    imageUrl: dbExercise.image_url,
-    estimatedDuration: dbExercise.estimated_duration,
-    isCustom: dbExercise.is_custom,
-    createdAt: dbExercise.created_at,
-    userId: dbExercise.user_id,
-  };
+  exerciseDatabase: Exercise[]; // Changed from ExerciseLibraryItem[]
 }
 
 export function ProgressDashboard({
