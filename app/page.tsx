@@ -197,7 +197,7 @@ export default function WorkoutPlannerApp() {
     const fullTemplate: WorkoutTemplate = {
       ...template,
       nameTranslations: template.nameTranslations || { th: template.name },
-      type: template.type || "Strength",
+      type: template.type ,
       duration: template.duration || 30,
       difficulty: template.difficulty || "Beginner",
       description: template.description || "",
@@ -234,7 +234,7 @@ export default function WorkoutPlannerApp() {
       ...template,
       ...updatedTemplate,
       nameTranslations: updatedTemplate.nameTranslations || template.nameTranslations || { th: template.name },
-      type: updatedTemplate.type || template.type || "Strength",
+      type: updatedTemplate.type || template.type,
       duration: updatedTemplate.duration || template.duration || 30,
       difficulty: updatedTemplate.difficulty || template.difficulty || "Beginner",
       description: updatedTemplate.description || template.description || "",

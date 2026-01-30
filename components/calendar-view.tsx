@@ -142,7 +142,7 @@ export function Calendar({
                 mode="single"
                 selected={selectedDate}
                 onSelect={(date) => date && setSelectedDate(date)}
-                className="rounded-md border"
+                className="rounded-md border "
                 modifiers={{
                   hasWorkout: (date) =>
                     getWorkoutsForDate(date).length > 0 &&
@@ -206,11 +206,10 @@ export function Calendar({
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex items-center space-x-3">
                           <div
-                            className={`w-3 h-3 rounded-full ${
-                              workout.completed
-                                ? "bg-green-500"
-                                : "bg-yellow-500"
-                            }`}
+                            className={`w-3 h-3 rounded-full ${workout.completed
+                              ? "bg-green-500"
+                              : "bg-yellow-500"
+                              }`}
                           />
                           <h3 className="font-medium text-sm md:text-base">
                             {workout.name}
@@ -225,35 +224,40 @@ export function Calendar({
                           </Badge>
                         </div>
                         <div className="flex items-center space-x-1 md:space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedWorkout(workout)}
-                            className="text-xs md:text-sm"
-                          >
-                            View
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleStartWorkout(workout)}
-                          >
-                            <Play className="w-3 h-3 md:w-4 md:h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditWorkout(workout)}
-                          >
-                            <Edit className="w-3 h-3 md:w-4 md:h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteWorkout(workout.id)}
-                          >
-                            <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
-                          </Button>
+                          {!workout.completed && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedWorkout(workout)}
+                                className="text-xs md:text-sm"
+                              >
+                                View
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleStartWorkout(workout)}
+                              >
+                                <Play className="w-3 h-3 md:w-4 md:h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEditWorkout(workout)}
+                              >
+                                <Edit className="w-3 h-3 md:w-4 md:h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => deleteWorkout(workout.id)}
+                              >
+                                <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
+                              </Button>
+                            </>
+                          )}
+
                         </div>
                       </div>
 
@@ -279,10 +283,9 @@ export function Calendar({
                               >
                                 • {typeof (exercise as any).name === "string" ? (exercise as any).name : "ไม่พบชื่อ"}
                                 {typeof (exercise as any).sets === "number" &&
-                                typeof (exercise as any).reps === "number"
-                                  ? ` - ${(exercise as any).sets}x${
-                                      (exercise as any).reps
-                                    }`
+                                  typeof (exercise as any).reps === "number"
+                                  ? ` - ${(exercise as any).sets}x${(exercise as any).reps
+                                  }`
                                   : null}
                                 {typeof (exercise as any).time === "number"
                                   ? ` - ${(exercise as any).time}s`

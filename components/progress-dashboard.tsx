@@ -50,7 +50,7 @@ interface ProgressDashboardProps {
   workouts: Workout[];
   workoutLogs: WorkoutLog[];
   language: "en" | "th";
-  exerciseDatabase: Exercise[]; // Changed from ExerciseLibraryItem[]
+  exerciseDatabase: any[]; // Changed from ExerciseLibraryItem[]
 }
 
 export function ProgressDashboard({
@@ -96,53 +96,57 @@ export function ProgressDashboard({
   // Weekly data for the last 8 weeks
   const weeklyData = completedWorkouts
     ? Array.from({ length: 8 }, (_, i) => {
-        const date = new Date();
-        date.setDate(date.getDate() - i * 7);
-        const weekStart = new Date(date);
-        weekStart.setDate(date.getDate() - date.getDay());
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekStart.getDate() + 6);
+      const date = new Date();
+      date.setDate(date.getDate() - i * 7);
+      const weekStart = new Date(date);
+      weekStart.setDate(date.getDate() - date.getDay());
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
 
-        const weekWorkouts = completedWorkouts.filter((w) => {
-          if (!w.date) return false;
-          const workoutDate = new Date(w.date);
-          return workoutDate >= weekStart && workoutDate <= weekEnd;
-        });
+      const weekWorkouts = completedWorkouts.filter((w) => {
+        if (!w.date) return false;
+        const workoutDate = new Date(w.date);
+        return workoutDate >= weekStart && workoutDate <= weekEnd;
+      });
 
-        return {
-          week: `Week ${8 - i}`,
-          workouts: weekWorkouts.length,
-          duration:
-            weekWorkouts.length > 0
-              ? weekWorkouts.reduce((sum, w) => sum + (w.duration || 0), 0) / 60
-              : 0, // in minutes
-        };
-      }).reverse()
+      return {
+        week: `Week ${8 - i}`,
+        workouts: weekWorkouts.length,
+        duration:
+          weekWorkouts.length > 0
+            ? weekWorkouts.reduce((sum, w) => sum + (w.duration || 0), 0) / 60
+            : 0, // in minutes
+      };
+    }).reverse()
     : [];
 
   // Exercise frequency
   const exerciseFrequency = completedWorkouts
     ? completedWorkouts.reduce((acc, workout) => {
-        if (workout.exercises && workout.exercises.length > 0) {
-          workout.exercises.forEach((exercise) => {
-            const exData = exerciseDatabase.find(
-              (e) => e.id === Number((exercise as any).id)
-            );
-            const name = exData?.name || t("unknownExercise");
-            acc[name] = (acc[name] || 0) + 1;
-          });
-        }
-        return acc;
-      }, {} as Record<string, number>)
+      workout.exercises?.forEach((exercise) => {
+        const exData = exerciseDatabase.find(
+          (e) => Number(e.id) === Number((exercise as any).exerciseId)
+        );
+
+        console.log("🔗 match exercise", {
+          workoutExercise: exercise,
+          lookupId: (exercise as any).exerciseId,
+          found: exData,
+        });
+        const name = exData?.name || t("unknownExercise");
+        acc[name] = (acc[name] || 0) + 1;
+      });
+      return acc;
+    }, {} as Record<string, number>)
     : {};
 
   const topExercises = exerciseFrequency
     ? Object.entries(exerciseFrequency)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 6)
-        .map(([name, count]) => ({ name, count }))
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 6)
+      .map(([name, count]) => ({ name, count }))
     : [];
-console.log("top",exerciseFrequency)
+  console.log("top", exerciseFrequency)
   // Monthly trends
   console.log(
     "ProgressDashboard - calculating monthly data from workoutLogs:",
@@ -152,82 +156,81 @@ console.log("top",exerciseFrequency)
   const monthlyData =
     completedWorkouts && workoutLogs
       ? Array.from({ length: 6 }, (_, i) => {
-          const date = new Date();
-          date.setMonth(date.getMonth() - i);
-          const month = date.toLocaleDateString(
-            language === "th" ? "th-TH" : "en-US",
-            { month: "short" }
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        const month = date.toLocaleDateString(
+          language === "th" ? "th-TH" : "en-US",
+          { month: "short" }
+        );
+
+        const monthWorkouts = completedWorkouts.filter((w) => {
+          if (!w.date) return false;
+          const workoutDate = new Date(w.date);
+          return (
+            workoutDate.getMonth() === date.getMonth() &&
+            workoutDate.getFullYear() === date.getFullYear()
           );
+        });
 
-          const monthWorkouts = completedWorkouts.filter((w) => {
-            if (!w.date) return false;
-            const workoutDate = new Date(w.date);
-            return (
-              workoutDate.getMonth() === date.getMonth() &&
-              workoutDate.getFullYear() === date.getFullYear()
-            );
-          });
-
-          const monthLogs = workoutLogs.filter((log) => {
-            const completedAt = log.completedAt || (log as any).completed_at;
-            if (!completedAt) return false;
-            const logDate = new Date(completedAt);
-            return (
-              logDate.getMonth() === date.getMonth() &&
-              logDate.getFullYear() === date.getFullYear()
-            );
-          });
-
-          console.log(
-            `Month ${month} logs:`,
-            monthLogs.map((log) => ({
-              id: (log as any).id ?? 0,
-              overall_effort: log.overall_effort,
-              overall_effort_type: typeof log.overall_effort,
-              completedAt: log.completedAt || (log as any).completed_at,
-            }))
+        const monthLogs = workoutLogs.filter((log) => {
+          const completedAt = log.completedAt || (log as any).completed_at;
+          if (!completedAt) return false;
+          const logDate = new Date(completedAt);
+          return (
+            logDate.getMonth() === date.getMonth() &&
+            logDate.getFullYear() === date.getFullYear()
           );
+        });
 
-          const avgEffort =
+        console.log(
+          `Month ${month} logs:`,
+          monthLogs.map((log) => ({
+            id: (log as any).id ?? 0,
+            overall_effort: log.overall_effort,
+            overall_effort_type: typeof log.overall_effort,
+            completedAt: log.completedAt || (log as any).completed_at,
+          }))
+        );
+
+        const avgEffort =
+          monthLogs.length > 0
+            ? monthLogs.reduce((sum, log) => {
+              console.log(
+                `Adding effort for log ${(log as any).id}: ${log.overall_effort
+                }, type: ${typeof log.overall_effort}`
+              );
+              return sum + (Number(log.overall_effort) || 0);
+            }, 0) / monthLogs.length
+            : 0;
+
+        console.log(`Monthly data for ${month}:`, {
+          monthLogs: monthLogs.length,
+          avgEffort: avgEffort,
+          avgEffortType: typeof avgEffort,
+          effortValue: avgEffort > 0 ? Math.round(avgEffort * 10) / 10 : 0,
+          effortValueType: typeof (avgEffort > 0
+            ? Math.round(avgEffort * 10) / 10
+            : 0),
+          duration:
             monthLogs.length > 0
-              ? monthLogs.reduce((sum, log) => {
-                  console.log(
-                    `Adding effort for log ${(log as any).id}: ${
-                      log.overall_effort
-                    }, type: ${typeof log.overall_effort}`
-                  );
-                  return sum + (Number(log.overall_effort) || 0);
-                }, 0) / monthLogs.length
-              : 0;
+              ? monthLogs.reduce((sum, w) => sum + (w.duration || 0), 0) / 60
+              : 0,
+          durationLogs: monthLogs.map((log) => ({
+            id: (log as any).id ?? 0,
+            duration: log.duration,
+          })),
+        });
 
-          console.log(`Monthly data for ${month}:`, {
-            monthLogs: monthLogs.length,
-            avgEffort: avgEffort,
-            avgEffortType: typeof avgEffort,
-            effortValue: avgEffort > 0 ? Math.round(avgEffort * 10) / 10 : 0,
-            effortValueType: typeof (avgEffort > 0
-              ? Math.round(avgEffort * 10) / 10
-              : 0),
-            duration:
-              monthLogs.length > 0
-                ? monthLogs.reduce((sum, w) => sum + (w.duration || 0), 0) / 60
-                : 0,
-            durationLogs: monthLogs.map((log) => ({
-              id: (log as any).id ?? 0,
-              duration: log.duration,
-            })),
-          });
-
-          return {
-            month,
-            workouts: monthWorkouts.length,
-            duration:
-              monthLogs.length > 0
-                ? monthLogs.reduce((sum, w) => sum + (w.duration || 0), 0) / 60
-                : 0,
-            effort: avgEffort > 0 ? Math.round(avgEffort * 10) / 10 : 0,
-          };
-        }).reverse()
+        return {
+          month,
+          workouts: monthWorkouts.length,
+          duration:
+            monthLogs.length > 0
+              ? monthLogs.reduce((sum, w) => sum + (w.duration || 0), 0) / 60
+              : 0,
+          effort: avgEffort > 0 ? Math.round(avgEffort * 10) / 10 : 0,
+        };
+      }).reverse()
       : [];
 
   console.log("ProgressDashboard - final monthlyData:", monthlyData);
@@ -243,23 +246,23 @@ console.log("top",exerciseFrequency)
   // Workout category distribution
   const categoryData = completedWorkouts
     ? completedWorkouts.reduce((acc, workout) => {
-        // Determine category based on exercises (simplified logic)
-        const hasCardio =
-          workout.exercises &&
-          workout.exercises.some(
-            (ex) => (ex as any).duration && (ex as any).duration > 0
-          );
-        const hasStrength =
-          workout.exercises &&
-          workout.exercises.some((ex) => (ex as any).sets && (ex as any).reps);
+      // Determine category based on exercises (simplified logic)
+      const hasCardio =
+        workout.exercises &&
+        workout.exercises.some(
+          (ex) => (ex as any).duration && (ex as any).duration > 0
+        );
+      const hasStrength =
+        workout.exercises &&
+        workout.exercises.some((ex) => (ex as any).sets && (ex as any).reps);
 
-        let category = "Mixed";
-        if (hasCardio && !hasStrength) category = "Cardio";
-        else if (hasStrength && !hasCardio) category = "Strength";
+      let category = "Mixed";
+      if (hasCardio && !hasStrength) category = "Cardio";
+      else if (hasStrength && !hasCardio) category = "Strength";
 
-        acc[category] = (acc[category] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>)
+      acc[category] = (acc[category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>)
     : {};
 
   const categoryChartData = categoryData
@@ -327,11 +330,11 @@ console.log("top",exerciseFrequency)
             <div className="text-xl md:text-2xl font-bold">
               {workoutLogs && workoutLogs.length > 0
                 ? Math.round(
-                    workoutLogs.reduce(
-                      (sum, w) => sum + (Number(w.duration) || 0),
-                      0
-                    ) / 3600
-                  )
+                  workoutLogs.reduce(
+                    (sum, w) => sum + (Number(w.duration) || 0),
+                    0
+                  ) / 3600
+                )
                 : 0}
               h
             </div>
@@ -339,13 +342,13 @@ console.log("top",exerciseFrequency)
               {t("avg")}:{" "}
               {workoutLogs && workoutLogs.length > 0
                 ? Math.round(
-                    workoutLogs.reduce(
-                      (sum, w) => sum + (Number(w.duration) || 0),
-                      0
-                    ) /
-                      workoutLogs.length /
-                      60
-                  )
+                  workoutLogs.reduce(
+                    (sum, w) => sum + (Number(w.duration) || 0),
+                    0
+                  ) /
+                  workoutLogs.length /
+                  60
+                )
                 : 0}{" "}
               {t("minPerWorkout")}
             </p>
@@ -384,15 +387,15 @@ console.log("top",exerciseFrequency)
                 const effort =
                   workoutLogs && workoutLogs.length > 0
                     ? (
-                        Math.round(
-                          (workoutLogs.reduce(
-                            (sum, log) => sum + (log.overall_effort || 0),
-                            0
-                          ) /
-                            workoutLogs.length) *
-                            10
-                        ) / 10
-                      ).toFixed(1)
+                      Math.round(
+                        (workoutLogs.reduce(
+                          (sum, log) => sum + (log.overall_effort || 0),
+                          0
+                        ) /
+                          workoutLogs.length) *
+                        10
+                      ) / 10
+                    ).toFixed(1)
                     : "0.0";
                 console.log(
                   "Calculated avg effort:",
@@ -509,8 +512,8 @@ console.log("top",exerciseFrequency)
                           <Progress
                             value={
                               topExercises &&
-                              topExercises[0] &&
-                              topExercises[0].count > 0
+                                topExercises[0] &&
+                                topExercises[0].count > 0
                                 ? (exercise.count / topExercises[0].count) * 100
                                 : 0
                             }

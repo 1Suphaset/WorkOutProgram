@@ -28,18 +28,7 @@ interface TemplatesProps {
   language?: "en" | "th"
   isLoading?: boolean
 }
-function mapExerciseFromDB(dbExercise: any) {
-  return {
-    ...dbExercise,
-    id: Number(dbExercise.id),
-    muscleGroups: dbExercise.muscle_groups || [],
-    imageUrl: dbExercise.image_url,
-    estimatedDuration: dbExercise.estimated_duration,
-    isCustom: dbExercise.is_custom,
-    createdAt: dbExercise.created_at,
-    userId: dbExercise.user_id,
-  };
-}
+
 
 export function Templates({ templates, addTemplate, updateTemplate, deleteTemplate, exerciseDatabase, language = "en", isLoading = false }: TemplatesProps) {
   const { t } = useTranslation(language)
@@ -92,15 +81,15 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
       type: templateType as Template['type'],
       exercises: exercises,
     }
-    try { 
-    if (editingTemplate) {
+    try {
+      if (editingTemplate) {
         await updateTemplate(Number(editingTemplate.id), templateData)
         toast({ title: t("success"), description: t("templateUpdated") })
-    } else {
+      } else {
         await addTemplate(templateData as Template)
         toast({ title: t("success"), description: t("templateCreated") })
-    }
-    setShowCreateDialog(false)
+      }
+      setShowCreateDialog(false)
     } catch (e) {
       toast({ title: t("error"), description: t("errorOccurred"), variant: "destructive" })
     }
@@ -148,14 +137,14 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
     setExercises(exs => exs.filter((_, i) => i !== index))
   }
 
- const handlePreviewTemplate = (template: Template) => {
-  console.log("handlePreviewTemplate called with:", template);
-  console.log("exData inside function:", exData);
-  setPreviewTemplate(template);
-  setPreviewExerciseIndex(0);
-  setPreviewSetIndex(0);
-  setShowPreview(true);
-};
+  const handlePreviewTemplate = (template: Template) => {
+    console.log("handlePreviewTemplate called with:", template);
+    console.log("exData inside function:", exData);
+    setPreviewTemplate(template);
+    setPreviewExerciseIndex(0);
+    setPreviewSetIndex(0);
+    setShowPreview(true);
+  };
 
   const nextPreviewExercise = () => {
     if (previewTemplate && previewExerciseIndex < previewTemplate.exercises.length - 1) {
@@ -186,30 +175,15 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
     return `${mins}:${secs.toString().padStart(2, "0")}`
   }
 
-  const exData = previewTemplate ? exerciseDatabase.find(e => String(e.id) === String(previewTemplate.exercises[previewExerciseIndex]?.name)) : undefined;
+  const exData = previewTemplate
+    ? exerciseDatabase.find(
+      e =>
+        Number(e.id) ===
+        Number(previewTemplate.exercises[previewExerciseIndex]?.exerciseId)
+    )
+    : undefined
 
-  // Remove allExerciseIds/missingIds logic if not needed, or update to use exercise names or another unique identifier
-
-  // Remove newExercises logic if not needed
-
-  const mergedDatabase = [...exerciseDatabase];
-
-  const loadTemplate = (templateId: number | string) => {
-    const template = templates.find((t) => String(t.id) === String(templateId))
-    if (template) {
-      setExercises(
-        template.exercises.map((ex) => {
-          const exData = exerciseDatabase.find(e => String(e.id) === String(ex.name))
-          return {
-            ...ex,
-            id: Date.now() + Math.floor(Math.random() * 10000),
-            name: exData?.name || "Unknown Exercise",
-          }
-        }),
-      )
-    }
-  }
-console.log("Rendering exData:", exData);
+  console.log("Rendering exData:", exData);
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -245,54 +219,54 @@ console.log("Rendering exData:", exData);
           </Button>
         </div>
       ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {templates.map((template) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {templates.map((template) => (
             <Card key={String(template.id)} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">{template.name}</CardTitle>
-                <Badge variant="secondary">{template.type}</Badge>
-              </div>
-              <CardDescription>
-                {template.exercises.length} {template.exercises.length !== 1 ? t('exercises') : t('exercise')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ScrollArea className="h-32">
-                <div className="space-y-2">
-                  {template.exercises.filter((exercise: Template['exercises'][number]) => exercise.name !== 'Unknown Exercise').map((exercise: Template['exercises'][number], index: number) => {
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">{template.name}</CardTitle>
+                  <Badge variant="secondary">{template.type}</Badge>
+                </div>
+                <CardDescription>
+                  {template.exercises.length} {template.exercises.length !== 1 ? t('exercises') : t('exercise')}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ScrollArea className="h-32">
+                  <div className="space-y-2">
+                    {template.exercises.filter((exercise: Template['exercises'][number]) => exercise.name !== 'Unknown Exercise').map((exercise: Template['exercises'][number], index: number) => {
                       const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
                       const exerciseName = exData?.name || t('unknownExercise');
                       const imageUrl = exData?.image_url || "/placeholder.svg";
-                    return (
-                      <div key={exercise.exerciseId ?? index} className="flex items-center justify-between text-sm gap-2">
-                        <img src={imageUrl} alt={exerciseName} className="w-10 h-10 object-cover rounded" />
-                        <span className="flex-1 ml-2">{exerciseName}</span>
-                        <div className="text-muted-foreground">
-                          {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
-                          {exercise.duration && `${exercise.duration}s`}
+                      return (
+                        <div key={exercise.exerciseId ?? index} className="flex items-center justify-between text-sm gap-2">
+                          <img src={imageUrl} alt={exerciseName} className="w-10 h-10 object-cover rounded" />
+                          <span className="flex-1 ml-2">{exerciseName}</span>
+                          <div className="text-muted-foreground">
+                            {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}
+                            {exercise.duration && `${exercise.duration}s`}
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </ScrollArea>
+                      )
+                    })}
+                  </div>
+                </ScrollArea>
 
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm" onClick={() => handlePreviewTemplate(template)}>
-                  <Eye className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => handleEditTemplate(template)} className="flex-1">
-                  <Edit className="w-4 h-4 mr-1" />
-                  {t('edit')}
-                </Button>
+                <div className="flex space-x-2">
+                  <Button variant="outline" size="sm" onClick={() => handlePreviewTemplate(template)}>
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => handleEditTemplate(template)} className="flex-1">
+                    <Edit className="w-4 h-4 mr-1" />
+                    {t('edit')}
+                  </Button>
                   <Button variant="outline" size="sm" onClick={() => setConfirmDeleteId(Number(template.id))}>
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
 
@@ -339,7 +313,7 @@ console.log("Rendering exData:", exData);
               <div className="space-y-4">
                 {exercises.map((exercise, index) => {
                   const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
-                console.log("exddd",exData)
+                  console.log("exddd", exData)
                   const exerciseName = exData?.name || t('unknownExercise');
                   const exerciseImg = exData?.image_url || "/placeholder.svg";
                   return (
@@ -462,12 +436,12 @@ console.log("Rendering exData:", exData);
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span>
-    {
-      previewTemplate?.exercises?.[previewExerciseIndex]?.nameTranslations?.th ||
-      previewTemplate?.exercises?.[previewExerciseIndex]?.name ||
-      "ไม่พบชื่อท่าในฐานข้อมูล"
-    }
-  </span>
+                        {
+                          previewTemplate?.exercises?.[previewExerciseIndex]?.nameTranslations?.th ||
+                          previewTemplate?.exercises?.[previewExerciseIndex]?.name ||
+                          "ไม่พบชื่อท่าในฐานข้อมูล"
+                        }
+                      </span>
                       <div className="flex items-center space-x-2">
                         {previewTemplate.exercises[previewExerciseIndex]?.sets && (
                           <Badge variant="secondary">
@@ -722,34 +696,55 @@ console.log("Rendering exData:", exData);
                 <CardContent>
                   <Button onClick={async () => {
                     const exercises = tpl.exercises.map(ex => {
-                      // map ด้วย id เป็นหลัก
-                      const found = exerciseDatabase.find(e => String(e.id) === String(ex.exerciseId))
-                      return found ? {
-                        exerciseId: found.id,
-                        name: found.name,
-                        nameTranslations: { th: found.name },
-                        sets: ex.sets,
-                        reps: typeof ex.reps === "number" ? ex.reps : (typeof ex.reps === "string" ? parseInt(ex.reps) : undefined),
-                        duration: ex.duration,
-                        rest: 60,
-                        instructions: ex.instructions,
-                        instructionsTranslations: { th: ex.instructions?.[0] || '' },
-                      } : {
+                      const lookupId = Number(ex.exerciseId)
+                      const found = exerciseDatabase.find(e => Number(e.id) === lookupId)
+
+                      const reps =
+                        typeof ex.reps === "number"
+                          ? ex.reps
+                          : typeof ex.reps === "string"
+                            ? parseInt(ex.reps, 10)
+                            : undefined
+
+                      const instructions =
+                        Array.isArray(ex.instructions)
+                          ? ex.instructions.join(" ")
+                          : ex.instructions || ""
+
+                      if (found) {
+                        return {
+                          exerciseId: Number(found.id), // 🔒 fix type
+                          name: found.name,
+                          nameTranslations: { th: found.name },
+                          sets: ex.sets,
+                          reps,
+                          duration: ex.duration,
+                          rest: 60,
+                          instructions,
+                          instructionsTranslations: { th: instructions },
+                        }
+                      }
+
+                      // 🔥 fallback ต้องมี exerciseId
+                      return {
+                        exerciseId: lookupId || Date.now(), // หรือ lookupId ถ้ามั่นใจ
                         name: ex.name,
                         nameTranslations: { th: ex.name },
                         sets: ex.sets,
-                        reps: typeof ex.reps === "number" ? ex.reps : (typeof ex.reps === "string" ? parseInt(ex.reps) : undefined),
+                        reps,
                         duration: ex.duration,
                         rest: 60,
-                        instructions: (ex.instructions || "") + " (ชื่อท่าไม่พบในฐานข้อมูล)",
-                        instructionsTranslations: { th: (ex.instructions?.[0] || '') + " (ชื่อท่าไม่พบในฐานข้อมูล)" },
+                        instructions: instructions + " (ชื่อท่าไม่พบในฐานข้อมูล)",
+                        instructionsTranslations: {
+                          th: instructions + " (ชื่อท่าไม่พบในฐานข้อมูล)",
+                        },
                       }
                     })
                     await addTemplate({
                       id: Date.now(),
                       name: tpl.name,
                       nameTranslations: tpl.nameTranslations || { th: tpl.name },
-                      type: tpl.type || "Strength",
+                      type: tpl.type,
                       duration: tpl.duration || 30,
                       difficulty: tpl.difficulty || "Beginner",
                       description: tpl.description || "",
