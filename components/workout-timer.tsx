@@ -288,9 +288,9 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
               Set {currentSet} of {(currentExercise as any)?.sets || 1}
             </Badge>
           </CardTitle>
-          {exData?.imageUrl ? (
+          {exData?.image_url ? (
             <img
-              src={exData.imageUrl}
+              src={exData.image_url}
               alt={exerciseName}
               className="w-32 h-32 object-cover rounded mx-auto my-4"
             />

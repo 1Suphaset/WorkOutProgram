@@ -339,7 +339,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
         <div className="grid grid-cols-1 gap-4">
           {filteredExercises.map((exercise) => (
             <Card key={exercise.id} className="flex flex-row items-center gap-4 p-2">
-              <img src={exercise.imageUrl || exercise.imageUrl || "/placeholder.svg"} alt={exercise.name} className="w-16 h-16 object-cover rounded" />
+              <img src={exercise.image_url || exercise.image_url || "/placeholder.svg"} alt={exercise.name} className="w-16 h-16 object-cover rounded" />
               <div className="flex-1">
                 <div className="font-semibold">{exercise.name}</div>
                 <div className="text-xs text-muted-foreground">{exercise.category} | {exercise.difficulty}</div>
@@ -497,7 +497,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
               <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow cursor-pointer group">
                 <div className="relative">
                   <img
-                    src={exercise.imageUrl || exercise.imageUrl || "/placeholder.svg"}
+                    src={exercise.image_url || exercise.image_url || "/placeholder.svg"}
                     alt={exercise.name}
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
@@ -619,7 +619,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-4">
                     <img
-                      src={exercise.imageUrl || exercise.imageUrl || "/placeholder.svg"}
+                      src={exercise.image_url || exercise.image_url || "/placeholder.svg"}
                       alt={exercise.name}
                       className="w-20 h-20 object-cover rounded-lg"
                     />
@@ -704,7 +704,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
               <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow">
                 <div className="relative">
                   <img
-                    src={exercise.imageUrl || exercise.imageUrl || "/placeholder.svg"}
+                    src={exercise.image_url || exercise.image_url || "/placeholder.svg"}
                     alt={exercise.name}
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
@@ -779,7 +779,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
         <CustomExerciseForm
           exercise={editingCustomExercise ? { 
             ...editingCustomExercise, 
-            imageUrl: editingCustomExercise.imageUrl || editingCustomExercise.imageUrl, 
+            image_url: editingCustomExercise.image_url || editingCustomExercise.image_url, 
             isCustom: true as const, 
             createdAt: editingCustomExercise.createdAt || "",
             category: editingCustomExercise.category as "Strength" | "Cardio" | "Flexibility" | "Sports",
@@ -850,7 +850,7 @@ function ExerciseDetailModal({
           {/* Exercise Image */}
           <div className="relative">
             <img
-              src={exercise.imageUrl || exercise.imageUrl || "/placeholder.svg"}
+              src={exercise.image_url || exercise.image_url || "/placeholder.svg"}
               alt={exercise.name}
               className="w-full h-64 object-cover rounded-lg"
             />
