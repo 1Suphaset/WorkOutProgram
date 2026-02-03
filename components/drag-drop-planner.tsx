@@ -30,10 +30,18 @@ export function DragDropPlanner({ selectedDate, language, onAddExercise, exercis
       exercise.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       exercise.category.toLowerCase().includes(searchTerm.toLowerCase()),
   )
+  const handleDragStart = (
+    e: React.DragEvent<HTMLDivElement>,
+    exercise: Exercise
+  ) => {
+    e.dataTransfer.setData(
+      "application/json",
+      JSON.stringify(exercise)
+    );
 
-  const handleDragStart = (exercise: Exercise) => {
-    setDraggedExercise(exercise)
-  }
+    setDraggedExercise(exercise);
+  };
+
 
   const handleDragEnd = () => {
     setDraggedExercise(null)
@@ -94,36 +102,47 @@ export function DragDropPlanner({ selectedDate, language, onAddExercise, exercis
 
           <ScrollArea className="h-64 md:h-96">
             <div className="space-y-2">
-              {filteredExercises.map((exercise) => {
-                const ex = exercise as Exercise;
-                return (
+              {filteredExercises.map((ex) => (
                 <div
-                    key={ex.id}
+                  key={ex.id}
                   draggable
-                    onDragStart={() => handleDragStart(ex)}
+                  onDragStart={(e) => handleDragStart(e, ex)}
                   onDragEnd={handleDragEnd}
                   className="flex items-center justify-between p-2 md:p-3 border rounded-lg cursor-move hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-center space-x-2 md:space-x-3 flex-1 min-w-0">
                     <GripVertical className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground flex-shrink-0" />
+
                     <div className="min-w-0 flex-1">
-                        <p className="font-medium text-xs md:text-sm truncate">{ex.name}</p>
+                      <p className="font-medium text-xs md:text-sm truncate">{ex.name}</p>
+
                       <div className="flex flex-wrap items-center gap-1 md:gap-2 mt-1">
-                          <Badge variant="secondary" className={`text-xs ${getCategoryColor(ex.category)}`}>
-                            {ex.category}
+                        <Badge
+                          variant="secondary"
+                          className={`text-xs ${getCategoryColor(ex.category)}`}
+                        >
+                          {ex.category}
                         </Badge>
+
                         <span className="text-xs text-muted-foreground">
-                            {(ex as any).duration}s{(ex as any).reps && ` • ${(ex as any).reps} reps`}
+                          {/* {ex.recommendedSets.duration ? `${ex.recommendedSets.duration}s` : '—'} */}
+                          {ex.recommendedSets?.reps ? ` • ${ex.recommendedSets?.reps} reps` : ''}
                         </span>
-                        </div>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => onAddExercise(ex)} className="flex-shrink-0">
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onAddExercise(ex)}
+                    className="flex-shrink-0"
+                  >
                     <Plus className="w-3 h-3 md:w-4 md:h-4" />
                   </Button>
                 </div>
-                )
-              })}
+              ))}
+
             </div>
           </ScrollArea>
         </CardContent>

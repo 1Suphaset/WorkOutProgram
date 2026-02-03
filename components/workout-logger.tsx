@@ -115,9 +115,8 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
               if (!log) return null
               const rawId = (exercise as any).exerciseId ?? exercise.id
               const exerciseId = Number(rawId)
-              const exData = exerciseDatabase.find(e => e.id === exerciseId)
+              const exData = exerciseDatabase.find(e => Number(e.id) === exerciseId)
               const exerciseName = exData?.name || t('unknownExercise');
-
               return (
                 <Card key={exercise.id}>
                   <CardHeader className="pb-3">

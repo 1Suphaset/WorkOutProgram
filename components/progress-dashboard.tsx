@@ -153,11 +153,13 @@ export function ProgressDashboard({
     workoutLogs?.length,
     "logs"
   );
+  console.log(completedWorkouts)
   const monthlyData =
-    completedWorkouts && workoutLogs
-      ? Array.from({ length: 6 }, (_, i) => {
+  completedWorkouts && workoutLogs
+    ? Array.from({ length: 6 }, (_, i) => {
         const date = new Date();
         date.setMonth(date.getMonth() - i);
+
         const month = date.toLocaleDateString(
           language === "th" ? "th-TH" : "en-US",
           { month: "short" }
@@ -165,73 +167,46 @@ export function ProgressDashboard({
 
         const monthWorkouts = completedWorkouts.filter((w) => {
           if (!w.date) return false;
-          const workoutDate = new Date(w.date);
+          const d = new Date(w.date);
           return (
-            workoutDate.getMonth() === date.getMonth() &&
-            workoutDate.getFullYear() === date.getFullYear()
+            d.getMonth() === date.getMonth() &&
+            d.getFullYear() === date.getFullYear()
           );
         });
 
         const monthLogs = workoutLogs.filter((log) => {
           const completedAt = log.completedAt || (log as any).completed_at;
           if (!completedAt) return false;
-          const logDate = new Date(completedAt);
+          const d = new Date(completedAt);
           return (
-            logDate.getMonth() === date.getMonth() &&
-            logDate.getFullYear() === date.getFullYear()
+            d.getMonth() === date.getMonth() &&
+            d.getFullYear() === date.getFullYear()
           );
         });
 
-        console.log(
-          `Month ${month} logs:`,
-          monthLogs.map((log) => ({
-            id: (log as any).id ?? 0,
-            overall_effort: log.overall_effort,
-            overall_effort_type: typeof log.overall_effort,
-            completedAt: log.completedAt || (log as any).completed_at,
-          }))
-        );
+        const effortValues = monthLogs
+          .map((log) => Number(log.overall_effort))
+          .filter((v) => !isNaN(v) && v > 0);
 
         const avgEffort =
-          monthLogs.length > 0
-            ? monthLogs.reduce((sum, log) => {
-              console.log(
-                `Adding effort for log ${(log as any).id}: ${log.overall_effort
-                }, type: ${typeof log.overall_effort}`
-              );
-              return sum + (Number(log.overall_effort) || 0);
-            }, 0) / monthLogs.length
+          effortValues.length > 0
+            ? effortValues.reduce((a, b) => a + b, 0) / effortValues.length
             : 0;
 
-        console.log(`Monthly data for ${month}:`, {
-          monthLogs: monthLogs.length,
-          avgEffort: avgEffort,
-          avgEffortType: typeof avgEffort,
-          effortValue: avgEffort > 0 ? Math.round(avgEffort * 10) / 10 : 0,
-          effortValueType: typeof (avgEffort > 0
-            ? Math.round(avgEffort * 10) / 10
-            : 0),
-          duration:
-            monthLogs.length > 0
-              ? monthLogs.reduce((sum, w) => sum + (w.duration || 0), 0) / 60
-              : 0,
-          durationLogs: monthLogs.map((log) => ({
-            id: (log as any).id ?? 0,
-            duration: log.duration,
-          })),
-        });
+        const durationMinutes = monthLogs.reduce((sum, log) => {
+          const d = Number(log.duration) || 0;
+          return d > 300 ? sum + d / 60 : sum + d;
+        }, 0);
 
         return {
           month,
           workouts: monthWorkouts.length,
-          duration:
-            monthLogs.length > 0
-              ? monthLogs.reduce((sum, w) => sum + (w.duration || 0), 0) / 60
-              : 0,
+          duration: Math.round(durationMinutes),
           effort: avgEffort > 0 ? Math.round(avgEffort * 10) / 10 : 0,
         };
       }).reverse()
-      : [];
+    : [];
+
 
   console.log("ProgressDashboard - final monthlyData:", monthlyData);
   console.log(
@@ -245,30 +220,34 @@ export function ProgressDashboard({
 
   // Workout category distribution
   const categoryData = completedWorkouts
-    ? completedWorkouts.reduce((acc, workout) => {
-      // Determine category based on exercises (simplified logic)
-      const hasCardio =
-        workout.exercises &&
-        workout.exercises.some(
-          (ex) => (ex as any).duration && (ex as any).duration > 0
-        );
-      const hasStrength =
-        workout.exercises &&
-        workout.exercises.some((ex) => (ex as any).sets && (ex as any).reps);
+  ? completedWorkouts.reduce((acc, workout) => {
+      if (!workout.exercises || workout.exercises.length === 0) {
+        acc["Unknown"] = (acc["Unknown"] || 0) + 1;
+        return acc;
+      }
+
+      // ดึง category ทั้งหมดของ workout นั้น
+      const categories = new Set(
+        workout.exercises.map((ex: any) => ex.category).filter(Boolean)
+      );
 
       let category = "Mixed";
-      if (hasCardio && !hasStrength) category = "Cardio";
-      else if (hasStrength && !hasCardio) category = "Strength";
+
+      if (categories.size === 1) {
+        category = [...categories][0]; // Cardio | Strength | Flexibility | Sports
+      }
 
       acc[category] = (acc[category] || 0) + 1;
       return acc;
     }, {} as Record<string, number>)
-    : {};
+  : {};
+
 
   const categoryChartData = categoryData
     ? Object.entries(categoryData).map(([name, value]) => ({ name, value }))
     : [];
 
+    console.log(completedWorkouts)
   const COLORS = [
     "#0088FE",
     "#00C49F",

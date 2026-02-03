@@ -33,7 +33,7 @@ interface Exercise {
   notes?: string;
   weight?: number;
   time?: number;
-  exerciseId?: number;
+  exerciseId?: String;
 }
 interface Workout {
   id: number;
@@ -317,17 +317,30 @@ export default function WorkoutPlannerApp() {
   }
 
   const handleAddExerciseFromDragDrop = (exercise: unknown) => {
-    const ex = exercise as Exercise;
-    const newWorkout: Workout = {
-      id: Date.now() + Math.floor(Math.random() * 10000),
-      date: selectedDate.toLocaleDateString("sv-SE"),
-      name: `${ex.name} Workout`,
-      exercises: [ex],
-      completed: false,
-      createdAt: new Date().toISOString(),
-    };
-    addWorkout(newWorkout)
-  }
+  const ex = exercise as Exercise;
+    console.log(ex)
+  const workoutExercise = {
+    id: Number(ex.exerciseId ?? ex.id),
+    name: ex.name,
+    reps: ex.reps ?? 10,
+    sets: ex.sets ?? 3,
+    notes: ex.notes ?? "",
+    category: ex.category,
+    duration: ex.duration ?? 60, // default 60 วินาที
+    exerciseId: String(ex.exerciseId ?? ex.id),
+  };
+  const newWorkout: Workout = {
+    id: Date.now(),
+    date: selectedDate.toLocaleDateString("sv-SE"),
+    name: `${ex.name} Workout`,
+    exercises: [workoutExercise],
+    completed: false,
+    createdAt: new Date().toISOString(),
+  };
+
+  addWorkout(newWorkout);
+};
+
 
   // Show login form if user is not authenticated
   if (!user) {
@@ -362,7 +375,6 @@ export default function WorkoutPlannerApp() {
                 />
               </div>
               <div className="2xl:col-span-4 space-y-4 md:space-y-6">
-                {/* <DailyNotes selectedDate={selectedDate} language={language} /> */}
                 <DragDropPlanner
                   selectedDate={selectedDate}
                   language={language}

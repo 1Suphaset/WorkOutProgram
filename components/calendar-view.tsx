@@ -274,7 +274,6 @@ export function Calendar({
                             const exData = exerciseDatabase.find(
                               (e) => e.id === exercise.id
                             );
-                            console.log("exddd", exData);
 
                             return (
                               <div
