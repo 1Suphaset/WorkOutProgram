@@ -33,7 +33,6 @@ interface Exercise {
   notes?: string;
   weight?: number;
   time?: number;
-  exerciseId?: String;
 }
 interface Workout {
   id: number;
@@ -195,30 +194,9 @@ export default function WorkoutPlannerApp() {
   const addTemplate = async (template: WorkoutTemplate) => {
     if (!user) return;
     // Ensure all required fields for WorkoutTemplate are present
-    const fullTemplate: WorkoutTemplate = {
-      ...template,
-      nameTranslations: template.nameTranslations || { th: template.name },
-      type: template.type ,
-      duration: template.duration || 30,
-      difficulty: template.difficulty || "Beginner",
-      description: template.description || "",
-      descriptionTranslations: template.descriptionTranslations || { th: template.description || "" },
-      equipment: template.equipment || [],
-      targetMuscles: template.targetMuscles || [],
-      calories: template.calories || 0,
-      tags: template.tags || [],
-      exercises: (template.exercises || []).map((ex: any) => ({
-        ...ex,
-        id: Number(ex.id),
-        nameTranslations: ex.nameTranslations || { th: ex.name },
-        sets: ex.sets,
-        reps: ex.reps,
-        duration: ex.duration,
-        rest: ex.rest,
-        instructions: ex.instructions || "",
-        instructionsTranslations: ex.instructionsTranslations || { th: ex.instructions || "" },
-      })),
-    };
+    console.log(template)
+    const fullTemplate: WorkoutTemplate = template
+  
     const res = await fetch("/api/templates", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -234,28 +212,6 @@ export default function WorkoutPlannerApp() {
     if (!template) return;
     const fullTemplate: WorkoutTemplate = {
       ...template,
-      ...updatedTemplate,
-      nameTranslations: updatedTemplate.nameTranslations || template.nameTranslations || { th: template.name },
-      type: updatedTemplate.type || template.type,
-      duration: updatedTemplate.duration || template.duration || 30,
-      difficulty: updatedTemplate.difficulty || template.difficulty || "Beginner",
-      description: updatedTemplate.description || template.description || "",
-      descriptionTranslations: updatedTemplate.descriptionTranslations || template.descriptionTranslations || { th: template.description || "" },
-      equipment: updatedTemplate.equipment || template.equipment || [],
-      targetMuscles: updatedTemplate.targetMuscles || template.targetMuscles || [],
-      calories: updatedTemplate.calories || template.calories || 0,
-      tags: updatedTemplate.tags || template.tags || [],
-      exercises: (updatedTemplate.exercises || template.exercises || []).map((ex: any) => ({
-        ...ex,
-        id: Number(ex.id),
-        nameTranslations: ex.nameTranslations || { th: ex.name },
-        sets: ex.sets,
-        reps: ex.reps,
-        duration: ex.duration,
-        rest: ex.rest,
-        instructions: ex.instructions || "",
-        instructionsTranslations: ex.instructionsTranslations || { th: ex.instructions || "" },
-      })),
     };
     const res = await fetch("/api/templates", {
       method: "PUT",
@@ -320,14 +276,13 @@ export default function WorkoutPlannerApp() {
   const ex = exercise as Exercise;
     console.log(ex)
   const workoutExercise = {
-    id: Number(ex.exerciseId ?? ex.id),
+    id: Number(ex.id),
     name: ex.name,
     reps: ex.reps ?? 10,
     sets: ex.sets ?? 3,
     notes: ex.notes ?? "",
     category: ex.category,
     duration: ex.duration ?? 60, // default 60 วินาที
-    exerciseId: String(ex.exerciseId ?? ex.id),
   };
   const newWorkout: Workout = {
     id: Date.now(),

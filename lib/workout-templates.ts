@@ -1,18 +1,9 @@
 export interface WorkoutTemplate {
   id: number
   name: string
-  nameTranslations: {
-    th: string
-  }
-  type: "Cardio" | "Strength" | "Core" | "Flexibility" | "Full Body" | "HIIT"
-  duration: number // in minutes
-  difficulty: "Beginner" | "Intermediate" | "Advanced"
-  description: string
-  descriptionTranslations: {
-    th: string
-  }
+  type: string
   exercises: {
-    exerciseId?: number; // เพิ่ม field นี้เพื่อรองรับ exerciseId
+    id?: number; // เพิ่ม field นี้เพื่อรองรับ id
     name: string
     nameTranslations: {
       th: string
@@ -26,10 +17,6 @@ export interface WorkoutTemplate {
       th: string
     }
   }[]
-  equipment: string[]
-  targetMuscles: string[]
-  calories: number // estimated calories burned
-  tags: string[]
 }
 
 export const workoutTemplates: WorkoutTemplate[] = [
@@ -37,20 +24,10 @@ export const workoutTemplates: WorkoutTemplate[] = [
   {
     id: 1,
     name: "Full Body Beginner",
-    nameTranslations: {
-      th: "โปรแกรมเริ่มต้นทั้งร่างกาย",
-    },
     type: "Full Body",
-    duration: 30,
-    difficulty: "Beginner",
-    description:
-      "A complete full-body workout perfect for beginners. Focuses on basic movements and building strength.",
-    descriptionTranslations: {
-      th: "โปรแกรมออกกำลังกายทั้งร่างกายที่เหมาะสำหรับผู้เริ่มต้น เน้นการเคลื่อนไหวพื้นฐานและการสร้างความแข็งแรง",
-    },
     exercises: [
       {
-        exerciseId: 46,
+        id: 46,
         name: "Bodyweight Squats",
         nameTranslations: { th: "สควอทด้วยน้ำหนักตัว" },
         sets: 3,
@@ -60,7 +37,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "ยืนให้เท้าห่างเท่าไหล่ ลงนั่งท่าสควอท แล้วกลับสู่ท่ายืน" },
       },
       {
-        exerciseId: 47,
+        id: 47,
         name: "Push-ups (Modified)",
         nameTranslations: { th: "วิดพื้น (แบบปรับเปลี่ยน)" },
         sets: 3,
@@ -70,27 +47,14 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "เริ่มในท่าแพลงค์ ลดอกลงสู่พื้น แล้วผลักขึ้น ใช้เข่าถ้าจำเป็น" },
       },
     ],
-    equipment: ["None"],
-    targetMuscles: ["Full Body"],
-    calories: 150,
-    tags: ["beginner", "full-body", "bodyweight"],
   },
   {
     id: 2,
     name: "HIIT Cardio Blast",
-    nameTranslations: {
-      th: "HIIT คาร์ดิโอเบิร์น",
-    },
     type: "HIIT",
-    duration: 20,
-    difficulty: "Intermediate",
-    description: "High-intensity interval training to boost cardiovascular fitness and burn calories quickly.",
-    descriptionTranslations: {
-      th: "การฝึกแบบช่วงความเข้มสูงเพื่อเพิ่มสมรรถภาพหัวใจและเผาผลาญแคลอรี่อย่างรวดเร็ว",
-    },
     exercises: [
       {
-        exerciseId: 6,
+        id: 6,
         name: "Jumping Jacks",
         nameTranslations: { th: "จัมปิ้งแจ็ค" },
         duration: 30,
@@ -99,7 +63,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "กระโดดพร้อมแยกขาและยกแขนขึ้นเหนือศีรษะ แล้วกลับสู่ท่าเริ่มต้น" },
       },
       {
-        exerciseId: 9,
+        id: 9,
         name: "High Knees",
         nameTranslations: { th: "ยกเข่าสูง" },
         duration: 30,
@@ -108,29 +72,16 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "วิ่งในที่พร้อมยกเข่าให้สูงที่สุดเข้าหาอก" },
       },
     ],
-    equipment: ["None"],
-    targetMuscles: ["Cardiovascular", "Full Body"],
-    calories: 200,
-    tags: ["hiit", "cardio", "high-intensity"],
   },
 
   // NEW CARDIO TEMPLATES
   {
     id: 3,
     name: "Jump Rope Cardio",
-    nameTranslations: {
-      th: "กระโดดเชือกคาร์ดิโอ",
-    },
     type: "Cardio",
-    duration: 15,
-    difficulty: "Beginner",
-    description: "Simple yet effective jump rope workout to improve coordination and cardiovascular health.",
-    descriptionTranslations: {
-      th: "การออกกำลังกายกระโดดเชือกที่เรียบง่ายแต่มีประสิทธิภาพ เพื่อพัฒนาการประสานงานและสุขภาพหัวใจ",
-    },
     exercises: [
       {
-        exerciseId: 48,
+        id: 48,
         name: "Basic Jump Rope",
         nameTranslations: { th: "กระโดดเชือกพื้นฐาน" },
         sets: 5,
@@ -140,7 +91,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "กระโดดด้วยเท้าทั้งสองข้างพร้อมกัน รักษาจังหวะให้สม่ำเสมอ ลงด้วยปลายเท้าอย่างนุ่มนวล" },
       },
       {
-        exerciseId: 49,
+        id: 49,
         name: "Single Leg Hops",
         nameTranslations: { th: "กระโดดขาเดียว" },
         sets: 4,
@@ -150,27 +101,14 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "สลับกระโดดด้วยขาข้างหนึ่ง แล้วขาอีกข้าง เน้นการทรงตัวและการควบคุม" },
       },
     ],
-    equipment: ["Jump Rope"],
-    targetMuscles: ["Calves", "Cardiovascular", "Core"],
-    calories: 180,
-    tags: ["cardio", "jump-rope", "coordination"],
   },
   {
     id: 4,
     name: "Burpee Blast",
-    nameTranslations: {
-      th: "เบอร์ปี้เบอร์น",
-    },
     type: "Cardio",
-    duration: 12,
-    difficulty: "Intermediate",
-    description: "High-intensity burpee workout that targets full body strength and cardiovascular endurance.",
-    descriptionTranslations: {
-      th: "การออกกำลังกายเบอร์ปี้ความเข้มสูงที่เน้นความแข็งแรงทั้งร่างกายและความอดทนของหัวใจ",
-    },
     exercises: [
       {
-        exerciseId: 50,
+        id: 50,
         name: "Standard Burpees",
         nameTranslations: { th: "เบอร์ปี้มาตรฐาน" },
         sets: 4,
@@ -180,27 +118,14 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "นั่งยองลง กระโดดถอยหลังเป็นท่าแพลงค์ วิดพื้น กระโดดเท้าเข้าหา แล้วกระโดดขึ้นยกแขน" },
       }
     ],
-    equipment: ["None"],
-    targetMuscles: ["Full Body", "Cardiovascular"],
-    calories: 220,
-    tags: ["burpees", "hiit", "full-body", "intense"],
   },
   {
     id: 5,
     name: "Mountain Climber Cardio",
-    nameTranslations: {
-      th: "เมาน์เทนไคลม์เบอร์คาร์ดิโอ",
-    },
     type: "Cardio",
-    duration: 10,
-    difficulty: "Beginner",
-    description: "Fast-paced mountain climber workout to build core strength and cardiovascular endurance.",
-    descriptionTranslations: {
-      th: "การออกกำลังกายเมาน์เทนไคลม์เบอร์จังหวะเร็วเพื่อสร้างความแข็งแรงของกล้ามเนื้อหลักและความอดทนของหัวใจ",
-    },
     exercises: [
       {
-        exerciseId: 52,
+        id: 52,
         name: "Mountain Climbers",
         nameTranslations: { th: "เมาน์เทนไคลม์เบอร์" },
         sets: 4,
@@ -211,7 +136,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "เริ่มในท่าแพลงค์ สลับดึงเข่าเข้าหาอกอย่างรวดเร็วโดยรักษาท่าแพลงค์" },
       },
       {
-        exerciseId: 53,
+        id: 53,
         name: "Cross-Body Mountain Climbers",
         nameTranslations: { th: "เมาน์เทนไคลม์เบอร์ข้ามตัว" },
         sets: 3,
@@ -221,30 +146,16 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "ดึงเข่าไปหาข้อศอกข้างตรงข้าม สลับข้างเพื่อใช้กล้ามเนื้อข้างลำตัว" },
       },
     ],
-    equipment: ["None"],
-    targetMuscles: ["Core", "Shoulders", "Cardiovascular"],
-    calories: 160,
-    tags: ["mountain-climbers", "core", "cardio"],
   },
 
   // NEW STRENGTH TEMPLATES
   {
     id: 7,
     name: "Push-up Power",
-    nameTranslations: {
-      th: "พาวเวอร์วิดพื้น",
-    },
     type: "Strength",
-    duration: 20,
-    difficulty: "Intermediate",
-    description:
-      "Comprehensive push-up workout targeting chest, shoulders, and triceps with various push-up variations.",
-    descriptionTranslations: {
-      th: "การออกกำลังกายวิดพื้นแบบครอบคลุมที่เน้นอก ไหล่ และกล้ามเนื้อแขนหลังด้วยท่าวิดพื้นหลากหลาย",
-    },
     exercises: [
       {
-        exerciseId: 3,
+        id: 55,
         name: "Standard Push-ups",
         nameTranslations: { th: "วิดพื้นมาตรฐาน" },
         sets: 3,
@@ -254,7 +165,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "รักษาตัวให้ตรง ลดอกลงสู่พื้น ผลักขึ้นโดยรักษาท่าทาง" },
       },
       {
-        exerciseId: 3,
+        id: 56,
         name: "Wide-Grip Push-ups",
         nameTranslations: { th: "วิดพื้นมือกว้าง" },
         sets: 3,
@@ -264,7 +175,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "วางมือกว้างกว่าไหล่ เน้นการใช้กล้ามเนื้ออก" },
       },
       {
-        exerciseId: 3,
+        id: 57,
         name: "Diamond Push-ups",
         nameTranslations: { th: "วิดพื้นเพชร" },
         sets: 2,
@@ -274,27 +185,14 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "ทำรูปเพชรด้วยมือ เน้นกล้ามเนื้อแขนหลังมากขึ้น" },
       },
     ],
-    equipment: ["None"],
-    targetMuscles: ["Chest", "Shoulders", "Triceps", "Core"],
-    calories: 120,
-    tags: ["push-ups", "upper-body", "strength"],
   },
   {
     id: 8,
     name: "Squat Strength",
-    nameTranslations: {
-      th: "ความแข็งแรงสควอท",
-    },
     type: "Strength",
-    duration: 25,
-    difficulty: "Intermediate",
-    description: "Lower body strength workout focusing on squat variations to build leg and glute strength.",
-    descriptionTranslations: {
-      th: "การออกกำลังกายความแข็งแรงส่วนล่างที่เน้นท่าสควอทหลากหลายเพื่อสร้างความแข็งแรงของขาและสะโพก",
-    },
     exercises: [
       {
-        exerciseId: 46,
+        id: 46,
         name: "Bodyweight Squats",
         nameTranslations: { th: "สควอทน้ำหนักตัว" },
         sets: 4,
@@ -304,7 +202,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "เท้าห่างเท่าไหล่ นั่งถอยหลังและลง ผลักผ่านส้นเท้าเพื่อยืน" },
       },
       {
-        exerciseId: 3,
+        id: 58,
         name: "Jump Squats",
         nameTranslations: { th: "สควอทกระโดด" },
         sets: 3,
@@ -314,7 +212,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "ทำสควอทแล้วระเบิดขึ้นกระโดด ลงอย่างนุ่มนวลและทำซ้ำ" },
       },
       {
-        exerciseId: 3,
+        id: 59,
         name: "Single-Leg Squats",
         nameTranslations: { th: "สควอทขาเดียว" },
         sets: 2,
@@ -324,27 +222,14 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "สควอทด้วยขาข้างเดียว ใช้เก้าอี้ช่วยทรงตัวถ้าจำเป็น เน้นการควบคุม" },
       },
     ],
-    equipment: ["None", "Chair (optional)"],
-    targetMuscles: ["Quadriceps", "Glutes", "Hamstrings", "Core"],
-    calories: 140,
-    tags: ["squats", "lower-body", "strength", "glutes"],
   },
   {
     id: 9,
     name: "Lunge Workout",
-    nameTranslations: {
-      th: "การออกกำลังกายลันจ์",
-    },
     type: "Strength",
-    duration: 18,
-    difficulty: "Beginner",
-    description: "Unilateral leg strength workout using various lunge patterns to improve balance and leg strength.",
-    descriptionTranslations: {
-      th: "การออกกำลังกายความแข็งแรงขาแบบข้างเดียวใช้ท่าลันจ์หลากหลายเพื่อพัฒนาการทรงตัวและความแข็งแรงของขา",
-    },
     exercises: [
       {
-        exerciseId: 3,
+        id: 3,
         name: "Forward Lunges",
         nameTranslations: { th: "ลันจ์ไปข้างหน้า" },
         sets: 3,
@@ -354,7 +239,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "ก้าวไปข้างหน้าเป็นท่าลันจ์ ลดเข่าหลังลงสู่พื้น ผลักกลับสู่จุดเริ่มต้น" },
       },
       {
-        exerciseId: 3,
+        id: 3,
         name: "Reverse Lunges",
         nameTranslations: { th: "ลันจ์ถอยหลัง" },
         sets: 3,
@@ -364,7 +249,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "ก้าวถอยหลังเป็นท่าลันจ์ เน้นความมั่นคงของขาหน้า กลับสู่ตรงกลาง" },
       },
       {
-        exerciseId: 3,
+        id: 3,
         name: "Lateral Lunges",
         nameTranslations: { th: "ลันจ์ข้าง" },
         sets: 2,
@@ -374,27 +259,14 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "ก้าวไปข้าง นั่งถอยหลังด้วยขาข้างหนึ่ง ขาอีกข้างตรง กลับสู่ตรงกลาง" },
       },
     ],
-    equipment: ["None"],
-    targetMuscles: ["Quadriceps", "Glutes", "Hamstrings", "Calves"],
-    calories: 110,
-    tags: ["lunges", "unilateral", "balance", "legs"],
   },
   {
     id: 10,
     name: "Plank Challenge",
-    nameTranslations: {
-      th: "ท้าทายแพลงค์",
-    },
     type: "Strength",
-    duration: 15,
-    difficulty: "Intermediate",
-    description: "Core-focused workout using plank variations to build stability, strength, and endurance.",
-    descriptionTranslations: {
-      th: "การออกกำลังกายเน้นกล้ามเนื้อหลักใช้ท่าแพลงค์หลากหลายเพื่อสร้างความมั่นคง ความแข็งแรง และความอดทน",
-    },
     exercises: [
       {
-        exerciseId: 3,
+        id: 3,
         name: "Standard Plank",
         nameTranslations: { th: "แพลงค์มาตรฐาน" },
         sets: 3,
@@ -404,7 +276,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "ค้างท่าแพลงค์ รักษาตัวให้ตรงจากหัวถึงส้นเท้า กระชับกล้ามเนื้อหลัก" },
       },
       {
-        exerciseId: 3,
+        id: 3,
         name: "Side Planks",
         nameTranslations: { th: "แพลงค์ข้าง" },
         sets: 2,
@@ -414,7 +286,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "นอนตะแคง ค้ำด้วยข้อศอก ยกสะโพกให้เป็นเส้นตรง" },
       },
       {
-        exerciseId: 3,
+        id: 3,
         name: "Plank Up-Downs",
         nameTranslations: { th: "แพลงค์ขึ้น-ลง" },
         sets: 3,
@@ -424,28 +296,14 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "เริ่มในท่าแพลงค์ ลงสู่แขนพับทีละข้าง กลับสู่ท่าแพลงค์" },
       },
     ],
-    equipment: ["None"],
-    targetMuscles: ["Core", "Shoulders", "Arms"],
-    calories: 90,
-    tags: ["plank", "core", "isometric", "stability"],
   },
   {
     id: 11,
     name: "Deadlift Basics",
-    nameTranslations: {
-      th: "พื้นฐานเดดลิฟท์",
-    },
     type: "Strength",
-    duration: 30,
-    difficulty: "Advanced",
-    description:
-      "Fundamental deadlift workout focusing on proper form and progressive loading for posterior chain strength.",
-    descriptionTranslations: {
-      th: "การออกกำลังกายเดดลิฟท์พื้นฐานที่เน้นท่าทางที่ถูกต้องและการเพิ่มน้ำหนักแบบค่อยเป็นค่อยไปเพื่อความแข็งแรงของกล้ามเนื้อด้านหลัง",
-    },
     exercises: [
       {
-        exerciseId: 3,
+        id: 3,
         name: "Romanian Deadlifts",
         nameTranslations: { th: "เดดลิฟท์โรมาเนีย" },
         sets: 4,
@@ -455,7 +313,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "งอที่สะโพก ลดน้ำหนักลงโดยรักษาหลังตรง รู้สึกยืดที่กล้ามเนื้อหลังขา" },
       },
       {
-        exerciseId: 3,
+        id: 3,
         name: "Single-Leg Deadlifts",
         nameTranslations: { th: "เดดลิฟท์ขาเดียว" },
         sets: 3,
@@ -465,7 +323,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "ทรงตัวด้วยขาข้างเดียว งอไปข้างหน้า แตะพื้นด้วยปลายนิ้ว กลับสู่ท่ายืน" },
       },
       {
-        exerciseId: 3,
+        id: 3,
         name: "Sumo Deadlift Stretch",
         nameTranslations: { th: "ยืดเดดลิฟท์ซูโม่" },
         sets: 2,
@@ -475,29 +333,16 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "ยืนกว้าง เท้าชี้ออก นั่งยองขึ้นลงเน้นการเคลื่อนไหวของสะโพก" },
       },
     ],
-    equipment: ["Dumbbells", "Kettlebell"],
-    targetMuscles: ["Hamstrings", "Glutes", "Lower Back", "Core"],
-    calories: 160,
-    tags: ["deadlift", "posterior-chain", "hinge", "strength"],
   },
 
   // NEW CORE TEMPLATES
   {
     id: 12,
     name: "Crunch Core",
-    nameTranslations: {
-      th: "คอร์ครันช์",
-    },
     type: "Core",
-    duration: 12,
-    difficulty: "Beginner",
-    description: "Classic abdominal workout focusing on crunches and variations to strengthen the rectus abdominis.",
-    descriptionTranslations: {
-      th: "การออกกำลังกายหน้าท้องแบบคลาสสิกที่เน้นครันช์และรูปแบบต่างๆ เพื่อเสริมสร้างกล้ามเนื้อหน้าท้องตรง",
-    },
     exercises: [
       {
-        exerciseId: 3,
+        id: 3,
         name: "Basic Crunches",
         nameTranslations: { th: "ครันช์พื้นฐาน" },
         sets: 3,
@@ -507,7 +352,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "นอนหงาย งอเข่า ยกไหล่ขึ้นจากพื้น บีบหน้าท้อง ลงช้าๆ" },
       },
       {
-        exerciseId: 3,
+        id: 3,
         name: "Bicycle Crunches",
         nameTranslations: { th: "ครันช์จักรยาน" },
         sets: 3,
@@ -517,7 +362,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "สลับนำข้อศอกไปหาเข่าข้างตรงข้ามในการเคลื่อนไหวแบบปั่นจักรยาน" },
       },
       {
-        exerciseId: 3,
+        id: 3,
         name: "Reverse Crunches",
         nameTranslations: { th: "ครันช์ย้อนกลับ" },
         sets: 2,
@@ -527,232 +372,14 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "ยกเข่าเข้าหาอก งอสะโพกขึ้นจากพื้น เน้นหน้าท้องส่วนล่าง" },
       },
     ],
-    equipment: ["None"],
-    targetMuscles: ["Rectus Abdominis", "Obliques"],
-    calories: 70,
-    tags: ["crunches", "abs", "core", "beginner"],
-  },
-  {
-    id: 13,
-    name: "Russian Twist Core",
-    nameTranslations: {
-      th: "คอร์รัสเซียนทวิสต์",
-    },
-    type: "Core",
-    duration: 10,
-    difficulty: "Intermediate",
-    description: "Rotational core workout using Russian twists to target obliques and improve rotational strength.",
-    descriptionTranslations: {
-      th: "การออกกำลังกายคอร์แบบหมุนใช้รัสเซียนทวิสต์เพื่อเน้นกล้ามเนื้อข้างลำตัวและพัฒนาความแข็งแรงในการหมุน",
-    },
-    exercises: [
-      {
-        exerciseId: 3,
-        name: "Russian Twists",
-        nameTranslations: { th: "รัสเซียนทวิสต์" },
-        sets: 4,
-        reps: 20,
-        rest: 30,
-        instructions: "Sit with knees bent, lean back slightly, rotate torso side to side.",
-        instructionsTranslations: { th: "นั่งงอเข่า เอนหลังเล็กน้อย หมุนลำตัวไปมาข้างๆ" },
-      },
-      {
-        exerciseId: 3,
-        name: "Weighted Russian Twists",
-        nameTranslations: { th: "รัสเซียนทวิสต์ถ่วงน้ำหนัก" },
-        sets: 3,
-        reps: 16,
-        rest: 45,
-        instructions: "Hold weight or water bottle, perform twists with added resistance.",
-        instructionsTranslations: { th: "ถือน้ำหนักหรือขวดน้ำ ทำทวิสต์พร้อมความต้านทานเพิ่มเติม" },
-      },
-      {
-        exerciseId: 3,
-        name: "Feet-Up Russian Twists",
-        nameTranslations: { th: "รัสเซียนทวิสต์ยกเท้า" },
-        sets: 2,
-        reps: 12,
-        rest: 60,
-        instructions: "Lift feet off ground while twisting, increases core challenge.",
-        instructionsTranslations: { th: "ยกเท้าขึ้นจากพื้นขณะทวิสต์ เพิ่มความท้าทายของคอร์" },
-      },
-    ],
-    equipment: ["None", "Weight (optional)"],
-    targetMuscles: ["Obliques", "Rectus Abdominis", "Hip Flexors"],
-    calories: 80,
-    tags: ["russian-twists", "obliques", "rotation", "core"],
-  },
-  {
-    id: 14,
-    name: "Leg Raise Core",
-    nameTranslations: {
-      th: "คอร์ยกขา",
-    },
-    type: "Core",
-    duration: 14,
-    difficulty: "Intermediate",
-    description: "Lower abdominal focused workout using leg raise variations to strengthen the deep core muscles.",
-    descriptionTranslations: {
-      th: "การออกกำลังกายเน้นหน้าท้องส่วนล่างใช้ท่ายกขาหลากหลายเพื่อเสริมสร้างกล้ามเนื้อคอร์ส่วนลึก",
-    },
-    exercises: [
-      {
-        exerciseId: 3,
-        name: "Lying Leg Raises",
-        nameTranslations: { th: "ยกขานอน" },
-        sets: 3,
-        reps: 12,
-        rest: 60,
-        instructions: "Lie flat, lift straight legs to 90 degrees, lower slowly without touching ground.",
-        instructionsTranslations: { th: "นอนราบ ยกขาตรงถึง 90 องศา ลงช้าๆ โดยไม่แตะพื้น" },
-      },
-      {
-        exerciseId: 3,
-        name: "Bent-Knee Leg Raises",
-        nameTranslations: { th: "ยกขางอเข่า" },
-        sets: 3,
-        reps: 15,
-        rest: 45,
-        instructions: "Keep knees bent at 90 degrees, lift knees toward chest, lower with control.",
-        instructionsTranslations: { th: "งอเข่า 90 องศา ยกเข่าเข้าหาอก ลงอย่างมีการควบคุม" },
-      },
-      {
-        exerciseId: 3,
-        name: "Flutter Kicks",
-        nameTranslations: { th: "เตะกระพือ" },
-        sets: 2,
-        duration: 30,
-        rest: 45,
-        instructions: "Small alternating leg movements, keep lower back pressed to ground.",
-        instructionsTranslations: { th: "เคลื่อนไหวขาสลับเล็กๆ กดหลังส่วนล่างติดพื้น" },
-      },
-    ],
-    equipment: ["None"],
-    targetMuscles: ["Lower Abs", "Hip Flexors", "Core"],
-    calories: 85,
-    tags: ["leg-raises", "lower-abs", "core", "hip-flexors"],
-  },
-  {
-    id: 15,
-    name: "Flutter Kick Core",
-    nameTranslations: {
-      th: "คอร์เตะกระพือ",
-    },
-    type: "Core",
-    duration: 8,
-    difficulty: "Beginner",
-    description:
-      "Dynamic core workout using flutter kicks and variations to build endurance and lower abdominal strength.",
-    descriptionTranslations: {
-      th: "การออกกำลังกายคอร์แบบไดนามิกใช้เตะกระพือและรูปแบบต่างๆ เพื่อสร้างความอดทนและความแข็งแรงของหน้าท้องส่วนล่าง",
-    },
-    exercises: [
-      {
-        exerciseId: 3,
-        name: "Flutter Kicks",
-        nameTranslations: { th: "เตะกระพือ" },
-        sets: 4,
-        duration: 30,
-        rest: 30,
-        instructions: "Lie on back, lift legs slightly, alternate small up and down movements.",
-        instructionsTranslations: { th: "นอนหงาย ยกขาเล็กน้อย สลับเคลื่อนไหวขึ้นลงเล็กๆ" },
-      },
-      {
-        exerciseId: 3,
-        name: "Scissor Kicks",
-        nameTranslations: { th: "เตะกรรไกร" },
-        sets: 3,
-        duration: 25,
-        rest: 35,
-        instructions: "Cross legs over each other in scissoring motion, keep core engaged.",
-        instructionsTranslations: { th: "ไขว้ขาข้ามกันในการเคลื่อนไหวแบบกรรไกร กระชับคอร์" },
-      },
-      {
-        exerciseId: 3,
-        name: "Vertical Leg Crunches",
-        nameTranslations: { th: "ครันช์ขาตั้ง" },
-        sets: 2,
-        reps: 15,
-        rest: 45,
-        instructions: "Legs straight up, crunch up toward feet, focus on upper abs.",
-        instructionsTranslations: { th: "ขาตั้งตรง ครันช์ขึ้นไปหาเท้า เน้นหน้าท้องส่วนบน" },
-      },
-    ],
-    equipment: ["None"],
-    targetMuscles: ["Lower Abs", "Hip Flexors", "Core Stabilizers"],
-    calories: 60,
-    tags: ["flutter-kicks", "dynamic", "endurance", "lower-abs"],
-  },
-
-  // NEW FLEXIBILITY TEMPLATES
-  {
-    id: 16,
-    name: "Hamstring Flexibility",
-    nameTranslations: {
-      th: "ความยืดหยุ่นกล้ามเนื้อหลังขา",
-    },
-    type: "Flexibility",
-    duration: 15,
-    difficulty: "Beginner",
-    description:
-      "Comprehensive hamstring stretching routine to improve flexibility and reduce tightness in the posterior thigh.",
-    descriptionTranslations: {
-      th: "โปรแกรมยืดกล้ามเนื้อหลังขาแบบครอบคลุมเพื่อพัฒนาความยืดหยุ่นและลดความตึงของต้นขาด้านหลัง",
-    },
-    exercises: [
-      {
-        exerciseId: 3,
-        name: "Standing Hamstring Stretch",
-        nameTranslations: { th: "ยืดหลังขายืน" },
-        sets: 2,
-        duration: 30,
-        rest: 15,
-        instructions: "Place heel on elevated surface, lean forward gently, feel stretch in back of leg.",
-        instructionsTranslations: { th: "วางส้นเท้าบนพื้นผิวสูง เอนไปข้างหน้าเบาๆ รู้สึกยืดที่หลังขา" },
-      },
-      {
-        exerciseId: 3,
-        name: "Seated Forward Fold",
-        nameTranslations: { th: "นั่งก้มไปข้างหน้า" },
-        sets: 2,
-        duration: 45,
-        rest: 20,
-        instructions: "Sit with legs extended, reach toward toes, keep back straight.",
-        instructionsTranslations: { th: "นั่งเหยียดขา เอื้อมไปหาปลายเท้า รักษาหลังตรง" },
-      },
-      {
-        exerciseId: 3,
-        name: "Lying Hamstring Stretch",
-        nameTranslations: { th: "ยืดหลังขานอน" },
-        sets: 2,
-        duration: 30,
-        rest: 15,
-        instructions: "Lie on back, pull one leg toward chest, keep other leg flat.",
-        instructionsTranslations: { th: "นอนหงาย ดึงขาข้างหนึ่งเข้าหาอก ขาอีกข้างแบน" },
-      },
-    ],
-    equipment: ["None", "Towel (optional)"],
-    targetMuscles: ["Hamstrings", "Calves", "Lower Back"],
-    calories: 30,
-    tags: ["hamstring", "flexibility", "stretching", "mobility"],
   },
   {
     id: 17,
     name: "Child's Pose Flow",
-    nameTranslations: {
-      th: "โฟลว์ท่าเด็ก",
-    },
     type: "Flexibility",
-    duration: 12,
-    difficulty: "Beginner",
-    description:
-      "Relaxing yoga-inspired flow centered around child's pose to release tension and improve spinal mobility.",
-    descriptionTranslations: {
-      th: "การไหลแบบโยคะที่ผ่อนคลายเน้นท่าเด็กเพื่อปลดปล่อยความตึงเครียดและพัฒนาการเคลื่อนไหวของกระดูกสันหลัง",
-    },
     exercises: [
       {
-        exerciseId: 3,
+        id: 12,
         name: "Child's Pose",
         nameTranslations: { th: "ท่าเด็ก" },
         sets: 3,
@@ -762,7 +389,7 @@ export const workoutTemplates: WorkoutTemplate[] = [
         instructionsTranslations: { th: "คุกเข่า นั่งบนส้นเท้า เหยียดแขนไปข้างหน้า วางหน้าผากบนพื้น" },
       },
       {
-        exerciseId: 3,
+        id: 13,
         name: "Cat-Cow Stretch",
         nameTranslations: { th: "ยืดแมว-วัว" },
         sets: 2,
@@ -770,82 +397,14 @@ export const workoutTemplates: WorkoutTemplate[] = [
         rest: 30,
         instructions: "On hands and knees, alternate arching and rounding spine slowly.",
         instructionsTranslations: { th: "คลานสี่ขา สลับโค้งและโค้งกระดูกสันหลังช้าๆ" },
-      },
-      {
-        exerciseId: 3,
-        name: "Extended Child's Pose",
-        nameTranslations: { th: "ท่าเด็กยืด" },
-        sets: 2,
-        duration: 45,
-        rest: 20,
-        instructions: "From child's pose, walk hands to one side, feel stretch along side body.",
-        instructionsTranslations: { th: "จากท่าเด็ก เดินมือไปข้างหนึ่ง รู้สึกยืดตามข้างลำตัว" },
-      },
+      }
     ],
-    equipment: ["Yoga Mat"],
-    targetMuscles: ["Spine", "Hips", "Shoulders", "Back"],
-    calories: 25,
-    tags: ["childs-pose", "yoga", "relaxation", "spinal-mobility"],
-  },
-  {
-    id: 18,
-    name: "Cobra Stretch Flow",
-    nameTranslations: {
-      th: "โฟลว์ยืดท่างู",
-    },
-    type: "Flexibility",
-    duration: 10,
-    difficulty: "Beginner",
-    description:
-      "Gentle backbending sequence using cobra pose variations to improve spinal extension and chest opening.",
-    descriptionTranslations: {
-      th: "ลำดับการงอหลังเบาๆ ใช้ท่างูหลากหลายเพื่อพัฒนาการเหยียดกระดูกสันหลังและเปิดอก",
-    },
-    exercises: [
-      {
-        exerciseId: 3,
-        name: "Sphinx Pose",
-        nameTranslations: { th: "ท่าสฟิงซ์" },
-        sets: 2,
-        duration: 45,
-        rest: 30,
-        instructions: "Lie on stomach, prop up on forearms, gentle backbend, open chest.",
-        instructionsTranslations: { th: "นอนคว่ำ ค้ำด้วยแขนพับ งอหลังเบาๆ เปิดอก" },
-      },
-      {
-        exerciseId: 3,
-        name: "Low Cobra",
-        nameTranslations: { th: "ท่างูต่ำ" },
-        sets: 3,
-        duration: 30,
-        rest: 20,
-        instructions: "Press palms down, lift chest slightly, keep hips on ground.",
-        instructionsTranslations: { th: "กดฝ่ามือลง ยกอกเล็กน้อย สะโพกติดพื้น" },
-      },
-      {
-        exerciseId: 3,
-        name: "Full Cobra",
-        nameTranslations: { th: "ท่างูเต็ม" },
-        sets: 2,
-        duration: 20,
-        rest: 40,
-        instructions: "Straighten arms more, deeper backbend, listen to your body.",
-        instructionsTranslations: { th: "เหยียดแขนมากขึ้น งอหลังลึกขึ้น ฟังร่างกายของคุณ" },
-      },
-    ],
-    equipment: ["Yoga Mat"],
-    targetMuscles: ["Spine", "Chest", "Shoulders", "Hip Flexors"],
-    calories: 20,
-    tags: ["cobra", "backbend", "spinal-extension", "chest-opening"],
-  },
+    
+  }
 ]
 
 export const getWorkoutTemplatesByType = (type: string): WorkoutTemplate[] => {
   return workoutTemplates.filter((template) => template.type === type)
-}
-
-export const getWorkoutTemplatesByDifficulty = (difficulty: string): WorkoutTemplate[] => {
-  return workoutTemplates.filter((template) => template.difficulty === difficulty)
 }
 
 export const searchWorkoutTemplates = (searchTerm: string): WorkoutTemplate[] => {
@@ -853,10 +412,7 @@ export const searchWorkoutTemplates = (searchTerm: string): WorkoutTemplate[] =>
   return workoutTemplates.filter(
     (template) =>
       template.name.toLowerCase().includes(term) ||
-      template.description.toLowerCase().includes(term) ||
-      template.type.toLowerCase().includes(term) ||
-      template.targetMuscles.some((muscle) => muscle.toLowerCase().includes(term)) ||
-      template.tags.some((tag) => tag.toLowerCase().includes(term)),
+      template.type.toLowerCase().includes(term)
   )
 }
 

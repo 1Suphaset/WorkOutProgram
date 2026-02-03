@@ -43,7 +43,7 @@ export interface WorkoutLog {
 }
 
 export interface ExerciseLog {
-  exerciseId: number
+  id: number
   actualReps?: number
   actualWeight?: number
   actualTime?: number
@@ -55,7 +55,7 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
   const { t } = useTranslation(language)
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>(
     workout.exercises.map((ex) => ({
-      exerciseId: Number((ex as any).id),
+      id: Number((ex as any).id),
       actualReps: (ex as any).reps,
       actualWeight: (ex as any).weight,
       actualTime: (ex as any).time,
@@ -71,8 +71,8 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
     console.log("WorkoutLogger - duration from props:", workout.duration)
   }, [workout.duration])
 
-  const updateExerciseLog = (exerciseId: number, updates: Partial<ExerciseLog>) => {
-    setExerciseLogs((prev) => prev.map((log) => (log.exerciseId === exerciseId ? { ...log, ...updates } : log)))
+  const updateExerciseLog = (id: number, updates: Partial<ExerciseLog>) => {
+    setExerciseLogs((prev) => prev.map((log) => (log.id === id ? { ...log, ...updates } : log)))
   }
 
   const handleComplete = () => {
@@ -111,10 +111,9 @@ export function WorkoutLogger({ workout, isOpen, onClose, onComplete, language, 
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">{t("exercises")}</h3>
             {workout.exercises.map((exercise, index) => {
-              const log = exerciseLogs.find((l) => l.exerciseId === exercise.id)
+              const log = exerciseLogs.find((l) => l.id === exercise.id)
               if (!log) return null
-              const rawId = (exercise as any).exerciseId ?? exercise.id
-              const exerciseId = Number(rawId)
+              const exerciseId = Number(exercise.id)
               const exData = exerciseDatabase.find(e => Number(e.id) === exerciseId)
               const exerciseName = exData?.name || t('unknownExercise');
               return (

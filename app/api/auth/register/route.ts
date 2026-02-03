@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { Pool } from 'pg';
-
-const pool = new Pool({ connectionString: process.env.NETLIFY_DATABASE_URL });
+import { pool } from "@/lib/db"
+;
 
 export async function POST(req: NextRequest) {
   try {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Pool } from 'pg'
+import { pool } from "@/lib/db"
 
-const pool = new Pool({ connectionString: process.env.NETLIFY_DATABASE_URL })
 
 // GET: ดึง workout logs ทั้งหมดของ user
 export async function GET(req: NextRequest) {
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
   // Validation: ตรวจสอบ exerciseId ทุกตัวต้องมีใน exercises table
   if (Array.isArray(data.exercises)) {
-    const exerciseIds = data.exercises.map((ex: any) => ex.exerciseId).filter((id: any) => !!id)
+    const exerciseIds = data.exercises.map((ex: any) => ex.id).filter((id: any) => !!id)
     if (exerciseIds.length > 0) {
       const { rows } = await pool.query(
         'SELECT id FROM exercises WHERE id = ANY($1::bigint[])',
@@ -69,7 +69,7 @@ export async function PUT(req: NextRequest) {
   const data = await req.json()
   // Validation: ตรวจสอบ exerciseId ทุกตัวต้องมีใน exercises table
   if (Array.isArray(data.exercises)) {
-    const exerciseIds = data.exercises.map((ex: any) => ex.exerciseId).filter((id: any) => !!id)
+    const exerciseIds = data.exercises.map((ex: any) => ex.id).filter((id: any) => !!id)
     if (exerciseIds.length > 0) {
       const { rows } = await pool.query(
         'SELECT id FROM exercises WHERE id = ANY($1::bigint[])',

@@ -74,7 +74,7 @@ export function Reports({ workouts, exerciseDatabase, language }: ReportsProps) 
     const exerciseCount: Record<string, number> = {}
     filteredWorkouts.forEach((workout) => {
       workout.exercises.forEach((exercise) => {
-        const exData = exerciseDatabase.find(e => e.id === ((exercise as any).exerciseId ?? exercise.id));
+        const exData = exerciseDatabase.find(e => e.id === (exercise.id));
         const name = exData?.name || t('unknownExercise');
         exerciseCount[name] = (exerciseCount[name] || 0) + 1
       })

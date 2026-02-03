@@ -71,7 +71,7 @@ export function WorkoutDetails({ workout, onClose, onEdit, onStart, exerciseData
             <ScrollArea className="h-[400px]">
               <div className="space-y-3">
                 {workout.exercises.map((exercise, index) => {
-                  const exData = exerciseDatabase.find(e => e.id === ((exercise as any).exerciseId ?? exercise.id));
+                  const exData = exerciseDatabase.find(e => e.id === (exercise.id));
                   const exerciseName = exData?.name || t('unknownExercise');
                   return (
                   <Card key={exercise.id}>

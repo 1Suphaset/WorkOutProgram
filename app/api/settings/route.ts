@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Pool } from 'pg'
+import { pool } from "@/lib/db"
 
-const pool = new Pool({ connectionString: process.env.NETLIFY_DATABASE_URL })
 
 // GET: ดึง settings ของ user
 export async function GET(req: NextRequest) {

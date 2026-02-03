@@ -106,7 +106,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
       return
     }
     const newExercise: Template['exercises'][number] = {
-      exerciseId: exData.id,
+      id: exData.id,
       name: exData.name,
       nameTranslations: { th: exData.name },
       sets: exData.recommendedSets?.sets || 3,
@@ -179,7 +179,7 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
     ? exerciseDatabase.find(
       e =>
         Number(e.id) ===
-        Number(previewTemplate.exercises[previewExerciseIndex]?.exerciseId)
+        Number(previewTemplate.exercises[previewExerciseIndex]?.id)
     )
     : undefined
 
@@ -235,11 +235,11 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                 <ScrollArea className="h-32">
                   <div className="space-y-2">
                     {template.exercises.filter((exercise: Template['exercises'][number]) => exercise.name !== 'Unknown Exercise').map((exercise: Template['exercises'][number], index: number) => {
-                      const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
+                      const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.id));
                       const exerciseName = exData?.name || t('unknownExercise');
                       const imageUrl = exData?.image_url || "/placeholder.svg";
                       return (
-                        <div key={exercise.exerciseId ?? index} className="flex items-center justify-between text-sm gap-2">
+                        <div key={exercise.id ?? index} className="flex items-center justify-between text-sm gap-2">
                           <img src={imageUrl} alt={exerciseName} className="w-10 h-10 object-cover rounded" />
                           <span className="flex-1 ml-2">{exerciseName}</span>
                           <div className="text-muted-foreground">
@@ -312,12 +312,12 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
             <ScrollArea className="h-[300px]">
               <div className="space-y-4">
                 {exercises.map((exercise, index) => {
-                  const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
+                  const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.id));
                   console.log("exddd", exData)
                   const exerciseName = exData?.name || t('unknownExercise');
                   const exerciseImg = exData?.image_url || "/placeholder.svg";
                   return (
-                    <Card key={exercise.exerciseId ?? index}>
+                    <Card key={exercise.id ?? index}>
                       <CardHeader className="pb-3">
                         <CardTitle className="text-sm flex items-center justify-between">
                           {exerciseName}
@@ -546,11 +546,11 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                       {previewTemplate.exercises
                         .slice(previewExerciseIndex + 1, previewExerciseIndex + 4)
                         .map((exercise, index) => {
-                          const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
+                          const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.id));
                           const exerciseName = exData?.name || "Unknown Exercise";
                           return (
                             <div
-                              key={exercise.exerciseId ?? index}
+                              key={exercise.id ?? index}
                               className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
                             >
                               <span className="font-medium">{exerciseName}</span>
@@ -619,10 +619,10 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                     <ScrollArea className="h-[400px]">
                       <div className="space-y-3">
                         {previewTemplate.exercises.map((exercise, index) => {
-                          const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
+                          const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.id));
                           const exerciseName = exData?.name || "Unknown Exercise";
                           return (
-                            <div key={exercise.exerciseId ?? index}>
+                            <div key={exercise.id ?? index}>
                               <div className="flex items-center justify-between p-3 rounded-lg border">
                                 <div>
                                   <h4 className="font-medium">
@@ -691,72 +691,57 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
               <Card key={tpl.id}>
                 <CardHeader>
                   <CardTitle>{tpl.name}</CardTitle>
-                  <CardDescription>{tpl.description}</CardDescription>
+                  <CardDescription>{tpl.type}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button onClick={async () => {
-                    const exercises = tpl.exercises.map(ex => {
-                      const lookupId = Number(ex.exerciseId)
-                      const found = exerciseDatabase.find(e => Number(e.id) === lookupId)
+                  <Button
+                    onClick={async () => {
+                      const exercises = tpl.exercises.map(ex => {
+                        const id = Number(ex.id)
 
-                      const reps =
-                        typeof ex.reps === "number"
-                          ? ex.reps
-                          : typeof ex.reps === "string"
-                            ? parseInt(ex.reps, 10)
-                            : undefined
+                        const found = exerciseDatabase.find(
+                          e => Number(e.id) === id
+                        )
 
-                      const instructions =
-                        Array.isArray(ex.instructions)
-                          ? ex.instructions.join(" ")
-                          : ex.instructions || ""
+                        const reps =
+                          typeof ex.reps === "number"
+                            ? ex.reps
+                            : typeof ex.reps === "string"
+                              ? Number(ex.reps)
+                              : undefined
 
-                      if (found) {
+                        const instructions =
+                          Array.isArray(ex.instructions)
+                            ? ex.instructions.join(" ")
+                            : ex.instructions ?? ""
+
                         return {
-                          exerciseId: Number(found.id), // 🔒 fix type
-                          name: found.name,
-                          nameTranslations: { th: found.name },
+                          id, // ✅ payload ต้องมีเสมอ
+                          name: found?.name ?? ex.name,
+                          nameTranslations: {
+                            th: found?.name ?? ex.name,
+                          },
                           sets: ex.sets,
                           reps,
                           duration: ex.duration,
                           rest: 60,
                           instructions,
-                          instructionsTranslations: { th: instructions },
+                          instructionsTranslations: {
+                            th: instructions,
+                          },
                         }
-                      }
+                      })
 
-                      // 🔥 fallback ต้องมี exerciseId
-                      return {
-                        exerciseId: lookupId || Date.now(), // หรือ lookupId ถ้ามั่นใจ
-                        name: ex.name,
-                        nameTranslations: { th: ex.name },
-                        sets: ex.sets,
-                        reps,
-                        duration: ex.duration,
-                        rest: 60,
-                        instructions: instructions + " (ชื่อท่าไม่พบในฐานข้อมูล)",
-                        instructionsTranslations: {
-                          th: instructions + " (ชื่อท่าไม่พบในฐานข้อมูล)",
-                        },
-                      }
-                    })
-                    await addTemplate({
-                      id: Date.now(),
-                      name: tpl.name,
-                      nameTranslations: tpl.nameTranslations || { th: tpl.name },
-                      type: tpl.type,
-                      duration: tpl.duration || 30,
-                      difficulty: tpl.difficulty || "Beginner",
-                      description: tpl.description || "",
-                      descriptionTranslations: tpl.descriptionTranslations || { th: tpl.description || "" },
-                      equipment: tpl.equipment || [],
-                      targetMuscles: tpl.targetMuscles || [],
-                      calories: tpl.calories || 0,
-                      tags: tpl.tags || [],
-                      exercises,
-                    })
-                    setShowLibraryDialog(false)
-                  }}>
+                      await addTemplate({
+                        id: Number(Date.now()),
+                        name: String(tpl.name),
+                        type: String(tpl.type),   // ✅ ส่ง type ชัด ๆ
+                        exercises,
+                      })
+
+                      setShowLibraryDialog(false)
+                    }}
+                  >
                     Copy This Template
                   </Button>
                 </CardContent>

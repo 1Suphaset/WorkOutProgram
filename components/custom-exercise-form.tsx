@@ -79,7 +79,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
     equipment: exercise?.equipment || "Bodyweight",
     description: exercise?.description || "",
     instructions: exercise?.instructions || [""],
-    imageUrl: exercise?.imageUrl || "",
+    image_url: exercise?.image_url || "",
     estimatedDuration: exercise?.estimatedDuration || 3,
     benefits: exercise?.benefits || [],
     tips: exercise?.tips || [],
@@ -187,7 +187,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
         const data = await res.json();
         if (data.url) {
           console.log("Cloudinary URL:", data.url);
-          updateFormData('imageUrl', data.url);
+          updateFormData('image_url', data.url);
           toast({ title: t("success"), description: t("exerciseAdded") })
         } else {
           toast({ title: t("error"), description: t("errorOccurred"), variant: "destructive" })
@@ -226,14 +226,14 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
     }
     setIsSaving(true);
     try {
-      // ตรวจสอบว่า imageUrl เป็น url จริง (ไม่ใช่ blob:)
-      const imageUrl = formData.imageUrl && !formData.imageUrl.startsWith('blob:')
-        ? formData.imageUrl
+      // ตรวจสอบว่า image_url เป็น url จริง (ไม่ใช่ blob:)
+      const image_url = formData.image_url && !formData.image_url.startsWith('blob:')
+        ? formData.image_url
         : "/placeholder.svg?height=300&width=400&text=" + encodeURIComponent(formData.name);
       const exerciseData = {
         ...formData,
         instructions: formData.instructions.filter((inst) => inst.trim()),
-        imageUrl,
+        image_url,
         isCustom: true as const,
         userId: undefined, // or set to a number if available
         variations: Array.isArray(formData.variations)
@@ -260,7 +260,7 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
       equipment: template.equipment,
       description: template.description,
       instructions: template.instructions,
-      imageUrl: "/placeholder.svg?height=300&width=400&text=" + encodeURIComponent(template.name),
+      image_url: "/placeholder.svg?height=300&width=400&text=" + encodeURIComponent(template.name),
       estimatedDuration: template.estimatedDuration,
       benefits: template.benefits || [],
       tips: template.tips || [],
@@ -441,8 +441,8 @@ export function CustomExerciseForm({ exercise, onSave, onClose, language = "en" 
                   />
                   <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                   <div>
-                    {formData.imageUrl
-                      ? <img src={formData.imageUrl} alt={formData.name} className="w-full h-48 object-cover rounded-lg mx-auto" />
+                    {formData.image_url
+                      ? <img src={formData.image_url} alt={formData.name} className="w-full h-48 object-cover rounded-lg mx-auto" />
                       : <span>Drag & drop or click to upload image</span>
                     }
                   </div>
