@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { jwtDecode } from 'jwt-decode'
-import { pool } from "@/lib/db"
+import pool from '@/lib/db'
 import bcrypt from 'bcryptjs'
 
 // GET - ดึงข้อมูลผู้ใช้

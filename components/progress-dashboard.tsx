@@ -125,12 +125,12 @@ export function ProgressDashboard({
     ? completedWorkouts.reduce((acc, workout) => {
       workout.exercises?.forEach((exercise) => {
         const exData = exerciseDatabase.find(
-          (e) => Number(e.id) === Number((exercise as any).id)
+          (e) => Number(e.id) === Number((exercise as any).exerciseId)
         );
 
         console.log("🔗 match exercise", {
           workoutExercise: exercise,
-          lookupId: (exercise as any).id,
+          lookupId: (exercise as any).exerciseId,
           found: exData,
         });
         const name = exData?.name || t("unknownExercise");

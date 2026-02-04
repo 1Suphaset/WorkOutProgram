@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Pool } from 'pg'
-import { pool } from "@/lib/db"
 
+const pool = new Pool({ connectionString: process.env.NETLIFY_DATABASE_URL })
 
 // GET: ดึง templates ทั้งหมดของ user
 export async function GET(req: NextRequest) {
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 
   // Validation: ตรวจสอบ exerciseId ทุกตัวต้องมีใน exercises table
   if (Array.isArray(data.exercises)) {
-    const exerciseIds = data.exercises.map((ex: any) => ex.id).filter((id: any) => !!id)
+    const exerciseIds = data.exercises.map((ex: any) => ex.exerciseId).filter((id: any) => !!id)
     if (exerciseIds.length > 0) {
       const { rows } = await pool.query(
         'SELECT id FROM exercises WHERE id = ANY($1::bigint[])',
@@ -41,16 +41,15 @@ export async function POST(req: NextRequest) {
   }
 
   const res = await pool.query(
-    `INSERT INTO templates (user_id, name, type, exercises, category, created_at)
-   VALUES ($1, $2, $3, $4, $5, $6)
-   RETURNING *`,
+    `INSERT INTO templates (user_id, name, exercises, category, created_at)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING *`,
     [
       userId,
       data.name,
-      data.type,                    // ⭐ ตรงนี้
       JSON.stringify(data.exercises),
       data.category,
-      data.createdAt ?? new Date(),  // กัน null
+      data.createdAt,
     ]
   )
   return NextResponse.json({ template: res.rows[0] })
@@ -61,7 +60,7 @@ export async function PUT(req: NextRequest) {
   const data = await req.json()
   // Validation: ตรวจสอบ exerciseId ทุกตัวต้องมีใน exercises table
   if (Array.isArray(data.exercises)) {
-    const exerciseIds = data.exercises.map((ex: any) => ex.id).filter((id: any) => !!id)
+    const exerciseIds = data.exercises.map((ex: any) => ex.exerciseId).filter((id: any) => !!id)
     if (exerciseIds.length > 0) {
       const { rows } = await pool.query(
         'SELECT id FROM exercises WHERE id = ANY($1::bigint[])',
@@ -76,23 +75,17 @@ export async function PUT(req: NextRequest) {
   }
   const res = await pool.query(
     `UPDATE templates SET
-    name = $2,
-    type = $3,
-    exercises = $4,
-    category = $5,
-    created_at = $6
-   WHERE id = $1
-   RETURNING *`,
+      name=$2, exercises=$3, category=$4, created_at=$5
+     WHERE id=$1
+     RETURNING *`,
     [
       data.id,
       data.name,
-      data.type,
       JSON.stringify(data.exercises),
       data.category,
-      data.createdAt ?? new Date(),
+      data.createdAt,
     ]
   )
-
   return NextResponse.json({ template: res.rows[0] })
 }
 

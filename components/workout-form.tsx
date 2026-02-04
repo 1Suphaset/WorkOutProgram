@@ -74,9 +74,10 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
     if (template) {
       const convertedExercises = (template.exercises || []).map((ex: any, idx: number) => {
         // map ด้วย exerciseId (หรือ id) เป็นหลัก
-        const exData = exerciseDatabase.find(e => Number(e.id) === Number(ex.id));
+        const exData = exerciseDatabase.find(e => e.id === (ex.exerciseId ?? ex.id));
         return {
-          id: Number(exData?.id),
+          id: Date.now() + Math.floor(Math.random() * 10000),
+          exerciseId: ex.exerciseId ?? exData?.id ?? 0,
           name: exData?.name || ex.name || 'Unknown Exercise',
           category: exData?.category || ex.category || '',
           sets: ex.sets ?? 3,
@@ -195,7 +196,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
             <ScrollArea className="h-[400px]">
               <div className="space-y-4">
                 {exercises.map((exercise, index) => {
-                  const exData = exerciseDatabase.find(e => e.id === (exercise.id));
+                  const exData = exerciseDatabase.find(e => e.id === ((exercise as any).exerciseId ?? exercise.id));
                   console.log("Exercise:", exercise, "exData:", exData);
                   return (
                     <Card key={exercise.id}>

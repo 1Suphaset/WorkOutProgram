@@ -42,6 +42,7 @@ type ExerciseForm = {
   calories?: number;
   description?: string;
   id?: number;
+  exerciseId?: number;
 };
 
 type NewTemplateForm = {
@@ -104,11 +105,20 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
     const template: WorkoutTemplate = {
       id: Date.now() + Math.floor(Math.random() * 10000),
       name: newTemplate.name,
+      nameTranslations: { th: newTemplate.name },
       type: newTemplate.category as WorkoutTemplate['type'],
+      duration: 30,
+      difficulty: "Beginner",
+      description: "",
+      descriptionTranslations: { th: "" },
+      equipment: [],
+      targetMuscles: [],
+      calories: 0,
+      tags: [],
       exercises: newTemplate.exercises.map((ex: any, idx) => {
-        const exData = exerciseDatabase.find(e => e.id === (ex.id));
+        const exData = exerciseDatabase.find(e => e.id === (ex.exerciseId ?? ex.id));
         return {
-          id: exData?.id, // serialize exerciseId เสมอ
+          exerciseId: ex.exerciseId ?? exData?.id, // serialize exerciseId เสมอ
           name: exData?.name || ex.name,
           nameTranslations: { th: exData?.name || ex.name },
         sets: ex.sets,
@@ -131,9 +141,9 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
       name: newTemplate.name,
       type: newTemplate.category as WorkoutTemplate['type'],
       exercises: newTemplate.exercises.map((ex, idx) => {
-        const exData = exerciseDatabase.find(e => e.id === (ex.id));
+        const exData = exerciseDatabase.find(e => e.id === (ex.exerciseId ?? ex.id));
         return {
-          id: exData?.id, // serialize exerciseId เสมอ
+          exerciseId: ex.exerciseId ?? exData?.id, // serialize exerciseId เสมอ
           name: exData?.name || ex.name,
           nameTranslations: { th: exData?.name || ex.name },
         sets: ex.sets,
@@ -167,7 +177,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
         ...prev.exercises,
         {
           ...newExercise,
-          id: exData.id, // เก็บ exerciseId เสมอถ้าเลือกจาก Library
+          exerciseId: exData.id, // เก็บ exerciseId เสมอถ้าเลือกจาก Library
         },
       ],
     }))
@@ -351,7 +361,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                           <div className="flex items-center space-x-2">
                             {getTypeIcon(exercise.type)}
                             <span className="text-sm">
-                              {(() => { const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.id)); return exData?.name || exercise.name || t('unknownExercise') })()}
+                              {(() => { const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId ?? exercise.id)); return exData?.name || exercise.name || t('unknownExercise') })()}
                             </span>
                             <Badge variant="outline">{exercise.type}</Badge>
                             {exercise.reps && exercise.sets && (
@@ -404,7 +414,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                     <div key={exercise.id} className="flex items-center justify-between text-sm">
                       <div className="flex items-center space-x-2">
                         <span>
-                          {(() => { const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.id)); return exData?.name || "Unknown Exercise" })()}
+                          {(() => { const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId ?? exercise.id)); return exData?.name || "Unknown Exercise" })()}
                         </span>
                       </div>
                       <div className="text-muted-foreground">{exercise.duration ? Math.round(exercise.duration / 60) + "min" : ""}</div>
