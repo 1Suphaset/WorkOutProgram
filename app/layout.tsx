@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
-
+import { Providers } from './providers'
 export const metadata: Metadata = {
   title: 'Life HP',
   description: 'Created with Tony',
@@ -30,7 +30,9 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/Logo.png" />
         <meta name="theme-color" content="#000000" />
       </head>
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   )
 }

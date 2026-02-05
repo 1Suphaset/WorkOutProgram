@@ -1,38 +1,55 @@
 "use client"
 
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { Logo } from "@/components/ui/logo"
-import { Calendar, Dumbbell, Home, Settings, BookOpen, BarChart3, Timer, User, LogOut } from "lucide-react"
+import {
+  Calendar,
+  Dumbbell,
+  Home,
+  Settings,
+  BookOpen,
+  BarChart3,
+  User,
+} from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 
 interface SidebarProps {
-  activeView: string
-  setActiveView: (view: string) => void
   language: "en" | "th"
   onLanguageChange: (lang: "en" | "th") => void
   user?: { name: string; email: string } | null
   onLogout?: () => void
 }
 
-export function Sidebar({ activeView, setActiveView, language, onLanguageChange, user, onLogout }: SidebarProps) {
+export function Sidebar({
+  language,
+  onLanguageChange,
+  user,
+}: SidebarProps) {
+  const pathname = usePathname()
   const { t } = useTranslation(language)
 
   const menuItems = [
-    { id: "dashboard", label: t("dashboard"), icon: Home },
-    { id: "progress", label: t("progress"), icon: BarChart3 },
-    { id: "calendar", label: t("calendar"), icon: Calendar },
-    { id: "templates", label: t("templates"), icon: Dumbbell },
-    { id: "library", label: t("library"), icon: BookOpen },
-    { id: "settings", label: t("settings"), icon: Settings },
+    { href: "/dashboard", label: t("dashboard"), icon: Home },
+    { href: "/progress", label: t("progress"), icon: BarChart3 },
+    { href: "/calendar", label: t("calendar"), icon: Calendar },
+    { href: "/templates", label: t("templates"), icon: Dumbbell },
+    { href: "/library", label: t("library"), icon: BookOpen },
+    { href: "/settings", label: t("settings"), icon: Settings },
   ]
 
   return (
     <div className="w-64 bg-card border-r border-border h-full flex flex-col">
+      {/* Logo */}
       <div className="p-6 border-b border-border">
         <Logo size={32} />
-        <p className="text-sm text-muted-foreground mt-2">Track your fitness</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          Track your fitness
+        </p>
       </div>
 
       {/* User Info */}
@@ -46,35 +63,46 @@ export function Sidebar({ activeView, setActiveView, language, onLanguageChange,
               <p className="font-medium text-sm truncate">
                 {t("welcomeUser")} {user.name}
               </p>
-              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+              <p className="text-xs text-muted-foreground truncate">
+                {user.email}
+              </p>
             </div>
           </div>
         </div>
       )}
 
+      {/* Menu */}
       <nav className="flex-1 p-4 space-y-2">
         {menuItems.map((item) => {
           const Icon = item.icon
+          const isActive = pathname.startsWith(item.href)
+
           return (
             <Button
-              key={item.id}
-              variant={activeView === item.id ? "default" : "ghost"}
+              key={item.href}
+              asChild
+              variant={isActive ? "default" : "ghost"}
               className="w-full justify-start"
-              onClick={() => setActiveView(item.id)}
             >
-              <Icon className="w-4 h-4 mr-3" />
-              {item.label}
+              <Link href={item.href}>
+                <Icon className="w-4 h-4 mr-3" />
+                {item.label}
+              </Link>
             </Button>
           )
         })}
       </nav>
 
+      {/* Footer */}
       <div className="p-4 border-t border-border space-y-3">
         <div className="flex items-center justify-between">
           <Badge variant="secondary" className="text-xs">
             v3.5.0
           </Badge>
-          <LanguageSwitcher language={language} onLanguageChange={onLanguageChange} />
+          <LanguageSwitcher
+            language={language}
+            onLanguageChange={onLanguageChange}
+          />
         </div>
       </div>
     </div>
