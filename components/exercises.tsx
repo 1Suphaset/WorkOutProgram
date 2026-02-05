@@ -56,7 +56,7 @@ function mapExerciseFromDB(dbExercise: any) {
     ...dbExercise,
     id: Number(dbExercise.id),
     muscleGroups: dbExercise.muscle_groups || [],
-    imageUrl: dbExercise.image_url,
+    image_url: dbExercise.image_url,
     estimatedDuration: dbExercise.estimated_duration,
     isCustom: dbExercise.is_custom,
     createdAt: dbExercise.created_at,

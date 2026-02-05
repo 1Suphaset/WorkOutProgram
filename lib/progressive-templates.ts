@@ -28,7 +28,7 @@ export interface ProgressiveExerciseTemplate {
   whenToProgress: string[]
   whenToRegress: string[]
   alternativeExercises: string[]
-  imageUrl?: string
+  image_url?: string
 }
 
 export const progressiveTemplates: ProgressiveExerciseTemplate[] = [
@@ -174,7 +174,7 @@ export const progressiveTemplates: ProgressiveExerciseTemplate[] = [
       "Dumbbell bench press",
       "TRX push-ups",
     ],
-    imageUrl: "/placeholder.svg?height=300&width=400&text=Push-Up+Progression",
+    image_url: "/placeholder.svg?height=300&width=400&text=Push-Up+Progression",
   },
 
   // SQUAT PROGRESSION
@@ -312,7 +312,7 @@ export const progressiveTemplates: ProgressiveExerciseTemplate[] = [
       "Balance issues affecting form",
     ],
     alternativeExercises: ["Leg press machine", "Wall sits", "Step-ups", "Lunges"],
-    imageUrl: "/placeholder.svg?height=300&width=400&text=Squat+Progression",
+    image_url: "/placeholder.svg?height=300&width=400&text=Squat+Progression",
   },
 
   // PULL-UP PROGRESSION
@@ -450,7 +450,7 @@ export const progressiveTemplates: ProgressiveExerciseTemplate[] = [
       "Relying too heavily on momentum",
     ],
     alternativeExercises: ["Lat pulldown machine", "Inverted rows", "Resistance band pull-aparts", "TRX rows"],
-    imageUrl: "/placeholder.svg?height=300&width=400&text=Pull-Up+Progression",
+    image_url: "/placeholder.svg?height=300&width=400&text=Pull-Up+Progression",
   },
 
   // PLANK PROGRESSION
@@ -585,7 +585,7 @@ export const progressiveTemplates: ProgressiveExerciseTemplate[] = [
       "Significant trembling or shaking",
     ],
     alternativeExercises: ["Dead bug", "Bird dog", "Hollow hold", "Mountain climbers"],
-    imageUrl: "/placeholder.svg?height=300&width=400&text=Plank+Progression",
+    image_url: "/placeholder.svg?height=300&width=400&text=Plank+Progression",
   },
 
   // RUNNING PROGRESSION
@@ -697,7 +697,7 @@ export const progressiveTemplates: ProgressiveExerciseTemplate[] = [
       "Joint pain or injury concerns",
     ],
     alternativeExercises: ["Stationary bike", "Elliptical machine", "Swimming", "Rowing machine"],
-    imageUrl: "/placeholder.svg?height=300&width=400&text=Running+Progression",
+    image_url: "/placeholder.svg?height=300&width=400&text=Running+Progression",
   },
 ]
 

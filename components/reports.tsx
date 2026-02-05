@@ -32,7 +32,7 @@ function mapExerciseFromDB(dbExercise: any) {
     ...dbExercise,
     id: Number(dbExercise.id),
     muscleGroups: dbExercise.muscle_groups || [],
-    imageUrl: dbExercise.image_url,
+    image_url: dbExercise.image_url,
     estimatedDuration: dbExercise.estimated_duration,
     isCustom: dbExercise.is_custom,
     createdAt: dbExercise.created_at,
@@ -116,7 +116,7 @@ export function Reports({ workouts, exerciseDatabase, language }: ReportsProps) 
       weeklyData,
     }
   }, [filteredWorkouts, timeRange, exerciseDatabase])
-
+  console.log(stats)
   const dayNames = [t("sun"), t("mon"), t("tue"), t("wed"), t("thu"), t("fri"), t("sat")]
 
   const exportReport = () => {
@@ -137,7 +137,7 @@ export function Reports({ workouts, exerciseDatabase, language }: ReportsProps) 
     const url = URL.createObjectURL(dataBlob)
     const link = document.createElement("a")
     link.href = url
-    link.download = `workout-report-${new Date().toLocaleDateString("sv-SE") }.json`
+    link.download = `workout-report-${new Date().toLocaleDateString("sv-SE")}.json`
     link.click()
     URL.revokeObjectURL(url)
   }
@@ -389,11 +389,10 @@ export function Reports({ workouts, exerciseDatabase, language }: ReportsProps) 
                       <div key={day} className="text-center">
                         <div className="text-xs font-medium mb-1">{day}</div>
                         <div
-                          className={`h-8 rounded flex items-center justify-center text-xs font-medium ${
-                            stats.dayFrequency[index] > 0
+                          className={`h-8 rounded flex items-center justify-center text-xs font-medium ${stats.dayFrequency[index] > 0
                               ? "bg-primary text-primary-foreground"
                               : "bg-muted text-muted-foreground"
-                          }`}
+                            }`}
                         >
                           {stats.dayFrequency[index]}
                         </div>

@@ -9,7 +9,7 @@ export interface AssessmentQuestion {
   scaleLabels?: { min: string; max: string }
   unit?: string
   videoUrl?: string
-  imageUrl?: string
+  image_url?: string
 }
 
 export interface AssessmentCategory {
@@ -57,7 +57,7 @@ export const fitnessAssessments: AssessmentCategory[] = [
         description:
           "Perform push-ups from your toes with chest touching the ground and full arm extension. Stop when form breaks down.",
         unit: "repetitions",
-        imageUrl: "/placeholder.svg?height=200&width=300&text=Push-up+Form",
+        image_url: "/placeholder.svg?height=200&width=300&text=Push-up+Form",
       },
       {
         id: "pushup-difficulty",
@@ -188,7 +188,7 @@ export const fitnessAssessments: AssessmentCategory[] = [
         description:
           "Hold a plank from your toes and forearms. Maintain straight line from head to heels. Stop when form breaks down.",
         unit: "seconds",
-        imageUrl: "/placeholder.svg?height=200&width=300&text=Plank+Form",
+        image_url: "/placeholder.svg?height=200&width=300&text=Plank+Form",
       },
       {
         id: "plank-difficulty",

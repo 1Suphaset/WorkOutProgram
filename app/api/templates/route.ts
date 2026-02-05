@@ -41,14 +41,14 @@ export async function POST(req: NextRequest) {
   }
 
   const res = await pool.query(
-    `INSERT INTO templates (user_id, name, exercises, category, created_at)
+    `INSERT INTO templates (user_id, name, exercises, type, created_at)
      VALUES ($1, $2, $3, $4, $5)
      RETURNING *`,
     [
       userId,
       data.name,
       JSON.stringify(data.exercises),
-      data.category,
+      data.type,
       data.createdAt,
     ]
   )
@@ -75,14 +75,14 @@ export async function PUT(req: NextRequest) {
   }
   const res = await pool.query(
     `UPDATE templates SET
-      name=$2, exercises=$3, category=$4, created_at=$5
+      name=$2, exercises=$3, type=$4, created_at=$5
      WHERE id=$1
      RETURNING *`,
     [
       data.id,
       data.name,
       JSON.stringify(data.exercises),
-      data.category,
+      data.type,
       data.createdAt,
     ]
   )

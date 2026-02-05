@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
             ex.equipment,
             ex.description,
             JSON.stringify(ex.instructions),
-            ex.imageUrl,
+            ex.image_url,
             ex.estimatedDuration,
             true,
             ex.createdAt,

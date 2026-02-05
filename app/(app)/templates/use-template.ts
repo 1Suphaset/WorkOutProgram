@@ -4,28 +4,45 @@ import { useEffect, useState } from "react"
 import type { Exercise } from "@/lib/types/workout"
 import type { WorkoutTemplate } from "@/lib/workout-templates"
 import { useAuthStore } from "@/stores/auth-store"
-
+import { useRef } from "react"
 export function useTemplate() {
     const [exerciseDatabase, setExerciseDatabase] = useState<Exercise[]>([])
     const [templates, setTemplates] = useState<WorkoutTemplate[]>([])
     const [loading, setLoading] = useState(true)
     const { user } = useAuthStore()
-
-    const fetchData = async () => {
+    const fetchedRef = useRef(false)
+    const fetchTemplates = async () => {
         if (!user) return
         setLoading(true)
 
         try {
-            const [t, e] = await Promise.all([
-                fetch(`/api/templates?user=${encodeURIComponent(user.email)}`).then(r => r.json()),
-                fetch(`/api/exercises?user=${encodeURIComponent(user.email)}`).then(r => r.json()),
-            ])
+            const res = await fetch(
+                `/api/templates?user=${encodeURIComponent(user.email)}`
+            )
+            const data = await res.json()
 
-            setTemplates(t.templates ?? [])
-            setExerciseDatabase(e.exercises ?? [])
+            setTemplates(data.templates ?? [])
         } catch (err) {
             console.error("fetch templates error", err)
             setTemplates([])
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const fetchExercises = async () => {
+        if (!user) return
+        setLoading(true)
+
+        try {
+            const res = await fetch(
+                `/api/exercises?user=${encodeURIComponent(user.email)}`
+            )
+            const data = await res.json()
+
+            setExerciseDatabase(data.exercises ?? [])
+        } catch (err) {
+            console.error("fetch exercises error", err)
             setExerciseDatabase([])
         } finally {
             setLoading(false)
@@ -33,10 +50,12 @@ export function useTemplate() {
     }
 
 
+
     useEffect(() => {
-        if (!user) return;
-        fetchData();
-        // ไม่มี setInterval อีกต่อไป
+        if (!user || fetchedRef.current) return
+        fetchedRef.current = true
+        fetchTemplates();
+        fetchExercises();
     }, [user])
 
 

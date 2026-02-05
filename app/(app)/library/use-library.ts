@@ -6,17 +6,31 @@ import { useAuthStore } from "@/stores/auth-store"
 
 export function useLibrary() {
     const [exerciseDatabase, setExerciseDatabase] = useState<Exercise[]>([])
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
     const user = useAuthStore((s) => s.user)
 
-    useEffect(() => {
+    async function fetchExercises() {
         if (!user) return
+        try {
+            const res = await fetch(
+                `/api/exercises?user=${encodeURIComponent(user?.email)}`
+            )
+            const data = await res.json()
+            setExerciseDatabase(data.exercises || [])
+        } catch (err) {
+            console.error("Failed to fetch exercises", err)
+        }
+    }
 
-        fetch(`/api/exercises?user=${encodeURIComponent(user.email)}`)
-            .then(res => res.json())
-            .then(data => setExerciseDatabase(data.exercises || []))
-            .finally(() => setLoading(false))
+    useEffect(() => {
+        setLoading(true)
+        fetchExercises()
+        setLoading(false)
     }, [user])
 
-    return { exerciseDatabase, loading }
+    return {
+        exerciseDatabase,
+        loading,
+        fetchExercises, // 👈 เรียกซ้ำจากภายนอกได้
+    }
 }

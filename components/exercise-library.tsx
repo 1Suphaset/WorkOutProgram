@@ -10,8 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Search, Filter, Plus, Star, Clock, Target, Zap, Heart, Edit, Trash2 } from "lucide-react"
 import { CustomExerciseForm } from "@/components/custom-exercise-form"
-import { ProgressiveExerciseTracker } from "@/components/progressive-exercise-tracker"
-import { FitnessAssessment } from "@/components/fitness-assessment"
 import { useTranslation } from "@/lib/i18n"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
@@ -24,6 +22,7 @@ interface ExerciseLibraryProps {
   language?: "en" | "th"
   userEmail?: string
   minimalView?: boolean
+  fetchData?: () => Promise<void> | void
 }
 
 function mapExerciseFromDB(dbExercise: unknown): Exercise {
@@ -31,7 +30,7 @@ function mapExerciseFromDB(dbExercise: unknown): Exercise {
   return {
     ...ex,
     muscleGroups: ex.muscle_groups || ex.muscleGroups,
-    imageUrl: ex.image_url || ex.imageUrl,
+    image_url: ex.image_url || ex.image_url,
     estimatedDuration: ex.estimated_duration || ex.estimatedDuration,
     isCustom: ex.is_custom || ex.isCustom,
     createdAt: ex.created_at || ex.createdAt,
@@ -39,7 +38,7 @@ function mapExerciseFromDB(dbExercise: unknown): Exercise {
   };
 }
 
-export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exerciseDatabase: propExerciseDatabase, language = "en", userEmail, minimalView = false }: ExerciseLibraryProps) {
+export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exerciseDatabase: propExerciseDatabase, language = "en", userEmail, minimalView = false,fetchData }: ExerciseLibraryProps) {
   const { t } = useTranslation(language)
   const { toast } = useToast()
   const exerciseDatabase = minimalView ? (propExerciseDatabase || []) : (propExerciseDatabase || []).map(mapExerciseFromDB);
@@ -255,7 +254,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
     })
     const data = await res.json()
     // Refresh custom exercises instead of manually updating
-    fetchCustomExercises()
+    fetchData?.()
     setLoading(false)
   }
 
@@ -271,7 +270,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
     })
     const data = await res.json()
     // Refresh custom exercises instead of manually updating
-    fetchCustomExercises()
+    fetchData?.()
     setLoading(false)
   }
 
@@ -284,20 +283,8 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
       body: JSON.stringify({ id }),
     })
     // Refresh custom exercises instead of manually updating
-    fetchCustomExercises()
+    fetchData?.()
     setLoading(false)
-  }
-
-  // Helper function to fetch custom exercises
-  const fetchCustomExercises = async () => {
-    if (!userEmail) return
-    try {
-      const res = await fetch(`/api/exercises?user=${encodeURIComponent(userEmail)}`)
-      const data = await res.json()
-      setCustomExercises((data.exercises || []).filter((ex: unknown) => (ex as Exercise).isCustom).map(mapExerciseFromDB))
-    } catch (error) {
-      console.error('Error fetching custom exercises:', error)
-    }
   }
 
   if (minimalView) {
@@ -480,8 +467,8 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
           <TabsTrigger value="grid">{t('exerciseLibrary.gridView')}</TabsTrigger>
           <TabsTrigger value="list">{t('exerciseLibrary.listView')}</TabsTrigger>
           <TabsTrigger value="favorites">{t('exerciseLibrary.favorites')}({favorites.size})</TabsTrigger>
-          <TabsTrigger value="progressions">{t('exerciseLibrary.progressivePrograms')}</TabsTrigger>
-          <TabsTrigger value="assessment">{t('exerciseLibrary.fitnessAssessment')}</TabsTrigger>
+          {/* <TabsTrigger value="progressions">{t('exerciseLibrary.progressivePrograms')}</TabsTrigger>
+          <TabsTrigger value="assessment">{t('exerciseLibrary.fitnessAssessment')}</TabsTrigger> */}
         </TabsList>
 
         <TabsContent value="grid">
@@ -744,14 +731,6 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
             )}
           </div>
           )}
-        </TabsContent>
-
-        <TabsContent value="progressions">
-          <ProgressiveExerciseTracker />
-        </TabsContent>
-
-        <TabsContent value="assessment">
-          <FitnessAssessment />
         </TabsContent>
       </Tabs>
 

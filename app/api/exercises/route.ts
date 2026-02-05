@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
         data.equipment,
         data.description,
         JSON.stringify(data.instructions),
-        data.imageUrl,
+        data.image_url,
         data.estimatedDuration,
         true,
         data.createdAt,
@@ -69,7 +69,7 @@ export async function PUT(req: NextRequest) {
       data.equipment,
       data.description,
       JSON.stringify(data.instructions),
-      data.imageUrl,
+      data.image_url,
       data.estimatedDuration,
       data.createdAt,
     ]

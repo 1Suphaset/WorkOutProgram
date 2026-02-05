@@ -5,7 +5,7 @@ import { useLibrary } from "./use-library"
 import { useAppSettings } from "@/stores/app-settings-store"
 
 export default function LibraryPage() {
-    const { exerciseDatabase, loading } = useLibrary()
+    const { exerciseDatabase, loading ,fetchExercises} = useLibrary()
     const language = useAppSettings((s) => s.language)
 
     if (loading) {
@@ -13,6 +13,6 @@ export default function LibraryPage() {
     }
 
     return (
-        <ExerciseLibrary exerciseDatabase={exerciseDatabase} language={language} />
+        <ExerciseLibrary exerciseDatabase={exerciseDatabase} language={language} fetchData={fetchExercises}/>
     )
 }

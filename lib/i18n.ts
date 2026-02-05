@@ -130,6 +130,9 @@ export const translations = {
     finish: "Finish",
     next: "Next",
 
+    // Template
+    workoutTemplates: "Workout Templates",
+    createAndManageReusableWorkoutRoutines: "Create and Manage Reusable Workout Routines",
     // Settings
     managePreferencesAndData: "Manage your preferences and data",
     profile: "Profile",
@@ -429,7 +432,9 @@ export const translations = {
     topExercises: "ท่าออกกำลังกายที่ใช้มากที่สุด",
     weeklyActivity: "กิจกรรมรายสัปดาห์",
     monthlyTrends: "แนวโน้มรายเดือน",
-
+    // Template
+    workoutTemplates: "เทมเพลตการออกกำลังกาย",
+    createAndManageReusableWorkoutRoutines: "สร้างและจัดการโปรแกรมออกกำลังกายที่สามารถนำกลับมาใช้ซ้ำได้",
     // Notifications
     workoutReminders: "การแจ้งเตือนการออกกำลังกาย",
     setReminders: "ตั้งการแจ้งเตือนการออกกำลังกายรายวัน",

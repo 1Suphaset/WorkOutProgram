@@ -237,10 +237,10 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
                     {template.exercises.filter((exercise: Template['exercises'][number]) => exercise.name !== 'Unknown Exercise').map((exercise: Template['exercises'][number], index: number) => {
                       const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId));
                       const exerciseName = exData?.name || t('unknownExercise');
-                      const imageUrl = exData?.image_url || "/placeholder.svg";
+                      const image_url = exData?.image_url || "/placeholder.svg";
                       return (
                         <div key={exercise.exerciseId ?? index} className="flex items-center justify-between text-sm gap-2">
-                          <img src={imageUrl} alt={exerciseName} className="w-10 h-10 object-cover rounded" />
+                          <img src={image_url} alt={exerciseName} className="w-10 h-10 object-cover rounded" />
                           <span className="flex-1 ml-2">{exerciseName}</span>
                           <div className="text-muted-foreground">
                             {exercise.sets && exercise.reps && `${exercise.sets}x${exercise.reps}`}

@@ -19,12 +19,12 @@ exerciseDatabase.forEach((ex, idx) => {
   const equipment = `'${escape(ex.equipment)}'`
   const description = `'${escape(ex.description)}'`
   const instructions = `'${JSON.stringify(ex.instructions)}'::jsonb`
-  const imageUrl = `'${escape(ex.imageUrl)}'`
+  const image_url = `'${escape(ex.image_url)}'`
   const estimatedDuration = ex.estimatedDuration || 0
   const isCustom = ex.isCustom ? 'true' : 'false'
   const createdAt = ex.createdAt ? `'${escape(ex.createdAt)}'` : 'now()'
 
-  lines.push(`  (${userId}, ${name}, ${category}, ${muscleGroups}, ${difficulty}, ${equipment}, ${description}, ${instructions}, ${imageUrl}, ${estimatedDuration}, ${isCustom}, ${createdAt})${idx === exerciseDatabase.length - 1 ? ';' : ','}`)
+  lines.push(`  (${userId}, ${name}, ${category}, ${muscleGroups}, ${difficulty}, ${equipment}, ${description}, ${instructions}, ${image_url}, ${estimatedDuration}, ${isCustom}, ${createdAt})${idx === exerciseDatabase.length - 1 ? ';' : ','}`)
 })
 
 fs.writeFileSync('scripts/exercises.sql', lines.join('\n'))

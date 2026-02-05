@@ -60,30 +60,7 @@ export function ProgressDashboard({
   exerciseDatabase,
 }: ProgressDashboardProps) {
   const { t } = useTranslation(language);
-
-  console.log("ProgressDashboard - received workoutLogs:", workoutLogs);
-  console.log("ProgressDashboard - workoutLogs length:", workoutLogs?.length);
-  console.log(
-    "ProgressDashboard - workoutLogs keys:",
-    workoutLogs?.[0] ? Object.keys(workoutLogs[0]) : []
-  );
-  console.log("ProgressDashboard - sample workoutLog:", workoutLogs?.[0]);
-  console.log(
-    "ProgressDashboard - overall_effort values:",
-    workoutLogs?.map((log) => log.overall_effort)
-  );
-  console.log(
-    "ProgressDashboard - overall_effort types:",
-    workoutLogs?.map((log) => typeof log.overall_effort)
-  );
-  console.log(
-    "ProgressDashboard - duration values:",
-    workoutLogs?.map((log) => log.duration)
-  );
-  console.log(
-    "ProgressDashboard - duration types:",
-    workoutLogs?.map((log) => typeof log.duration)
-  );
+  const MIN_MEANINGFUL_DURATION = 30 // วินาที
 
   // Calculate statistics
   const completedWorkouts = workouts ? workouts.filter((w) => w.completed) : [];
@@ -94,31 +71,42 @@ export function ProgressDashboard({
       : 0;
 
   // Weekly data for the last 8 weeks
-  const weeklyData = completedWorkouts
+  const weeklyData = workoutLogs
     ? Array.from({ length: 8 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - i * 7);
+
       const weekStart = new Date(date);
       weekStart.setDate(date.getDate() - date.getDay());
+      weekStart.setHours(0, 0, 0, 0);
+
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekStart.getDate() + 6);
+      weekEnd.setHours(23, 59, 59, 999);
 
-      const weekWorkouts = completedWorkouts.filter((w) => {
-        if (!w.date) return false;
-        const workoutDate = new Date(w.date);
-        return workoutDate >= weekStart && workoutDate <= weekEnd;
+      const weekLogs = workoutLogs.filter((log) => {
+        const completedAt = log.completedAt || (log as any).completed_at;
+        if (!completedAt) return false;
+
+        const d = new Date(completedAt);
+        return d >= weekStart && d <= weekEnd;
       });
+
+      const validDurations = weekLogs
+        .map(log => Number(log.duration))
+        .filter(v => !isNaN(v) && v >= MIN_MEANINGFUL_DURATION);
+
+      const totalMinutes =
+        validDurations.reduce((sum, v) => sum + v, 0) / 60;
 
       return {
         week: `Week ${8 - i}`,
-        workouts: weekWorkouts.length,
-        duration:
-          weekWorkouts.length > 0
-            ? weekWorkouts.reduce((sum, w) => sum + (w.duration || 0), 0) / 60
-            : 0, // in minutes
+        workouts: weekLogs.length,
+        duration: Math.round(totalMinutes),
       };
     }).reverse()
     : [];
+
 
   // Exercise frequency
   const exerciseFrequency = completedWorkouts
@@ -146,17 +134,10 @@ export function ProgressDashboard({
       .slice(0, 6)
       .map(([name, count]) => ({ name, count }))
     : [];
-  console.log("top", exerciseFrequency)
-  // Monthly trends
-  console.log(
-    "ProgressDashboard - calculating monthly data from workoutLogs:",
-    workoutLogs?.length,
-    "logs"
-  );
-  console.log(completedWorkouts)
+
   const monthlyData =
-  completedWorkouts && workoutLogs
-    ? Array.from({ length: 6 }, (_, i) => {
+    completedWorkouts && workoutLogs
+      ? Array.from({ length: 6 }, (_, i) => {
         const date = new Date();
         date.setMonth(date.getMonth() - i);
 
@@ -177,6 +158,7 @@ export function ProgressDashboard({
         const monthLogs = workoutLogs.filter((log) => {
           const completedAt = log.completedAt || (log as any).completed_at;
           if (!completedAt) return false;
+
           const d = new Date(completedAt);
           return (
             d.getMonth() === date.getMonth() &&
@@ -184,43 +166,36 @@ export function ProgressDashboard({
           );
         });
 
+        // ✅ effort
         const effortValues = monthLogs
-          .map((log) => Number(log.overall_effort))
-          .filter((v) => !isNaN(v) && v > 0);
+          .map(log => Number(log.overall_effort))
+          .filter(v => !isNaN(v) && v > 0);
 
         const avgEffort =
           effortValues.length > 0
             ? effortValues.reduce((a, b) => a + b, 0) / effortValues.length
             : 0;
 
-        const durationMinutes = monthLogs.reduce((sum, log) => {
-          const d = Number(log.duration) || 0;
-          return d > 300 ? sum + d / 60 : sum + d;
-        }, 0);
+        // ✅ duration (seconds → minutes, filter test)
+        const validDurations = monthLogs
+          .map(log => Number(log.duration))
+          .filter(v => !isNaN(v) && v >= MIN_MEANINGFUL_DURATION);
+
+        const totalMinutes =
+          validDurations.reduce((sum, v) => sum + v, 0) / 60;
 
         return {
           month,
           workouts: monthWorkouts.length,
-          duration: Math.round(durationMinutes),
+          duration: Math.round(totalMinutes),
           effort: avgEffort > 0 ? Math.round(avgEffort * 10) / 10 : 0,
         };
       }).reverse()
-    : [];
-
-
-  console.log("ProgressDashboard - final monthlyData:", monthlyData);
-  console.log(
-    "ProgressDashboard - monthlyData effort values:",
-    monthlyData?.map((data) => ({
-      month: data.month,
-      effort: data.effort,
-      effortType: typeof data.effort,
-    }))
-  );
+      : [];
 
   // Workout category distribution
   const categoryData = completedWorkouts
-  ? completedWorkouts.reduce((acc, workout) => {
+    ? completedWorkouts.reduce((acc, workout) => {
       if (!workout.exercises || workout.exercises.length === 0) {
         acc["Unknown"] = (acc["Unknown"] || 0) + 1;
         return acc;
@@ -240,14 +215,14 @@ export function ProgressDashboard({
       acc[category] = (acc[category] || 0) + 1;
       return acc;
     }, {} as Record<string, number>)
-  : {};
+    : {};
 
 
   const categoryChartData = categoryData
     ? Object.entries(categoryData).map(([name, value]) => ({ name, value }))
     : [];
 
-    console.log(completedWorkouts)
+  console.log(completedWorkouts)
   const COLORS = [
     "#0088FE",
     "#00C49F",
@@ -256,7 +231,38 @@ export function ProgressDashboard({
     "#8884D8",
     "#82CA9D",
   ];
+  const effortValues = workoutLogs
+    .map(log => Number(log.overall_effort))
+    .filter(v => !isNaN(v) && v > 0)
 
+  const avgEffort =
+    effortValues.length > 0
+      ? Math.round(
+        (effortValues.reduce((a, b) => a + b, 0) / effortValues.length) * 10
+      ) / 10
+      : 0
+
+
+  const validDurations = workoutLogs
+    .map(log => Number(log.duration))
+    .filter(v => !isNaN(v) && v >= MIN_MEANINGFUL_DURATION)
+
+  const totalSeconds = validDurations.reduce((a, b) => a + b, 0)
+
+  const avgMinutes =
+    validDurations.length > 0
+      ? Math.round((totalSeconds / validDurations.length) / 60)
+      : 0
+
+  const totalHours =
+    validDurations.length > 0
+      ? Math.round((totalSeconds / 3600) * 10) / 10 // 1 decimal
+      : 0
+
+
+  console.log(totalSeconds)
+  console.log(avgMinutes)
+  console.log(workoutLogs)
   return (
     <div className="p-4 md:p-6 space-y-4 md:space-y-6 mx-auto">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -307,29 +313,10 @@ export function ProgressDashboard({
           </CardHeader>
           <CardContent className="pb-2">
             <div className="text-xl md:text-2xl font-bold">
-              {workoutLogs && workoutLogs.length > 0
-                ? Math.round(
-                  workoutLogs.reduce(
-                    (sum, w) => sum + (Number(w.duration) || 0),
-                    0
-                  ) / 3600
-                )
-                : 0}
-              h
+              {totalHours}h
             </div>
             <p className="text-xs text-muted-foreground">
-              {t("avg")}:{" "}
-              {workoutLogs && workoutLogs.length > 0
-                ? Math.round(
-                  workoutLogs.reduce(
-                    (sum, w) => sum + (Number(w.duration) || 0),
-                    0
-                  ) /
-                  workoutLogs.length /
-                  60
-                )
-                : 0}{" "}
-              {t("minPerWorkout")}
+              {t("avg")}: {avgMinutes} {t("minPerWorkout")}
             </p>
           </CardContent>
         </Card>
