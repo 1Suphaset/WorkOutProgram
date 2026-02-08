@@ -16,7 +16,7 @@ export default function LoginPage() {
   }
 
   return (
-    <ThemeProvider defaultTheme="light" storageKey="workout-planner-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="workout-planner-theme">
         <LoginForm
           language={language}
           onLogin={handleLogin}

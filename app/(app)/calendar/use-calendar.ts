@@ -1,15 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import type { Exercise, Workout } from "@/lib/types/workout"
-import type { WorkoutTemplate } from "@/lib/workout-templates"
+import type { Exercise, Workout,Template } from "@/lib/types/workout"
 import { useAuthStore } from "@/stores/auth-store"
 import { WorkoutLogger, type WorkoutLog } from "@/components/workout-logger"
 
 export function useCalendar() {
     const [workouts, setWorkouts] = useState<Workout[]>([])
     const [exerciseDatabase, setExerciseDatabase] = useState<Exercise[]>([])
-    const [templates, setTemplates] = useState<WorkoutTemplate[]>([])
+    const [templates, setTemplates] = useState<Template[]>([])
     const [loading, setLoading] = useState(true)
     const { user } = useAuthStore()
     const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null)
@@ -114,14 +113,12 @@ export function useCalendar() {
         const ex = exercise as Exercise;
         console.log(ex)
         const workoutExercise = {
-            id: Number(ex.exerciseId ?? ex.id),
+            id: Number(ex.id),
             name: ex.name,
-            reps: ex.reps ?? 10,
-            sets: ex.sets ?? 3,
-            notes: ex.notes ?? "",
+            reps: ex.recommendedSets?.reps ?? 10,
+            sets: ex.recommendedSets?.sets ?? 3,
             category: ex.category,
-            duration: ex.duration ?? 60, // default 60 วินาที
-            exerciseId: String(ex.exerciseId ?? ex.id),
+            duration: ex.estimatedDuration ?? 60, // default 60 วินาที
         };
         const newWorkout: Workout = {
             id: Date.now(),

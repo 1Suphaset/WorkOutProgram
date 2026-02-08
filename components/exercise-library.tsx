@@ -13,7 +13,7 @@ import { CustomExerciseForm } from "@/components/custom-exercise-form"
 import { useTranslation } from "@/lib/i18n"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
-import type { Exercise } from "@/lib/utils"
+import type { Exercise } from "@/lib/types/workout"
 
 interface ExerciseLibraryProps {
   onAddToWorkout?: (exercise: Exercise) => void
@@ -228,8 +228,8 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
 
   const handleSaveExercise = (exerciseData: Omit<Exercise, "id" | "createdAt">) => {
     if (editingCustomExercise) {
-      if (allExercises.some(ex => ex.id === editingCustomExercise.id)) {
-        updateExercise(editingCustomExercise.id, exerciseData)
+      if (allExercises.some(ex => Number(ex.id) === Number(editingCustomExercise.id))) {
+        updateExercise(Number(editingCustomExercise.id), exerciseData)
       }
     } else {
       addCustomExercise(exerciseData as Exercise)
@@ -499,11 +499,11 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                     className="absolute top-2 right-2 bg-white/80 hover:bg-white"
                     onClick={(e) => {
                       e.stopPropagation()
-                      toggleFavorite(exercise.id)
+                      toggleFavorite(Number(exercise.id))
                     }}
                   >
                     <Star
-                      className={`w-4 h-4 ${favorites.has(exercise.id) ? "fill-yellow-400 text-yellow-400" : ""}`}
+                      className={`w-4 h-4 ${favorites.has(Number(exercise.id)) ? "fill-yellow-400 text-yellow-400" : ""}`}
                     />
                   </Button>
                 </div>
@@ -555,9 +555,9 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                             size="sm"
                             variant="outline"
                             onClick={() => handleEditExercise(exercise)}
-                            disabled={!!actionLoading[exercise.id]}
+                            disabled={!!actionLoading[Number(exercise.id)]}
                           >
-                            {actionLoading[exercise.id] ? (
+                            {actionLoading[Number(exercise.id)] ? (
                               <svg className="animate-spin h-4 w-4 mr-2 text-muted-foreground" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
@@ -569,10 +569,10 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleDeleteExercise(exercise.id)}
-                            disabled={!!actionLoading[exercise.id]}
+                            onClick={() => handleDeleteExercise(Number(exercise.id))}
+                            disabled={!!actionLoading[Number(exercise.id)]}
                           >
-                            {actionLoading[exercise.id] ? (
+                            {actionLoading[Number(exercise.id)] ? (
                               <svg className="animate-spin h-4 w-4 mr-2 text-muted-foreground" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
@@ -601,7 +601,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
             </div>
           ) : (
           <div className="space-y-4">
-            {filteredExercises.filter((exercise: Exercise) => exercise.id !== 0).map((exercise: Exercise) => (
+            {filteredExercises.filter((exercise: Exercise) => Number(exercise.id) !== 0).map((exercise: Exercise) => (
               <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-4">
@@ -614,9 +614,9 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                       <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold">{exercise.name}</h3>
                         <div className="flex items-center space-x-2">
-                          <Button variant="ghost" size="sm" onClick={() => toggleFavorite(exercise.id)}>
+                          <Button variant="ghost" size="sm" onClick={() => toggleFavorite(Number(exercise.id))}>
                             <Star
-                              className={`w-4 h-4 ${favorites.has(exercise.id) ? "fill-yellow-400 text-yellow-400" : ""}`}
+                              className={`w-4 h-4 ${favorites.has(Number(exercise.id)) ? "fill-yellow-400 text-yellow-400" : ""}`}
                             />
                           </Button>
                           <Button size="sm" variant="outline" onClick={() => setSelectedExercise(exercise)}>
@@ -640,7 +640,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleDeleteExercise(exercise.id)}
+                                onClick={() => handleDeleteExercise(Number(exercise.id))}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -687,7 +687,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
             </div>
           ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredExercises.filter((exercise: Exercise) => favorites.has(exercise.id)).map((exercise: Exercise) => (
+            {filteredExercises.filter((exercise: Exercise) => favorites.has(Number(exercise.id))).map((exercise: Exercise) => (
               <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow">
                 <div className="relative">
                   <img
@@ -699,7 +699,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
                     variant="ghost"
                     size="sm"
                     className="absolute top-2 right-2 bg-white/80 hover:bg-white"
-                    onClick={() => toggleFavorite(exercise.id)}
+                    onClick={() => toggleFavorite(Number(exercise.id))}
                   >
                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   </Button>
@@ -749,8 +749,8 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
           onClose={() => setSelectedExercise(null)}
           onAddToWorkout={onAddToWorkout}
           showAddButton={showAddButton}
-          isFavorite={favorites.has(selectedExercise.id)}
-          onToggleFavorite={() => toggleFavorite(selectedExercise.id)}
+          isFavorite={favorites.has(Number(selectedExercise.id))}
+          onToggleFavorite={() => toggleFavorite(Number(selectedExercise.id))}
         />
       )}
 

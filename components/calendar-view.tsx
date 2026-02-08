@@ -17,25 +17,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { WorkoutForm } from "@/components/workout-form";
 import { WorkoutDetails } from "@/components/workout-details";
 import { Plus, Play, Edit, Trash2, Clock, CalendarIcon } from "lucide-react";
-import type { WorkoutTemplate } from "@/lib/workout-templates";
+import type { Template,Exercise,Workout } from "@/lib/types/workout";
 import { useTranslation } from "@/lib/i18n";
-import type { Exercise } from "@/lib/utils";
 import { DailyNotes } from "@/components/daily-notes";
-
-interface Workout {
-  id: number;
-  name: string;
-  date: string;
-  exercises: Exercise[];
-  completed: boolean;
-  createdAt: string;
-  duration?: number;
-  notes?: string;
-}
 
 interface CalendarViewProps {
   workouts: Workout[];
-  templates: WorkoutTemplate[];
+  templates: Template[];
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
   addWorkout: (workout: Workout) => void;
@@ -272,7 +260,7 @@ export function Calendar({
                         {(workout.exercises.slice(0, 3) as Exercise[]).map(
                           (exercise) => {
                             const exData = exerciseDatabase.find(
-                              (e) => e.id === exercise.id
+                              (e) => Number(e.id) === Number(exercise.id)
                             );
 
                             return (

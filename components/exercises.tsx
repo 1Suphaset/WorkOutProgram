@@ -18,16 +18,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Plus, Edit, Trash2, Dumbbell, Heart, Zap, Trophy } from "lucide-react"
-import type { WorkoutTemplate } from "@/lib/workout-templates"
+import type { Template } from "@/lib/types/workout"
 // Remove: import type { ExerciseLibraryItem } from "@/lib/exercise-database"
 import { useTranslation } from "@/lib/i18n"
-import type { Exercise } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 
 interface ExercisesProps {
-  templates: WorkoutTemplate[]
-  addTemplate: (template: WorkoutTemplate) => void
-  updateTemplate: (templateId: number, updatedTemplate: Partial<WorkoutTemplate>) => void
+  templates: Template[]
+  addTemplate: (template: Template) => void
+  updateTemplate: (templateId: number, updatedTemplate: Partial<Template>) => void
   deleteTemplate: (templateId: number) => void
   exerciseDatabase: any[] // Changed to any[] as ExerciseLibraryItem is removed
   language?: "en" | "th"
@@ -42,7 +41,6 @@ type ExerciseForm = {
   calories?: number;
   description?: string;
   id?: number;
-  exerciseId?: number;
 };
 
 type NewTemplateForm = {
@@ -51,23 +49,11 @@ type NewTemplateForm = {
   exercises: ExerciseForm[];
 };
 
-function mapExerciseFromDB(dbExercise: any) {
-  return {
-    ...dbExercise,
-    id: Number(dbExercise.id),
-    muscleGroups: dbExercise.muscle_groups || [],
-    image_url: dbExercise.image_url,
-    estimatedDuration: dbExercise.estimated_duration,
-    isCustom: dbExercise.is_custom,
-    createdAt: dbExercise.created_at,
-    userId: dbExercise.user_id,
-  };
-}
 
 export function Exercises({ templates, addTemplate, updateTemplate, deleteTemplate, exerciseDatabase, language = "en" }: ExercisesProps) {
   const { t } = useTranslation(language)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const [editingTemplate, setEditingTemplate] = useState<WorkoutTemplate | null>(null)
+  const [editingTemplate, setEditingTemplate] = useState<Template | null>(null)
   const [newTemplate, setNewTemplate] = useState<NewTemplateForm>({
     name: "",
     category: "",
@@ -102,11 +88,11 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
   // เวลาสร้างหรือแก้ไข template ให้เติมข้อมูลจาก exerciseDatabase
   const handleCreateTemplate = () => {
     if (!newTemplate.name.trim() || !newTemplate.category.trim()) return
-    const template: WorkoutTemplate = {
+    const template: Template = {
       id: Date.now() + Math.floor(Math.random() * 10000),
       name: newTemplate.name,
       nameTranslations: { th: newTemplate.name },
-      type: newTemplate.category as WorkoutTemplate['type'],
+      type: newTemplate.category as Template['type'],
       duration: 30,
       difficulty: "Beginner",
       description: "",
@@ -116,13 +102,13 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
       calories: 0,
       tags: [],
       exercises: newTemplate.exercises.map((ex: any, idx) => {
-        const exData = exerciseDatabase.find(e => e.id === (ex.exerciseId ?? ex.id));
+        const exData = exerciseDatabase.find(e => Number(e.id) === Number(ex.id));
         return {
-          exerciseId: ex.exerciseId ?? exData?.id, // serialize exerciseId เสมอ
+          id: exData?.id, // serialize exerciseId เสมอ
           name: exData?.name || ex.name,
           nameTranslations: { th: exData?.name || ex.name },
-        sets: ex.sets,
-        reps: ex.reps,
+          sets: ex.sets,
+          reps: ex.reps,
           duration: ex.duration,
           rest: 60,
           instructions: ex.description || "",
@@ -139,19 +125,12 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
     if (!editingTemplate || !newTemplate.name.trim() || !newTemplate.category.trim()) return
     updateTemplate(Number(editingTemplate.id), {
       name: newTemplate.name,
-      type: newTemplate.category as WorkoutTemplate['type'],
+      type: newTemplate.category as Template['type'],
       exercises: newTemplate.exercises.map((ex, idx) => {
-        const exData = exerciseDatabase.find(e => e.id === (ex.exerciseId ?? ex.id));
+        const exData = exerciseDatabase.find(e => Number(e.id) === Number(ex.id));
         return {
-          exerciseId: ex.exerciseId ?? exData?.id, // serialize exerciseId เสมอ
+          id: Number(exData?.id), // serialize exerciseId เสมอ
           name: exData?.name || ex.name,
-          nameTranslations: { th: exData?.name || ex.name },
-        sets: ex.sets,
-        reps: ex.reps,
-          duration: ex.duration,
-          rest: 60,
-          instructions: ex.description || "",
-          instructionsTranslations: { th: ex.description || "" },
         }
       }),
     })
@@ -177,7 +156,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
         ...prev.exercises,
         {
           ...newExercise,
-          exerciseId: exData.id, // เก็บ exerciseId เสมอถ้าเลือกจาก Library
+          id: exData.id,
         },
       ],
     }))
@@ -199,7 +178,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
     }))
   }
 
-  const startEditing = (template: WorkoutTemplate) => {
+  const startEditing = (template: Template) => {
     setEditingTemplate(template)
     setNewTemplate({
       name: template.name,
@@ -361,7 +340,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                           <div className="flex items-center space-x-2">
                             {getTypeIcon(exercise.type)}
                             <span className="text-sm">
-                              {(() => { const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId ?? exercise.id)); return exData?.name || exercise.name || t('unknownExercise') })()}
+                              {(() => { const exData = exerciseDatabase.find(e => Number(e.id) === Number(exercise.id)); return exData?.name || exercise.name || t('unknownExercise') })()}
                             </span>
                             <Badge variant="outline">{exercise.type}</Badge>
                             {exercise.reps && exercise.sets && (
@@ -414,7 +393,7 @@ export function Exercises({ templates, addTemplate, updateTemplate, deleteTempla
                     <div key={exercise.id} className="flex items-center justify-between text-sm">
                       <div className="flex items-center space-x-2">
                         <span>
-                          {(() => { const exData = exerciseDatabase.find(e => String(e.id) === String(exercise.exerciseId ?? exercise.id)); return exData?.name || "Unknown Exercise" })()}
+                          {(() => { const exData = exerciseDatabase.find(e => Number(e.id) === Number(exercise.id)); return exData?.name || "Unknown Exercise" })()}
                         </span>
                       </div>
                       <div className="text-muted-foreground">{exercise.duration ? Math.round(exercise.duration / 60) + "min" : ""}</div>

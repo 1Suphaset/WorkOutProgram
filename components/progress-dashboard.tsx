@@ -106,19 +106,19 @@ export function ProgressDashboard({
       };
     }).reverse()
     : [];
-
+    console.log(workoutLogs)
 
   // Exercise frequency
   const exerciseFrequency = completedWorkouts
     ? completedWorkouts.reduce((acc, workout) => {
       workout.exercises?.forEach((exercise) => {
         const exData = exerciseDatabase.find(
-          (e) => Number(e.id) === Number((exercise as any).exerciseId)
+          (e) => Number(e.id) === Number((exercise as Exercise).id)
         );
 
         console.log("🔗 match exercise", {
           workoutExercise: exercise,
-          lookupId: (exercise as any).exerciseId,
+          lookupId: (exercise as Exercise).id,
           found: exData,
         });
         const name = exData?.name || t("unknownExercise");

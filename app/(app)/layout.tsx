@@ -44,7 +44,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     if (loading || !user) return null
 
     return (
-        <ThemeProvider defaultTheme="light" storageKey="workout-planner-theme">
+        <ThemeProvider defaultTheme="dark" storageKey="workout-planner-theme">
             <div className="flex h-screen bg-background">
                 <div className="hidden md:block">
                     <Sidebar

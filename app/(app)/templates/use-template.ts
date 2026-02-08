@@ -1,13 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import type { Exercise } from "@/lib/types/workout"
-import type { WorkoutTemplate } from "@/lib/workout-templates"
+import type { Exercise,Template } from "@/lib/types/workout"
 import { useAuthStore } from "@/stores/auth-store"
 import { useRef } from "react"
 export function useTemplate() {
     const [exerciseDatabase, setExerciseDatabase] = useState<Exercise[]>([])
-    const [templates, setTemplates] = useState<WorkoutTemplate[]>([])
+    const [templates, setTemplates] = useState<Template[]>([])
     const [loading, setLoading] = useState(true)
     const { user } = useAuthStore()
     const fetchedRef = useRef(false)
@@ -59,14 +58,13 @@ export function useTemplate() {
     }, [user])
 
 
-    const normalizeExercises = (exercises: any[] = []) =>
+    const normalizeExercises = (exercises: Exercise[] = []) =>
         exercises.map((ex) => ({
             ...ex,
             id: Number(ex.id),
-            instructions: ex.instructions ?? "",
         }))
 
-    const addTemplate = async (template: WorkoutTemplate) => {
+    const addTemplate = async (template: Template) => {
         if (!user) return false
 
         const res = await fetch("/api/templates", {
@@ -86,10 +84,10 @@ export function useTemplate() {
         return true
     }
 
-    const updateTemplate = async (templateId: number, updatedTemplate: Partial<WorkoutTemplate>) => {
+    const updateTemplate = async (templateId: number, updatedTemplate: Partial<Template>) => {
         const template = templates.find(t => Number(t.id) === Number(templateId))
         if (!template) return;
-        const fullTemplate: WorkoutTemplate = {
+        const fullTemplate: Template = {
             ...template,
             ...updatedTemplate,
             type: updatedTemplate.type || template.type,

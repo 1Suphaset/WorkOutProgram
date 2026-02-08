@@ -62,7 +62,7 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
   const { t } = useTranslation(language as Language)
 
   const currentExercise = workout.exercises[currentExerciseIndex]
-  const exData = exerciseDatabase.find(e => e.id === (currentExercise && 'exerciseId' in currentExercise ? currentExercise.exerciseId : 0))
+  const exData = exerciseDatabase.find(e => Number(e.id) === Number(currentExercise.id))
   const exerciseName = exData?.name || t('unknownExercise')
   const totalExercises = workout.exercises.length
   const totalSets = workout.exercises.reduce((sum, ex) => sum + ((ex as any).sets || 1), 0)
@@ -443,8 +443,11 @@ export function WorkoutTimer({ workout, onClose, onComplete, language = "en", ex
           <CardContent>
             <div className="space-y-2">
               {workout.exercises.slice(currentExerciseIndex + 1, currentExerciseIndex + 4).map((exercise) => {
-                const exData = exerciseDatabase.find(e => e.id === ('exerciseId' in exercise ? exercise.exerciseId : 0))
+                const exData = exerciseDatabase.find(e => Number(e.id) === Number(exercise.id))
                 const exerciseName = exData?.name || t('unknownExercise')
+                console.log(exercise)
+                console.log(exerciseDatabase)
+
                 return (
                   <div key={exercise.id} className="flex items-center justify-between p-2 bg-muted rounded">
                     <span className="font-medium truncate">{exerciseName}</span>

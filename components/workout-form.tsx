@@ -14,8 +14,7 @@ import { Plus, Trash2 } from "lucide-react"
 import { ExerciseLibrary } from "@/components/exercise-library"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/lib/i18n"
-import type { Exercise } from "@/lib/utils"
-import type { WorkoutTemplate } from "@/lib/workout-templates"
+import type { Exercise, Template } from "@/lib/types/workout"
 
 interface Workout {
   id: number;
@@ -30,7 +29,7 @@ interface Workout {
 
 interface WorkoutFormProps {
   workout?: Workout | null
-  templates: WorkoutTemplate[]
+  templates: Template[]
   selectedDate: Date
   onSave: (workout: Omit<Workout, "id" | "date" | "completed" | "createdAt">) => void
   onClose: () => void
@@ -74,10 +73,9 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
     if (template) {
       const convertedExercises = (template.exercises || []).map((ex: any, idx: number) => {
         // map ด้วย exerciseId (หรือ id) เป็นหลัก
-        const exData = exerciseDatabase.find(e => e.id === (ex.exerciseId ?? ex.id));
+        const exData = exerciseDatabase.find(e => Number(e.id) === Number(ex.id));
         return {
-          id: Date.now() + Math.floor(Math.random() * 10000),
-          exerciseId: ex.exerciseId ?? exData?.id ?? 0,
+          id: Number(exData?.id),
           name: exData?.name || ex.name || 'Unknown Exercise',
           category: exData?.category || ex.category || '',
           sets: ex.sets ?? 3,
@@ -160,7 +158,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={t("chooseATemplate")}/>
+                  <SelectValue placeholder={t("chooseATemplate")} />
                 </SelectTrigger>
                 <SelectContent>
                   {templates.map((template) => (
@@ -196,14 +194,13 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
             <ScrollArea className="h-[400px]">
               <div className="space-y-4">
                 {exercises.map((exercise, index) => {
-                  const exData = exerciseDatabase.find(e => e.id === ((exercise as any).exerciseId ?? exercise.id));
-                  console.log("Exercise:", exercise, "exData:", exData);
+                  const exData = exerciseDatabase.find(e => Number(e.id) === Number((exercise as Exercise).id));
                   return (
                     <Card key={exercise.id}>
                       <CardHeader className="pb-3">
                         <CardTitle className="text-sm flex items-center justify-between">
                           {t("exercise")} {index + 1}
-                          <Button variant="ghost" size="sm" onClick={() => removeExercise(exercise.id)}>
+                          <Button variant="ghost" size="sm" onClick={() => removeExercise(Number(exercise.id))}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </CardTitle>
@@ -228,7 +225,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                                   type="number"
                                   value={(exercise as any).sets || ""}
                                   onChange={(e) =>
-                                    updateExercise(exercise.id, { ...(exercise as any), sets: Number.parseInt(e.target.value) || undefined })
+                                    updateExercise(Number(exercise.id), { ...(exercise as any), sets: Number.parseInt(e.target.value) || undefined })
                                   }
                                   placeholder="3"
                                 />
@@ -239,7 +236,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                                   type="number"
                                   value={(exercise as any).reps || ""}
                                   onChange={(e) =>
-                                    updateExercise(exercise.id, { ...(exercise as any), reps: Number.parseInt(e.target.value) || undefined })
+                                    updateExercise(Number(exercise.id), { ...(exercise as any), reps: Number.parseInt(e.target.value) || undefined })
                                   }
                                   placeholder="10"
                                 />
@@ -250,7 +247,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                                   type="number"
                                   value={(exercise as any).weight || ""}
                                   onChange={(e) =>
-                                    updateExercise(exercise.id, { ...(exercise as any), weight: Number.parseFloat(e.target.value) || undefined })
+                                    updateExercise(Number(exercise.id), { ...(exercise as any), weight: Number.parseFloat(e.target.value) || undefined })
                                   }
                                   placeholder=""
                                 />
@@ -265,7 +262,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                                   type="number"
                                   value={(exercise as any).time || ""}
                                   onChange={(e) =>
-                                    updateExercise(exercise.id, { ...(exercise as any), time: Number.parseInt(e.target.value) || undefined })
+                                    updateExercise(Number(exercise.id), { ...(exercise as any), time: Number.parseInt(e.target.value) || undefined })
                                   }
                                   placeholder="60"
                                 />
@@ -275,7 +272,7 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
                                 <Input
                                   value={(exercise as any).notes || ""}
                                   onChange={(e) =>
-                                    updateExercise(exercise.id, { ...(exercise as any), notes: e.target.value })
+                                    updateExercise(Number(exercise.id), { ...(exercise as any), notes: e.target.value })
                                   }
                                   placeholder={t("exerciseNotesPlaceholder")}
                                 />
@@ -303,20 +300,20 @@ export function WorkoutForm({ workout, templates, selectedDate, onSave, onClose,
           </div>
         </div>
       </DialogContent>
-          <ExerciseLibrary
-            exerciseDatabase={exerciseDatabase}
-            minimalView={true}
-            showAddButton={true}
-            onAddToWorkout={(libraryExercise) => {
-              const newExercise: Exercise = {
-                id: Date.now() + Math.floor(Math.random() * 10000),
+      <ExerciseLibrary
+        exerciseDatabase={exerciseDatabase}
+        minimalView={true}
+        showAddButton={true}
+        onAddToWorkout={(libraryExercise) => {
+          const newExercise: Exercise = {
+            id: Number(libraryExercise.id),
             name: libraryExercise.name || '',
             category: libraryExercise.category || '',
-              };
-              setExercises([...exercises, newExercise]);
-              setShowLibraryDialog(false);
-            }}
-          />
+          };
+          setExercises([...exercises, newExercise]);
+          setShowLibraryDialog(false);
+        }}
+      />
     </Dialog>
   )
 }

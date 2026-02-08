@@ -1,9 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import type { Workout,Exercise } from "@/lib/types/workout"
+import type { Workout, Exercise } from "@/lib/types/workout"
 import type { WorkoutLog } from "@/components/workout-logger"
 import { useAuthStore } from "@/stores/auth-store"
+import { useRef } from "react"
 
 export function useProgress() {
     const [workouts, setWorkouts] = useState<Workout[]>([])
@@ -11,6 +12,8 @@ export function useProgress() {
     const [workoutLogs, setWorkoutLogs] = useState<WorkoutLog[]>([])
     const [loading, setLoading] = useState(true)
     const { user } = useAuthStore()
+    const fetchedRef = useRef(false)
+
     console.log(user)
     const fetchData = () => {
         if (!user) return;
@@ -27,9 +30,10 @@ export function useProgress() {
     };
 
     useEffect(() => {
-        if (!user) return;
+        if (!user || fetchedRef.current) return
+        fetchedRef.current = true
         fetchData();
     }, [user])
-    return { workouts,exerciseDatabase,workoutLogs, loading }
+    return { workouts, exerciseDatabase, workoutLogs, loading }
 }
 
