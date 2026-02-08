@@ -17,7 +17,7 @@ import type { ExerciseTemplate } from "@/lib/exercise-templates"
 import { ExerciseTemplateSelector } from "@/components/exercise-template-selector"
 import { useTranslation } from "@/lib/i18n"
 import { useToast } from "@/hooks/use-toast"
-import type { Exercise } from "@/lib/utils"
+import type { Exercise } from "@/lib/types/workout"
 
 interface CustomExerciseFormProps {
   exercise?: Exercise | null
