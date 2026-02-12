@@ -3,13 +3,13 @@
 import { Templates } from "@/components/templates"
 import { useTemplate } from "./use-template"
 import { useAppSettings } from "@/stores/app-settings-store"
-
-export default function ProgressPage() {
+import { TemplatePageSkeleton } from "./template-skeleton"
+export default function TemplatePage() {
     const { templates,exerciseDatabase, loading,addTemplate,updateTemplate,deleteTemplate } = useTemplate()
     const language = useAppSettings((s) => s.language)
 
     if (loading) {
-        return <div className="p-6">Loading...</div>
+        return <TemplatePageSkeleton />
     }
 
     return (

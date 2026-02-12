@@ -182,12 +182,12 @@ export function Templates({ templates, addTemplate, updateTemplate, deleteTempla
   console.log("Rendering exData:", exData);
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">{t('workoutTemplates')}</h1>
           <p className="text-muted-foreground">{t('createAndManageReusableWorkoutRoutines')}</p>
         </div>
-        <div className="flex gap-2">
+         <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
         
           <Button onClick={handleCreateTemplate}>
             <Plus className="w-4 h-4 mr-2" />

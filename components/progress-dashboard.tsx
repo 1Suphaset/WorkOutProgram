@@ -33,18 +33,8 @@ import {
 } from "lucide-react";
 import type { WorkoutLog } from "@/components/workout-logger";
 import { useTranslation } from "@/lib/i18n";
-import type { Exercise } from "@/lib/utils";
+import type { Exercise,Workout } from "@/lib/types/workout"
 
-interface Workout {
-  id: number;
-  name: string;
-  date: string;
-  notes?: string;
-  completed?: boolean;
-  duration?: number;
-  exercises: Exercise[];
-  createdAt?: string;
-}
 
 interface ProgressDashboardProps {
   workouts: Workout[];

@@ -38,7 +38,7 @@ function mapExerciseFromDB(dbExercise: unknown): Exercise {
   };
 }
 
-export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exerciseDatabase: propExerciseDatabase, language = "en", userEmail, minimalView = false,fetchData }: ExerciseLibraryProps) {
+export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exerciseDatabase: propExerciseDatabase, language = "en", userEmail, minimalView = false, fetchData }: ExerciseLibraryProps) {
   const { t } = useTranslation(language)
   const { toast } = useToast()
   const exerciseDatabase = minimalView ? (propExerciseDatabase || []) : (propExerciseDatabase || []).map(mapExerciseFromDB);
@@ -290,7 +290,6 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
   if (minimalView) {
     return (
       <div>
-        {/* Search & Filter */}
         <div className="flex flex-col md:flex-row gap-2 mb-4">
           <Input
             type="text"
@@ -348,8 +347,8 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6 mx-auto">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">{t('exerciseLibrary.title')}</h1>
           <p className="text-muted-foreground">{t('exerciseLibrary.description')}</p>
@@ -479,116 +478,116 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
               ))}
             </div>
           ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredExercises.filter((exercise: Exercise) => exercise.id !== 0).map((exercise: Exercise) => (
-              <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow cursor-pointer group">
-                <div className="relative">
-                  <img
-                    src={exercise.image_url || exercise.image_url || "/placeholder.svg"}
-                    alt={exercise.name}
-                    className="w-full h-48 object-cover rounded-t-lg"
-                  />
-                  {exercise.isCustom && (
-                    <Badge variant="outline" className="absolute top-2 left-2 bg-white/80">
-                      {t('exerciseLibrary.custom')}
-                    </Badge>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute top-2 right-2 bg-white/80 hover:bg-white"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      toggleFavorite(Number(exercise.id))
-                    }}
-                  >
-                    <Star
-                      className={`w-4 h-4 ${favorites.has(Number(exercise.id)) ? "fill-yellow-400 text-yellow-400" : ""}`}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredExercises.filter((exercise: Exercise) => exercise.id !== 0).map((exercise: Exercise) => (
+                <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow cursor-pointer group">
+                  <div className="relative">
+                    <img
+                      src={exercise.image_url || exercise.image_url || "/placeholder.svg"}
+                      alt={exercise.name}
+                      className="w-full h-48 object-cover rounded-t-lg"
                     />
-                  </Button>
-                </div>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{exercise.name}</CardTitle>
-                    {getCategoryIcon(exercise.category)}
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge variant="outline" className={`${getDifficultyColor(exercise.difficulty ?? "")} text-white`}>
-                      {exercise.difficulty}
-                    </Badge>
-                    <Badge variant="secondary">{exercise.equipment}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex flex-wrap gap-1">
-                    {Array.isArray(exercise.muscleGroups) &&
-                      exercise.muscleGroups.slice(0, 3).map((muscle) => (
-                      <Badge key={String(muscle)} variant="outline" className="text-xs">
-                        {muscle}
-                      </Badge>
-                      ))
-                    }
-                    {Array.isArray(exercise.muscleGroups) && exercise.muscleGroups.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{exercise.muscleGroups.length - 3}
+                    {exercise.isCustom && (
+                      <Badge variant="outline" className="absolute top-2 left-2 bg-white/80">
+                        {t('exerciseLibrary.custom')}
                       </Badge>
                     )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        toggleFavorite(Number(exercise.id))
+                      }}
+                    >
+                      <Star
+                        className={`w-4 h-4 ${favorites.has(Number(exercise.id)) ? "fill-yellow-400 text-yellow-400" : ""}`}
+                      />
+                    </Button>
                   </div>
-                  <p className="text-sm text-muted-foreground line-clamp-2">{exercise.description}</p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Clock className="w-4 h-4 mr-1" />
-                      {exercise.estimatedDuration}min
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">{exercise.name}</CardTitle>
+                      {getCategoryIcon(exercise.category)}
                     </div>
-                    <div className="flex space-x-2">
-                      <Button size="sm" variant="outline" onClick={() => setSelectedExercise(exercise)}>
-                        {t('exerciseLibrary.view')}
-                      </Button>
-                      {showAddButton && onAddToWorkout && (
-                        <Button size="sm" onClick={() => onAddToWorkout(exercise)}>
-                          <Plus className="w-4 h-4" />
+                    <div className="flex items-center space-x-2">
+                      <Badge variant="outline" className={`${getDifficultyColor(exercise.difficulty ?? "")} text-white`}>
+                        {exercise.difficulty}
+                      </Badge>
+                      <Badge variant="secondary">{exercise.equipment}</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex flex-wrap gap-1">
+                      {Array.isArray(exercise.muscleGroups) &&
+                        exercise.muscleGroups.slice(0, 3).map((muscle) => (
+                          <Badge key={String(muscle)} variant="outline" className="text-xs">
+                            {muscle}
+                          </Badge>
+                        ))
+                      }
+                      {Array.isArray(exercise.muscleGroups) && exercise.muscleGroups.length > 3 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{exercise.muscleGroups.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{exercise.description}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Clock className="w-4 h-4 mr-1" />
+                        {exercise.estimatedDuration}min
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button size="sm" variant="outline" onClick={() => setSelectedExercise(exercise)}>
+                          {t('exerciseLibrary.view')}
                         </Button>
-                      )}
-                      {exercise.isCustom && (
-                        <div className="flex space-x-1">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEditExercise(exercise)}
-                            disabled={!!actionLoading[Number(exercise.id)]}
-                          >
-                            {actionLoading[Number(exercise.id)] ? (
-                              <svg className="animate-spin h-4 w-4 mr-2 text-muted-foreground" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                              </svg>
-                            ) : (
-                              <Edit className="w-4 h-4" />
-                            )}
+                        {showAddButton && onAddToWorkout && (
+                          <Button size="sm" onClick={() => onAddToWorkout(exercise)}>
+                            <Plus className="w-4 h-4" />
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDeleteExercise(Number(exercise.id))}
-                            disabled={!!actionLoading[Number(exercise.id)]}
-                          >
-                            {actionLoading[Number(exercise.id)] ? (
-                              <svg className="animate-spin h-4 w-4 mr-2 text-muted-foreground" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                              </svg>
-                            ) : (
-                              <Trash2 className="w-4 h-4" />
-                            )}
-                          </Button>
-                        </div>
-                      )}
+                        )}
+                        {exercise.isCustom && (
+                          <div className="flex space-x-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEditExercise(exercise)}
+                              disabled={!!actionLoading[Number(exercise.id)]}
+                            >
+                              {actionLoading[Number(exercise.id)] ? (
+                                <svg className="animate-spin h-4 w-4 mr-2 text-muted-foreground" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                                </svg>
+                              ) : (
+                                <Edit className="w-4 h-4" />
+                              )}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteExercise(Number(exercise.id))}
+                              disabled={!!actionLoading[Number(exercise.id)]}
+                            >
+                              {actionLoading[Number(exercise.id)] ? (
+                                <svg className="animate-spin h-4 w-4 mr-2 text-muted-foreground" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                                </svg>
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </TabsContent>
 
@@ -600,81 +599,81 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
               ))}
             </div>
           ) : (
-          <div className="space-y-4">
-            {filteredExercises.filter((exercise: Exercise) => Number(exercise.id) !== 0).map((exercise: Exercise) => (
-              <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-4">
-                    <img
-                      src={exercise.image_url || exercise.image_url || "/placeholder.svg"}
-                      alt={exercise.name}
-                      className="w-20 h-20 object-cover rounded-lg"
-                    />
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">{exercise.name}</h3>
-                        <div className="flex items-center space-x-2">
-                          <Button variant="ghost" size="sm" onClick={() => toggleFavorite(Number(exercise.id))}>
-                            <Star
-                              className={`w-4 h-4 ${favorites.has(Number(exercise.id)) ? "fill-yellow-400 text-yellow-400" : ""}`}
-                            />
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => setSelectedExercise(exercise)}>
-                            {t('exerciseLibrary.viewDetails')}
-                          </Button>
-                          {showAddButton && onAddToWorkout && (
-                            <Button size="sm" onClick={() => onAddToWorkout(exercise)}>
-                              <Plus className="w-4 h-4 mr-2" />
-                              {t('exerciseLibrary.add')}
+            <div className="space-y-4">
+              {filteredExercises.filter((exercise: Exercise) => Number(exercise.id) !== 0).map((exercise: Exercise) => (
+                <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-4">
+                      <img
+                        src={exercise.image_url || exercise.image_url || "/placeholder.svg"}
+                        alt={exercise.name}
+                        className="w-20 h-20 object-cover rounded-lg"
+                      />
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-semibold">{exercise.name}</h3>
+                          <div className="flex items-center space-x-2">
+                            <Button variant="ghost" size="sm" onClick={() => toggleFavorite(Number(exercise.id))}>
+                              <Star
+                                className={`w-4 h-4 ${favorites.has(Number(exercise.id)) ? "fill-yellow-400 text-yellow-400" : ""}`}
+                              />
                             </Button>
-                          )}
-                          {exercise.isCustom && (
-                            <div className="flex space-x-1">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleEditExercise(exercise)}
-                              >
-                                <Edit className="w-4 h-4" />
+                            <Button size="sm" variant="outline" onClick={() => setSelectedExercise(exercise)}>
+                              {t('exerciseLibrary.viewDetails')}
+                            </Button>
+                            {showAddButton && onAddToWorkout && (
+                              <Button size="sm" onClick={() => onAddToWorkout(exercise)}>
+                                <Plus className="w-4 h-4 mr-2" />
+                                {t('exerciseLibrary.add')}
                               </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleDeleteExercise(Number(exercise.id))}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          )}
+                            )}
+                            {exercise.isCustom && (
+                              <div className="flex space-x-1">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleEditExercise(exercise)}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleDeleteExercise(Number(exercise.id))}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant="outline" className={`${getDifficultyColor(exercise.difficulty ?? "")} text-white`}>
-                          {exercise.difficulty}
-                        </Badge>
-                        <Badge variant="secondary">{exercise.category}</Badge>
-                        <Badge variant="outline">{exercise.equipment}</Badge>
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4 mr-1" />
-                          {exercise.estimatedDuration}min
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {Array.isArray(exercise.muscleGroups) &&
-                          exercise.muscleGroups.map((muscle) => (
-                          <Badge key={String(muscle)} variant="outline" className="text-xs">
-                            {muscle}
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="outline" className={`${getDifficultyColor(exercise.difficulty ?? "")} text-white`}>
+                            {exercise.difficulty}
                           </Badge>
-                          ))
-                        }
+                          <Badge variant="secondary">{exercise.category}</Badge>
+                          <Badge variant="outline">{exercise.equipment}</Badge>
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <Clock className="w-4 h-4 mr-1" />
+                            {exercise.estimatedDuration}min
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {Array.isArray(exercise.muscleGroups) &&
+                            exercise.muscleGroups.map((muscle) => (
+                              <Badge key={String(muscle)} variant="outline" className="text-xs">
+                                {muscle}
+                              </Badge>
+                            ))
+                          }
+                        </div>
+                        <p className="text-sm text-muted-foreground">{exercise.description}</p>
                       </div>
-                      <p className="text-sm text-muted-foreground">{exercise.description}</p>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </TabsContent>
 
@@ -686,50 +685,50 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
               ))}
             </div>
           ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredExercises.filter((exercise: Exercise) => favorites.has(Number(exercise.id))).map((exercise: Exercise) => (
-              <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow">
-                <div className="relative">
-                  <img
-                    src={exercise.image_url || exercise.image_url || "/placeholder.svg"}
-                    alt={exercise.name}
-                    className="w-full h-48 object-cover rounded-t-lg"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute top-2 right-2 bg-white/80 hover:bg-white"
-                    onClick={() => toggleFavorite(Number(exercise.id))}
-                  >
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredExercises.filter((exercise: Exercise) => favorites.has(Number(exercise.id))).map((exercise: Exercise) => (
+                <Card key={String(exercise.id) + '-' + exercise.name} className="hover:shadow-md transition-shadow">
+                  <div className="relative">
+                    <img
+                      src={exercise.image_url || exercise.image_url || "/placeholder.svg"}
+                      alt={exercise.name}
+                      className="w-full h-48 object-cover rounded-t-lg"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                      onClick={() => toggleFavorite(Number(exercise.id))}
+                    >
+                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    </Button>
+                  </div>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">{exercise.name}</CardTitle>
+                    <Badge variant="outline" className={`${getDifficultyColor(exercise.difficulty ?? "")} text-white w-fit`}>
+                      {exercise.difficulty}
+                    </Badge>
+                  </CardHeader>
+                  <CardContent>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setSelectedExercise(exercise)}
+                      className="w-full"
+                    >
+                      {t('exerciseLibrary.viewDetails')}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+              {favorites.size === 0 && (
+                <div className="col-span-full text-center py-12">
+                  <Star className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                  <h3 className="text-lg font-medium mb-2">{t('exerciseLibrary.noFavoritesYet')}</h3>
+                  <p className="text-muted-foreground">{t('exerciseLibrary.clickStarIcon')}</p>
                 </div>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">{exercise.name}</CardTitle>
-                  <Badge variant="outline" className={`${getDifficultyColor(exercise.difficulty ?? "")} text-white w-fit`}>
-                    {exercise.difficulty}
-                  </Badge>
-                </CardHeader>
-                <CardContent>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setSelectedExercise(exercise)}
-                    className="w-full"
-                  >
-                    {t('exerciseLibrary.viewDetails')}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-            {favorites.size === 0 && (
-              <div className="col-span-full text-center py-12">
-                <Star className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="text-lg font-medium mb-2">{t('exerciseLibrary.noFavoritesYet')}</h3>
-                <p className="text-muted-foreground">{t('exerciseLibrary.clickStarIcon')}</p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
           )}
         </TabsContent>
       </Tabs>
@@ -756,10 +755,10 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
 
       {showCustomForm && (
         <CustomExerciseForm
-          exercise={editingCustomExercise ? { 
-            ...editingCustomExercise, 
-            image_url: editingCustomExercise.image_url || editingCustomExercise.image_url, 
-            isCustom: true as const, 
+          exercise={editingCustomExercise ? {
+            ...editingCustomExercise,
+            image_url: editingCustomExercise.image_url || editingCustomExercise.image_url,
+            isCustom: true as const,
             createdAt: editingCustomExercise.createdAt || "",
             category: editingCustomExercise.category as "Strength" | "Cardio" | "Flexibility" | "Sports",
             difficulty: editingCustomExercise.difficulty as "Beginner" | "Intermediate" | "Advanced"
@@ -867,9 +866,9 @@ function ExerciseDetailModal({
                 <div className="flex flex-wrap gap-2">
                   {Array.isArray(exercise.muscleGroups) &&
                     exercise.muscleGroups.map((muscle) => (
-                    <Badge key={String(muscle)} variant="outline">
-                      {muscle}
-                    </Badge>
+                      <Badge key={String(muscle)} variant="outline">
+                        {muscle}
+                      </Badge>
                     ))
                   }
                 </div>

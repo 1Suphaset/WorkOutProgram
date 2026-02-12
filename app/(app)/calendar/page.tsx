@@ -7,6 +7,7 @@ import { WorkoutLogger } from "@/components/workout-logger"
 import { useCalendar } from "./use-calendar"
 import { useAppSettings } from "@/stores/app-settings-store"
 import { useAuthStore } from "@/stores/auth-store"
+import { CalendarSkeleton } from "./calendar-skeleton"
 
 export default function CalendarPage() {
     const {
@@ -32,7 +33,7 @@ export default function CalendarPage() {
     const { user } = useAuthStore()
 
     if (loading) {
-        return <div className="p-6">Loading...</div>
+        return <CalendarSkeleton/>
     }
 
     return (

@@ -1,15 +1,15 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import type { Exercise, Workout,Template } from "@/lib/types/workout"
+import { useEffect, useState, useRef } from "react"
+import type { Exercise, Workout, Template } from "@/lib/types/workout"
 import { useAuthStore } from "@/stores/auth-store"
 import { WorkoutLogger, type WorkoutLog } from "@/components/workout-logger"
-
 export function useCalendar() {
     const [workouts, setWorkouts] = useState<Workout[]>([])
     const [exerciseDatabase, setExerciseDatabase] = useState<Exercise[]>([])
     const [templates, setTemplates] = useState<Template[]>([])
     const [loading, setLoading] = useState(true)
+    const fetchedRef = useRef(false)
     const { user } = useAuthStore()
     const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null)
 
@@ -43,7 +43,8 @@ export function useCalendar() {
 
 
     useEffect(() => {
-        if (!user) return;
+        if (!user || fetchedRef.current) return
+        fetchedRef.current = true
         fetchData();
         // ไม่มี setInterval อีกต่อไป
     }, [user])
@@ -148,10 +149,10 @@ export function useCalendar() {
         setShowWorkoutLogger(false)
         setWorkoutToLog(null)
     }
-    return { 
+    return {
         workouts,
         templates,
-        exerciseDatabase, 
+        exerciseDatabase,
         loading,
         activeWorkout,
         setActiveWorkout,
@@ -166,6 +167,6 @@ export function useCalendar() {
         handleAddExerciseFromDragDrop,
         updateWorkout,
         deleteWorkout,
-        }
+    }
 }
 
