@@ -132,14 +132,22 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
   }
 
   // Get unique values for filters
-  const categories: string[] = Array.from(new Set(exerciseDatabase.map((ex: Exercise) => ex.category)));
-  const muscleGroups: string[] = Array.from(new Set(
-    exerciseDatabase.flatMap((ex: Exercise) =>
-      Array.isArray(ex.muscleGroups)
-        ? ex.muscleGroups.map(mg => mg && mg.trim()).filter(Boolean)
-        : []
+  const categories: string[] = Array.from(
+    new Set(
+      exerciseDatabase
+        .map((ex: Exercise) => ex.category?.trim())
+        .filter((c): c is string => !!c)
     )
-  )).sort((a, b) => a.localeCompare(b));
+  ).sort((a, b) => a.localeCompare(b));
+
+  const muscleGroups: string[] = Array.from(
+    new Set(
+      exerciseDatabase.flatMap((ex: Exercise) =>
+        ex.muscleGroups?.map(mg => mg.trim()).filter(Boolean) ?? []
+      )
+    )
+  ).sort((a, b) => a.localeCompare(b));
+
   const difficulties: string[] = Array.from(new Set(exerciseDatabase.map((ex: Exercise) => ex.difficulty).filter((d): d is string => !!d)));
   const equipment: string[] = Array.from(new Set(exerciseDatabase.map((ex: Exercise) => ex.equipment).filter((e): e is string => !!e)));
 
@@ -193,7 +201,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
     }
   }
 
-  const getCategoryIcon = (category: string) => {
+  const getCategoryIcon = (category?: string) => {
     switch (category) {
       case "Strength":
         return <Target className="w-4 h-4" />
@@ -207,6 +215,7 @@ export function ExerciseLibrary({ onAddToWorkout, showAddButton = false, exercis
         return <Target className="w-4 h-4" />
     }
   }
+
 
   const clearFilters = () => {
     setSearchTerm("")
